@@ -38,7 +38,7 @@ const unsigned int HEIGHT = 900;
 #endif
 // glfw
 GLFWwindow* window = nullptr;
-char windowName[] = "3D_FluidSim";
+char windowName[] = "3D_ParticleFluidSim";
 float deltaTime = 0.0f;
 float lastTime = 0.0f;
 void toggleFullscreen(GLFWwindow* window);
