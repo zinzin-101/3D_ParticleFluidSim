@@ -15,7 +15,16 @@ void GUIHandler::update() {
 	ImGui::NewFrame();
 
 	ImGui::Begin("Test");
-	ImGui::Text("Hello, world %d", 123);
+	ImGui::Text("text test");
+	static bool toggleTestText = false;
+	if (ImGui::Button("button test")) {
+		toggleTestText = !toggleTestText;
+	}
+
+	if (toggleTestText) {
+		ImGui::Text("toggle test");
+	}
+
 	ImGui::End();
 }
 

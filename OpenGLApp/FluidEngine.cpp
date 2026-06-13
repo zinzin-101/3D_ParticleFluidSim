@@ -63,12 +63,13 @@ void FluidEngine::initGL() {
 void FluidEngine::update() {
 	gui.update();
 	simulation.update(deltaTime);
+	camera.update();
 }
 
 void FluidEngine::render() {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	simulation.render();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	simulation.render(&camera);
 	gui.render();
 }
 
@@ -83,6 +84,8 @@ void FluidEngine::init() {
 	input.init(window);
 	initGL();
 	gui.init(window);
+
+	simulation.init();
 }
 
 void FluidEngine::run() {
@@ -117,6 +120,10 @@ void FluidEngine::toggleFullScreen() {
 	}
 }
 
+void FluidEngine::setEnableCursor(bool value) {
+	glfwSetInputMode(window, GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+}
+
 InputHandler& FluidEngine::getInputHandler() {
 	return input;
 }
@@ -127,6 +134,18 @@ GUIHandler& FluidEngine::getGUIHandler() {
 
 FluidSimulation& FluidEngine::getSimulation() {
 	return simulation;
+}
+
+Camera* FluidEngine::getCamera() {
+	return &camera;
+}
+
+glm::vec2 FluidEngine::getScreenDimension() const {
+	return screenDimension;
+}
+
+float FluidEngine::getDeltaTime() const {
+	return deltaTime;
 }
 
 FluidEngine* FluidEngine::getInstance() {
@@ -161,6 +180,54 @@ void FluidEngine::processInput(GLFWwindow* window) {
 		// toggle fullscreen
 		if (input.getKeyDown(GLFW_KEY_F11)) {
 			engine->toggleFullScreen();
+		}
+
+		Camera* camera = engine->getCamera();
+		float dt = engine->getDeltaTime();
+
+		if (input.getMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
+			engine->setEnableCursor(false);
+
+			glm::vec2 mouseOffset = input.getMouseOffset();
+			camera->transform.eulerRotation.x -= mouseOffset.y * 5.0f * dt;
+			camera->transform.eulerRotation.y += mouseOffset.x * 5.0f * dt;
+			if (camera->transform.eulerRotation.x > 89.0f)
+				camera->transform.eulerRotation.x = 89.0f;
+			if (camera->transform.eulerRotation.x < -89.0f)
+				camera->transform.eulerRotation.x = -89.0f;
+		}
+		else {
+			engine->setEnableCursor(true);
+		}
+
+		float moveSpeed = 5.0f;
+		glm::vec3 movement(0.0f);
+		if (input.getKey(GLFW_KEY_W)) {
+			movement += camera->getFoward();
+		}
+		if (input.getKey(GLFW_KEY_S)) {
+			movement -= camera->getFoward();
+		}
+		if (input.getKey(GLFW_KEY_D)) {
+			movement += camera->getRight();
+		}
+		if (input.getKey(GLFW_KEY_A)) {
+			movement -= camera->getRight();
+		}
+		if (input.getKey(GLFW_KEY_E)) {
+			movement += camera->getUp();
+		}
+		if (input.getKey(GLFW_KEY_Q)) {
+			movement -= camera->getUp();
+		}
+
+		if (glm::length(movement) > 0.1f) {
+			if (input.getKey(GLFW_KEY_LEFT_SHIFT)) {
+				camera->transform.position += glm::normalize(movement) * moveSpeed * 10.0f * dt;
+			}
+			else {
+				camera->transform.position += glm::normalize(movement) * moveSpeed * dt;
+			}
 		}
 	}
 

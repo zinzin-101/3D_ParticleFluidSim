@@ -146,6 +146,7 @@
     <ClCompile Include="..\includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FluidEngine.cpp" />
+    <ClCompile Include="FluidRenderer.cpp" />
     <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GUIHandler.cpp" />
@@ -164,9 +165,11 @@
     <ClInclude Include="..\includes\imgui\imstb_textedit.h" />
     <ClInclude Include="..\includes\imgui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CameraConfig.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="FluidEngine.h" />
     <ClInclude Include="FluidEngineConfig.h" />
+    <ClInclude Include="FluidRenderer.h" />
     <ClInclude Include="FluidSimulation.h" />
     <ClInclude Include="GUIHandler.h" />
     <ClInclude Include="InputHandler.h" />
