@@ -172,6 +172,10 @@
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\SimpleShader.frag" />
+    <None Include="shaders\SimpleShader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

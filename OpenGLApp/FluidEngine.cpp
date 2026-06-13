@@ -5,8 +5,20 @@
 
 using namespace FluidEngineConfig;
 
+FluidEngine* FluidEngine::instance = nullptr;
+
 FluidEngine::FluidEngine() : window(nullptr), deltaTime(0.0f), lastTimeElapsed(0.0f), screenDimension() {
+	if (instance != nullptr) {
+		throw std::runtime_error("Trying to create a new engine instance with already existing instance");
+	}
+
+	instance = this;
 	init();
+}
+
+FluidEngine::~FluidEngine() {
+	cleanup();
+	instance = nullptr;
 }
 
 void FluidEngine::initWindow() {
@@ -21,11 +33,11 @@ void FluidEngine::initWindow() {
 
 	if (INIT_IN_FULL_SCREEN) {
 		screenDimension = glm::vec2(mode->width, mode->height);
-		window = glfwCreateWindow(screenDimension.x, screenDimension.y, WINDOW_NAME, primaryMonitor, NULL);
+		window = glfwCreateWindow((int)screenDimension.x, (int)screenDimension.y, WINDOW_NAME, primaryMonitor, NULL);
 	}
 	else {
-		window = glfwCreateWindow(screenDimension.x, screenDimension.y, WINDOW_NAME, NULL, NULL);
-		glfwSetWindowPos(window, (mode->width / 2) - (screenDimension.x / 2), (mode->height / 2) - (screenDimension.y / 2));
+		window = glfwCreateWindow((int)screenDimension.x, (int)screenDimension.y, WINDOW_NAME, NULL, NULL);
+		glfwSetWindowPos(window, (mode->width / 2) - ((int)screenDimension.x / 2), (mode->height / 2) - ((int)screenDimension.y / 2));
 	}
 
 	
@@ -115,6 +127,10 @@ GUIHandler& FluidEngine::getGUIHandler() {
 
 FluidSimulation& FluidEngine::getSimulation() {
 	return simulation;
+}
+
+FluidEngine* FluidEngine::getInstance() {
+	return instance;
 }
 
 void FluidEngine::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {

@@ -120,4 +120,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\SimpleShader.frag" />
+    <None Include="shaders\SimpleShader.vert" />
+  </ItemGroup>
 </Project>
