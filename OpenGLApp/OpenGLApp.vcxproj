@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\includes;$(ProjectDir)..\includes\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\includes;$(ProjectDir)..\includes\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -137,21 +137,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\imgui\imgui.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\includes\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="animation.fs" />
-    <None Include="animation.vs" />
-    <None Include="square.fs" />
-    <None Include="square.vs" />
-    <None Include="circle.fs" />
-    <None Include="circle.vs" />
-    <None Include="texture.fs" />
-    <None Include="texture.vs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Utils.h" />
+    <ClInclude Include="..\includes\imgui\imconfig.h" />
+    <ClInclude Include="..\includes\imgui\imgui.h" />
+    <ClInclude Include="..\includes\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="..\includes\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\includes\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\includes\imgui\imgui_internal.h" />
+    <ClInclude Include="..\includes\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\includes\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\includes\imgui\imstb_truetype.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="FluidEngine.h" />
+    <ClInclude Include="FluidEngineConfig.h" />
+    <ClInclude Include="FluidSimulation.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
