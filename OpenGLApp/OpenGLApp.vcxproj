@@ -145,8 +145,11 @@
     <ClCompile Include="..\includes\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="FluidEngine.cpp" />
     <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="GUIHandler.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
@@ -165,6 +168,8 @@
     <ClInclude Include="FluidEngine.h" />
     <ClInclude Include="FluidEngineConfig.h" />
     <ClInclude Include="FluidSimulation.h" />
+    <ClInclude Include="GUIHandler.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
