@@ -130,16 +130,16 @@ void FluidEngine::setVSyncOn(bool value) {
 	glfwSwapInterval(isVSyncOn ? 1 : 0);
 }
 
-InputHandler& FluidEngine::getInputHandler() {
-	return input;
+InputHandler* FluidEngine::getInputHandler() {
+	return &input;
 }
 
-GUIHandler& FluidEngine::getGUIHandler() {
-	return gui;
+GUIHandler* FluidEngine::getGUIHandler() {
+	return &gui;
 }
 
-FluidSimulation& FluidEngine::getSimulation() {
-	return simulation;
+FluidSimulation* FluidEngine::getSimulation() {
+	return &simulation;
 }
 
 Camera* FluidEngine::getCamera() {
@@ -171,7 +171,7 @@ void FluidEngine::mouseCallback(GLFWwindow* window, double xposIn, double yposIn
 	float ypos = static_cast<float>(yposIn);
 	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));
 	if (engine != nullptr) {
-		engine->getInputHandler().updateMousePosition(glm::vec2(xpos, ypos));
+		engine->getInputHandler()->updateMousePosition(glm::vec2(xpos, ypos));
 	}
 }
 
@@ -182,7 +182,7 @@ void FluidEngine::mouseButtonCallback(GLFWwindow* window, int button, int action
 void FluidEngine::processInput(GLFWwindow* window) {
 	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));
 	if (engine != nullptr) {
-		InputHandler& input = engine->getInputHandler();
+		InputHandler& input = *engine->getInputHandler();
 		if (input.getKeyDown(GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, true);
 		}

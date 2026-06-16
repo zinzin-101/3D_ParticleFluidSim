@@ -43,9 +43,9 @@ public:
 	void setVSyncOn(bool value);
 
 
-	InputHandler& getInputHandler();
-	GUIHandler& getGUIHandler();
-	FluidSimulation& getSimulation();
+	InputHandler* getInputHandler();
+	GUIHandler* getGUIHandler();
+	FluidSimulation* getSimulation();
 	Camera* getCamera();
 	glm::vec2 getScreenDimension() const;
 	bool getIsVSyncOn() const;

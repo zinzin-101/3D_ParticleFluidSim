@@ -54,7 +54,7 @@ void GUIHandler::update() {
 	}
 
 	glm::vec3 gravity = simulation->gravitationalForce;
-	if (ImGui::InputFloat3("gravity", &gravity[0])) {
+	if (ImGui::InputFloat3("Gravity", &gravity[0])) {
 		simulation->gravitationalForce = gravity;
 	}
 
@@ -70,7 +70,7 @@ void GUIHandler::update() {
 	ImGui::Checkbox("Reset gravity on reset", &resetGravityOnReset);
 
 	static bool pauseSimulation = false;
-	if (ImGui::Checkbox("pause", &pauseSimulation)) {
+	if (ImGui::Checkbox("Pause", &pauseSimulation)) {
 		simulation->pause = pauseSimulation;
 	}
 
