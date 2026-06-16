@@ -1,10 +1,12 @@
 #include "FluidContainer.h"
 #include "FluidSimulationConfig.h"
+#include "PlaneRendererConfig.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace FluidSimulationConfig;
+using namespace PlaneRendererConfig;
 
-FluidContainer::FluidContainer() {
+FluidContainer::FluidContainer(): planeOpacity(DEFAULT_PLANE_OPACITY) {
 	static const glm::vec3 CUBE_FACE_DIR[6] = {
 		glm::vec3(1.0f, 0.0f, 0.0f),
 		glm::vec3(-1.0f, 0.0f, 0.0f),
@@ -34,7 +36,7 @@ glm::vec3 FluidContainer::getClosestPointOnPlane(const glm::vec3& position, cons
 	return closestPoint;
 }
 
-bool FluidContainer::IsInside(const Particle& particle, float radius) {
+bool FluidContainer::isInside(const Particle& particle, float radius) {
 	for (int i = 0; i < 6; i++) {
 		float h = glm::dot(glm::vec4(particle.getPosition(), 1.0f), planes[i]);
 		if (h - radius >= 0.0f) return false;
@@ -43,7 +45,7 @@ bool FluidContainer::IsInside(const Particle& particle, float radius) {
 	return true;
 }
 
-void FluidContainer::ResolveCollision(Particle& particle, float radius) {
+void FluidContainer::resolveCollision(Particle& particle, float radius) {
 	glm::vec3 pos = particle.getPosition();
 	glm::vec3 vel = particle.getVelocity();
 
@@ -84,16 +86,16 @@ void FluidContainer::scales(glm::vec3 scaling) {
 			float moveDist = scaling.y;
 			glm::vec3 normal(planes[2 + i].x, planes[2 + i].y, planes[2 + i].z);
 			float lengthSquared = glm::dot(normal, normal);
-			planes[2 * i].w -= moveDist * lengthSquared;
+			planes[2 + i].w -= moveDist * lengthSquared;
 		}
 	}
 
 	if (std::abs(scaling.z) > 0.01f) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.z;
-			glm::vec3 normal(planes[3 + i].x, planes[3 + i].y, planes[3 + i].z);
+			glm::vec3 normal(planes[4 + i].x, planes[4 + i].y, planes[4 + i].z);
 			float lengthSquared = glm::dot(normal, normal);
-			planes[3 * i].w -= moveDist * lengthSquared;
+			planes[4 + i].w -= moveDist * lengthSquared;
 		}
 	}
 
@@ -120,5 +122,11 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 		}
 
 		planes[i] = rotatedPlane;
+	}
+}
+
+void FluidContainer::visualize(Camera* camera) {
+	for (int i = 0; i < 6; i++) {
+		planeVisualizer.draw(camera, planeOpacity, glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 0.0f))); // test
 	}
 }

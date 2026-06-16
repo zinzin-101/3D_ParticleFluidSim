@@ -15,7 +15,6 @@ vec3 diffuse = vec3(0.9);
 vec3 specular = vec3(0.6);
 
 vec3 CalcDirLight(vec3 lightDir, vec3 normal, vec3 viewDir);
-float LinearizeDepth(float depth);
 
 void main() {
     vec3 viewDir = normalize(camPos - FragPos);

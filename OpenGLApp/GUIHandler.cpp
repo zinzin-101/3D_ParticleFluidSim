@@ -74,6 +74,11 @@ void GUIHandler::update() {
 		simulation->pause = pauseSimulation;
 	}
 
+	static bool showContainer = simulation->showContainer;
+	if (ImGui::Checkbox("Show container", &showContainer)) {
+		simulation->showContainer = showContainer;
+	}
+
 	ImGui::End();
 }
 

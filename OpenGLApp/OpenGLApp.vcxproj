@@ -154,6 +154,7 @@
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="PlaneRenderer.cpp" />
     <ClCompile Include="SphereRenderer.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
@@ -179,11 +180,15 @@
     <ClInclude Include="GUIHandler.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="PlaneRenderer.h" />
+    <ClInclude Include="PlaneRendererConfig.h" />
     <ClInclude Include="SphereRenderer.h" />
     <ClInclude Include="SphereRendererConfig.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\PlaneShader.frag" />
+    <None Include="shaders\PlaneShader.vert" />
     <None Include="shaders\SimpleInstancingShader.frag" />
     <None Include="shaders\SimpleInstancingShader.vert" />
     <None Include="shaders\SimpleShader.frag" />

@@ -78,6 +78,9 @@
     <ClCompile Include="FluidContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PlaneRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -152,11 +155,19 @@
     <ClInclude Include="FluidContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PlaneRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlaneRendererConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\SimpleShader.frag" />
     <None Include="shaders\SimpleShader.vert" />
     <None Include="shaders\SimpleInstancingShader.frag" />
     <None Include="shaders\SimpleInstancingShader.vert" />
+    <None Include="shaders\PlaneShader.frag" />
+    <None Include="shaders\PlaneShader.vert" />
   </ItemGroup>
 </Project>

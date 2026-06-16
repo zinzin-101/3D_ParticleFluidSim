@@ -4,7 +4,7 @@
 
 using namespace FluidSimulationConfig;
 
-FluidSimulation::FluidSimulation(): gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), particleRadius(DEFAULT_PARTICLE_RADIUS), pause(false) {}
+FluidSimulation::FluidSimulation(): gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), particleRadius(DEFAULT_PARTICLE_RADIUS), pause(false), showContainer(false) {}
 
 void FluidSimulation::initSimulation() {
 	for (int x = -1; x <= 1; x++) {
@@ -31,7 +31,7 @@ void FluidSimulation::handleBoundaries() {
 			container.ResolveCollision(particle, particleRadius);
 		}*/
 
-		container.ResolveCollision(particle, particleRadius);
+		container.resolveCollision(particle, particleRadius);
 	}
 }
 
@@ -53,6 +53,10 @@ void FluidSimulation::update(float dt) {
 }
 
 void FluidSimulation::render(Camera* camera) {
+	if (showContainer) {
+		container.visualize(camera);
+	}
+
 	renderer.render(particles, particleRadius, camera);
 }
 

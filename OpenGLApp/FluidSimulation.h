@@ -20,6 +20,7 @@ public:
 	glm::vec3 gravitationalForce;
 	float particleRadius;
 	bool pause;
+	bool showContainer;
 
 	FluidSimulation();
 	void init();
