@@ -26,9 +26,13 @@ void FluidSimulation::applyGravity(float dt) {
 }
 
 void FluidSimulation::handleBoundaries() {
-	// simple cube/cuboid
+	for (Particle& particle : particles) {
+		/*if (!container.IsInside(particle, particleRadius)) {
+			container.ResolveCollision(particle, particleRadius);
+		}*/
 
-
+		container.ResolveCollision(particle, particleRadius);
+	}
 }
 
 void FluidSimulation::init() {
@@ -40,6 +44,7 @@ void FluidSimulation::update(float dt) {
 	if (pause) return;
 
 	applyGravity(dt);
+	handleBoundaries();
 
 	//glm::vec3 pos = particles.at(0).position;
 	//glm::vec3 vel = particles.at(0).velocity;

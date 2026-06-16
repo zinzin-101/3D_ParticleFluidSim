@@ -1,5 +1,6 @@
 #pragma once
 #include "FluidRenderer.h"
+#include "FluidContainer.h"
 #include "Particle.h"
 #include "Camera.h"
 #include <vector>
@@ -7,6 +8,7 @@
 class FluidSimulation {
 private:
 	FluidRenderer renderer;
+	FluidContainer container;
 	std::vector<Particle> particles;
 
 	void initSimulation();
