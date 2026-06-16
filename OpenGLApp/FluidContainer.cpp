@@ -126,7 +126,10 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 
 		float length = glm::length(newNormal);
 		if (length > 0.0f) {
-			rotatedPlane = glm::normalize(rotatedPlane);
+			rotatedPlane.x /= length;
+			rotatedPlane.y /= length;
+			rotatedPlane.z /= length;
+			rotatedPlane.w /= length;
 		}
 
 		planes[i] = rotatedPlane;
