@@ -30,4 +30,5 @@ public:
 	void reset();
 
 	FluidRenderer* getRenderer();
+	FluidContainer* getContainer();
 };

@@ -125,8 +125,54 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 	}
 }
 
-void FluidContainer::visualize(Camera* camera) {
+void FluidContainer::visualize(Camera* camera, float renderScale) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
+
 	for (int i = 0; i < 6; i++) {
-		planeVisualizer.draw(camera, planeOpacity, glm::scale(glm::mat4(1.0f), glm::vec3(50.0f, 50.0f, 0.0f))); // test
+		glm::vec3 normal(planes[i].x, planes[i].y, planes[i].z);
+
+		float signedDist = glm::dot(normal, currentPosition) + planes[i].w;
+		glm::vec3 faceCenter = currentPosition - signedDist * normal;
+
+		glm::vec3 from(0.0f, 0.0f, 1.0f);
+		glm::vec3 to = normal;
+
+		glm::mat4 rotMat(1.0f);
+		float cosA = glm::dot(from, to);
+		if (cosA < -0.99f) {
+			glm::vec3 perp = (std::abs(from.x) < 0.9f)
+				? glm::normalize(glm::cross(from, glm::vec3(1.0f, 0.0f, 0.0f)))
+				: glm::normalize(glm::cross(from, glm::vec3(0.0f, 1.0f, 0.0f)));
+			rotMat = glm::mat4(glm::mat3(glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), perp)));
+		}
+		else if (cosA < 0.99f) {
+			glm::vec3 rotAxis = glm::normalize(glm::cross(from, to));
+			float angle = std::acos(cosA);
+			rotMat = glm::mat4(glm::mat3(glm::rotate(glm::mat4(1.0f), angle, rotAxis)));
+		}
+
+		glm::vec3 faceScale(1.0f);
+		if (i <= 1) {
+			faceScale = glm::vec3(currentScale.z * 2.0f, currentScale.y * 2.0f, 1.0f);
+		}
+		else if (i <= 3) {
+			faceScale = glm::vec3(currentScale.x * 2.0f, currentScale.z * 2.0f, 1.0f);
+		}
+		else {
+			faceScale = glm::vec3(currentScale.x * 2.0f, currentScale.y * 2.0f, 1.0f);
+		}
+
+		glm::mat4 model(1.0f);
+		model = glm::scale(model, glm::vec3(renderScale));
+		model = glm::translate(model, faceCenter) * rotMat;
+		model = glm::scale(model, faceScale);
+
+		planeVisualizer.draw(camera, planeOpacity, model);
 	}
+
+	//glDisable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_TRUE);
 }

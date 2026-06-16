@@ -23,5 +23,5 @@ public:
 	void scales(glm::vec3 scaling);
 	void rotates(float degrees, glm::vec3 axis);
 
-	void visualize(Camera* camera);
+	void visualize(Camera* camera, float renderScale);
 };

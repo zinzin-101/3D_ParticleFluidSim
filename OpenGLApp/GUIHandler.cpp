@@ -1,7 +1,6 @@
 #include "GUIHandler.h"
 #include "FluidEngine.h"
 #include "FluidSimulation.h"
-#include "FluidRenderer.h"
 #include "FluidSimulationConfig.h"
 
 using namespace FluidSimulationConfig;
@@ -77,6 +76,15 @@ void GUIHandler::update() {
 	static bool showContainer = simulation->showContainer;
 	if (ImGui::Checkbox("Show container", &showContainer)) {
 		simulation->showContainer = showContainer;
+	}
+
+	if (showContainer) {
+		FluidContainer* container = simulation->getContainer();
+		static float containerOpacity = container->planeOpacity;
+		if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
+			container->planeOpacity = containerOpacity;
+			container->planeOpacity = containerOpacity;
+		}
 	}
 
 	ImGui::End();

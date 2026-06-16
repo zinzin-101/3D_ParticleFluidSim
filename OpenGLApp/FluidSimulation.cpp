@@ -54,7 +54,7 @@ void FluidSimulation::update(float dt) {
 
 void FluidSimulation::render(Camera* camera) {
 	if (showContainer) {
-		container.visualize(camera);
+		container.visualize(camera, renderer.renderScale);
 	}
 
 	renderer.render(particles, particleRadius, camera);
@@ -67,4 +67,8 @@ void FluidSimulation::reset() {
 
 FluidRenderer* FluidSimulation::getRenderer() {
 	return &renderer;
+}
+
+FluidContainer* FluidSimulation::getContainer() {
+	return &container;
 }
