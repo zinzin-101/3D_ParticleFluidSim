@@ -1,20 +1,16 @@
 #pragma once
-#include <glad/glad.h>
-#include <shader.h>
-#include "Camera.h"
+#include "SphereRenderer.h"
+#include "Particle.h"
+#include <vector>
 
 class FluidRenderer {
 private:
-	GLuint sphereVAO;
-	GLuint sphereVBO;
-	GLuint sphereEBO;
-
-	Shader simpleShader;
-	Camera camera;
+	SphereRenderer sphereRenderer;
 
 public:
+	float renderScale;
+
 	FluidRenderer();
-	~FluidRenderer();
 	void init();
-	void render(Camera* camera);
+	void render(const std::vector<Particle>& particles, float radius, Camera* camera);
 };

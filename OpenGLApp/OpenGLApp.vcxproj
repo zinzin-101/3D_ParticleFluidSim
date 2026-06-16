@@ -152,6 +152,8 @@
     <ClCompile Include="GUIHandler.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="SphereRenderer.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,8 +173,12 @@
     <ClInclude Include="FluidEngineConfig.h" />
     <ClInclude Include="FluidRenderer.h" />
     <ClInclude Include="FluidSimulation.h" />
+    <ClInclude Include="FluidSimulationConfig.h" />
     <ClInclude Include="GUIHandler.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="SphereRenderer.h" />
+    <ClInclude Include="SphereRendererConfig.h" />
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>

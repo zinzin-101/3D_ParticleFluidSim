@@ -83,7 +83,7 @@ void FluidEngine::init() {
 	initWindow();
 	input.init(window);
 	initGL();
-	gui.init(window);
+	gui.init(window, &simulation);
 
 	simulation.init();
 }
