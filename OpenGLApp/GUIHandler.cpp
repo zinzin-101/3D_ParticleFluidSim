@@ -23,6 +23,8 @@ void GUIHandler::update() {
 	ImGui::NewFrame();
 
 	FluidEngine* engine = FluidEngine::getInstance();
+	FluidContainer* container = simulation->getContainer();
+
 
 	ImGui::Begin("Simulation");
 	static int fpsIterationCount = 0;
@@ -58,6 +60,7 @@ void GUIHandler::update() {
 	}
 
 	static bool resetGravityOnReset = false;
+	static bool resetContainerOnReset = false;
 	if (ImGui::Button("Reset Simulation")) {
 		simulation->reset();
 
@@ -65,12 +68,44 @@ void GUIHandler::update() {
 			simulation->gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
 			gravity = simulation->gravitationalForce;
 		}
+
+		if (resetContainerOnReset) {
+			container->reset();
+		}
 	}
 	ImGui::Checkbox("Reset gravity on reset", &resetGravityOnReset);
+	ImGui::Checkbox("Reset container on reset", &resetContainerOnReset);
 
 	static bool pauseSimulation = false;
 	if (ImGui::Checkbox("Pause", &pauseSimulation)) {
 		simulation->pause = pauseSimulation;
+	}
+
+	ImGui::Text("Container Transform:");
+	static float containerTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	if (ImGui::DragFloat3("Translate", containerTranslation, 1.0f, 0.0f, 0.0f)) {
+		container->translates(glm::vec3(containerTranslation[0], containerTranslation[1], containerTranslation[2]));
+		containerTranslation[0] = containerTranslation[1] = containerTranslation[2] = 0.0f;
+	}
+
+	static float containerScale[3] = { 0.0f, 0.0f, 0.0f };
+	if (ImGui::DragFloat3("Scale", containerScale, 1.0f, 0.0f, 0.0f)) {
+		container->scales(glm::vec3(containerScale[0], containerScale[1], containerScale[2]));
+		containerScale[0] = containerScale[1] = containerScale[2] = 0.0f;
+	}
+		
+	static float containerRotation[3] = { 0.0f, 0.0f, 0.0f };
+	if (ImGui::DragFloat3("Rotate", containerRotation, 1.0f, 0.0f, 0.0f)) {
+		if (std::abs(containerRotation[0]) > 0.01f) {
+			container->rotates(containerRotation[0], glm::vec3(1.0f, 0.0f, 0.0f));
+		}
+		if (std::abs(containerRotation[1]) > 0.01f) {
+			container->rotates(containerRotation[1], glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		if (std::abs(containerRotation[2]) > 0.01f) {
+			container->rotates(containerRotation[2], glm::vec3(0.0f, 0.0f, 1.0f));
+		}
+		containerRotation[0] = containerRotation[1] = containerRotation[2] = 0.0f;
 	}
 
 	static bool showContainer = simulation->showContainer;
@@ -79,7 +114,6 @@ void GUIHandler::update() {
 	}
 
 	if (showContainer) {
-		FluidContainer* container = simulation->getContainer();
 		static float containerOpacity = container->planeOpacity;
 		if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
 			container->planeOpacity = containerOpacity;

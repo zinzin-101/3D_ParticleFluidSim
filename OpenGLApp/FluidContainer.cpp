@@ -7,13 +7,25 @@ using namespace FluidSimulationConfig;
 using namespace PlaneRendererConfig;
 
 FluidContainer::FluidContainer(): planeOpacity(DEFAULT_PLANE_OPACITY) {
+	reset();
+}
+
+glm::vec3 FluidContainer::getClosestPointOnPlane(const glm::vec3& position, const glm::vec4& plane) {
+	glm::vec3 normal(plane.x, plane.y, plane.z);
+	float h = glm::dot(glm::vec4(position, 1.0f), plane);
+	glm::vec3 closestPoint = position - h * normal;
+
+	return closestPoint;
+}
+
+void FluidContainer::reset() {
 	static const glm::vec3 CUBE_FACE_DIR[6] = {
-		glm::vec3(1.0f, 0.0f, 0.0f),
-		glm::vec3(-1.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, -1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f)
+	glm::vec3(1.0f, 0.0f, 0.0f),
+	glm::vec3(-1.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, -1.0f, 0.0f),
+	glm::vec3(0.0f, 0.0f, 1.0f),
+	glm::vec3(0.0f, 0.0f, -1.0f)
 	};
 
 	float halfDefaultContainerLength = DEFAULT_CUBE_CONTAINER_SIDE_LENGTH / 2.0f;
@@ -26,14 +38,6 @@ FluidContainer::FluidContainer(): planeOpacity(DEFAULT_PLANE_OPACITY) {
 
 	currentScale = glm::vec3(halfDefaultContainerLength);
 	currentPosition = DEFAULT_CUBE_CONTAINER_ORIGIN;
-}
-
-glm::vec3 FluidContainer::getClosestPointOnPlane(const glm::vec3& position, const glm::vec4& plane) {
-	glm::vec3 normal(plane.x, plane.y, plane.z);
-	float h = glm::dot(glm::vec4(position, 1.0f), plane);
-	glm::vec3 closestPoint = position - h * normal;
-
-	return closestPoint;
 }
 
 bool FluidContainer::isInside(const Particle& particle, float radius) {
@@ -72,34 +76,38 @@ void FluidContainer::translates(glm::vec3 translation) {
 }
 
 void FluidContainer::scales(glm::vec3 scaling) {
-	if (std::abs(scaling.x) > 0.01f) {
+	if (std::abs(scaling.x) > 0.01f && scaling.x + currentScale.x > 0.1f) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.x;
 			glm::vec3 normal(planes[i].x, planes[i].y, planes[i].z);
 			float lengthSquared = glm::dot(normal, normal);
 			planes[i].w -= moveDist * lengthSquared;
 		}
+
+		currentScale.x += scaling.x;
 	}
 
-	if (std::abs(scaling.y) > 0.01f) {
+	if (std::abs(scaling.y) > 0.01f && scaling.y + currentScale.y > 0.1f) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.y;
 			glm::vec3 normal(planes[2 + i].x, planes[2 + i].y, planes[2 + i].z);
 			float lengthSquared = glm::dot(normal, normal);
 			planes[2 + i].w -= moveDist * lengthSquared;
 		}
+
+		currentScale.y += scaling.y;
 	}
 
-	if (std::abs(scaling.z) > 0.01f) {
+	if (std::abs(scaling.z) > 0.01f && scaling.z + currentScale.z > 0.1f) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.z;
 			glm::vec3 normal(planes[4 + i].x, planes[4 + i].y, planes[4 + i].z);
 			float lengthSquared = glm::dot(normal, normal);
 			planes[4 + i].w -= moveDist * lengthSquared;
 		}
-	}
 
-	currentScale += scaling;
+		currentScale.z += scaling.z;
+	}
 }
 
 void FluidContainer::rotates(float degrees, glm::vec3 axis) {
@@ -175,4 +183,12 @@ void FluidContainer::visualize(Camera* camera, float renderScale) {
 	//glDisable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_TRUE);
+}
+
+glm::vec3 FluidContainer::getCurrentPosition() const {
+	return currentPosition;
+}
+
+glm::vec3 FluidContainer::getCurrentScale() const {
+	return currentScale;
 }

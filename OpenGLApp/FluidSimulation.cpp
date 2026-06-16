@@ -11,7 +11,7 @@ void FluidSimulation::initSimulation() {
 		for (int y = 5; y <= 7; y++) {
 			for (int z = -1; z <= 1; z++) {
 				Particle particle;
-				particle.position = glm::vec3(x, y, z);
+				particle.position = glm::vec3(x, y, z) + container.getCurrentPosition();
 				particles.emplace_back(particle);
 			}
 		}
