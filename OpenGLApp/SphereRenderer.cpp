@@ -4,7 +4,7 @@
 
 using namespace SphereRendererConfig;
 
-SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0) {}
+SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), instanceVBO(0) {}
 
 SphereRenderer::~SphereRenderer() {
     if (sphereVAO != 0) {
@@ -21,11 +21,15 @@ SphereRenderer::~SphereRenderer() {
 }
 
 void SphereRenderer::init() {
-    simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
+    simpleShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
 
     sphereVAO = 0;
     sphereVBO = 0;
     sphereEBO = 0;
+
+    instanceVBO = 0;
+    
+    instanceData.resize(MAX_INSTANCES);
 
     const float PI = (float)std::numbers::pi;
 
@@ -79,15 +83,30 @@ void SphereRenderer::init() {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // normal
     glEnableVertexAttribArray(1);
 
+    // instance VBO
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * sizeof(glm::vec3), &instanceData[0], GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    // Crucial for instancing: updates once per instance, not per vertex
+    glVertexAttribDivisor(2, 1);
+
     // generate EBO
     glGenBuffers(1, &sphereEBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphereEBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        SPHERE_INDICES_COUNT * sizeof(unsigned int) * 6,
+        tempIndices.size() * sizeof(unsigned int),
         tempIndices.data(),
         GL_STATIC_DRAW
     );
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void SphereRenderer::draw(Camera* camera, glm::mat4 model) {
@@ -97,7 +116,7 @@ void SphereRenderer::draw(Camera* camera, glm::mat4 model) {
     simpleShader.setMat3("normalMatrix", normalMatrix);
     simpleShader.setMat4("view", camera->getViewMatrix());
     simpleShader.setMat4("projection", camera->getProjectionMatrix());
-    simpleShader.setVec3("color", glm::vec3(1.0f));
+    simpleShader.setVec3("color", DEFAULT_SPHERE_COLOR);
     simpleShader.setVec3("camPos", camera->transform.position);
 
     glEnable(GL_DEPTH_TEST);
@@ -106,4 +125,38 @@ void SphereRenderer::draw(Camera* camera, glm::mat4 model) {
 
     glBindVertexArray(sphereVAO);
     glDrawElements(GL_TRIANGLES, SPHERE_INDICES_COUNT * 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount) {
+    if (instanceCount > MAX_INSTANCES) {
+        instanceCount = MAX_INSTANCES;
+    }
+
+    if (instanceCount == 0) return;
+
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, instanceCount * sizeof(glm::vec3), instanceData.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    simpleShader.use();
+    //glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+    glm::mat3 normalMatrix = glm::mat3(1.0f);
+    simpleShader.setMat3("normalMatrix", normalMatrix);
+    simpleShader.setMat4("view", camera->getViewMatrix());
+    simpleShader.setMat4("projection", camera->getProjectionMatrix());
+    simpleShader.setVec3("color", DEFAULT_SPHERE_COLOR);
+    simpleShader.setVec3("camPos", camera->transform.position);
+    simpleShader.setFloat("radius", radius);
+    simpleShader.setFloat("renderScale", renderScale);
+
+    std::cout << radius << std::endl;
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glBindVertexArray(sphereVAO);
+    glDrawElementsInstanced(GL_TRIANGLES, SPHERE_INDICES_COUNT * 6, GL_UNSIGNED_INT, 0, instanceCount);
+    glBindVertexArray(0);
 }

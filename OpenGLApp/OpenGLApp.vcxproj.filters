@@ -156,5 +156,7 @@
   <ItemGroup>
     <None Include="shaders\SimpleShader.frag" />
     <None Include="shaders\SimpleShader.vert" />
+    <None Include="shaders\SimpleInstancingShader.frag" />
+    <None Include="shaders\SimpleInstancingShader.vert" />
   </ItemGroup>
 </Project>

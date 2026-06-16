@@ -47,7 +47,7 @@ void GUIHandler::update() {
 			gravity = simulation->gravitationalForce;
 		}
 	}
-	ImGui::Checkbox("Reset gravity", &resetGravityOnReset);
+	ImGui::Checkbox("Reset gravity on reset", &resetGravityOnReset);
 
 	static bool pauseSimulation = false;
 	if (ImGui::Checkbox("pause", &pauseSimulation)) {

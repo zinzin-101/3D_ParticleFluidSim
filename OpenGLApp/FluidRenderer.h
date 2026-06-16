@@ -12,5 +12,5 @@ public:
 
 	FluidRenderer();
 	void init();
-	void render(const std::vector<Particle>& particles, float radius, Camera* camera);
+	void render(const std::vector<Particle>& particles, float radius, Camera* camera, bool useInstancing = true);
 };

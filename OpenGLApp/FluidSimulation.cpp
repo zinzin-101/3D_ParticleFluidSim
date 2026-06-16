@@ -41,10 +41,10 @@ void FluidSimulation::update(float dt) {
 
 	applyGravity(dt);
 
-	glm::vec3 pos = particles.at(0).position;
-	glm::vec3 vel = particles.at(0).velocity;
-	std::cout << "pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
-	std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
+	//glm::vec3 pos = particles.at(0).position;
+	//glm::vec3 vel = particles.at(0).velocity;
+	//std::cout << "pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
+	//std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
 }
 
 void FluidSimulation::render(Camera* camera) {

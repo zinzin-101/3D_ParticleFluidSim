@@ -184,6 +184,8 @@
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\SimpleInstancingShader.frag" />
+    <None Include="shaders\SimpleInstancingShader.vert" />
     <None Include="shaders\SimpleShader.frag" />
     <None Include="shaders\SimpleShader.vert" />
   </ItemGroup>
