@@ -31,6 +31,10 @@ void GUIHandler::update() {
 	}
 
 
+	if (ImGui::Button("Reset Simulation")) {
+		simulation->reset();
+	}
+
 	ImGui::End();
 }
 

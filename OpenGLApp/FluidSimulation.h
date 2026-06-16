@@ -12,6 +12,9 @@ private:
 
 	void initSimulation();
 
+	void applyGravity(float dt);
+	void handleBoundaries();
+
 public:
 	float particleRadius;
 
@@ -19,6 +22,8 @@ public:
 	void init();
 	void update(float dt);
 	void render(Camera* camera);
+
+	void reset();
 
 	FluidRenderer* getRenderer();
 };
