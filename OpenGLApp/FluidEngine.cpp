@@ -7,7 +7,7 @@ using namespace FluidEngineConfig;
 
 FluidEngine* FluidEngine::instance = nullptr;
 
-FluidEngine::FluidEngine() : window(nullptr), deltaTime(0.0f), lastTimeElapsed(0.0f), screenDimension() {
+FluidEngine::FluidEngine() : window(nullptr), deltaTime(0.0f), lastTimeElapsed(0.0f), screenDimension(), isVSyncOn(false) {
 	if (instance != nullptr) {
 		throw std::runtime_error("Trying to create a new engine instance with already existing instance");
 	}
@@ -52,7 +52,8 @@ void FluidEngine::initWindow() {
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	glfwMakeContextCurrent(window);
-	glfwSwapInterval(DEFAULT_ENABLE_VSYNC ? 1 : 0);
+	isVSyncOn = DEFAULT_ENABLE_VSYNC;
+	glfwSwapInterval(isVSyncOn ? 1 : 0);
 }
 void FluidEngine::initGL() {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -124,6 +125,11 @@ void FluidEngine::setEnableCursor(bool value) {
 	glfwSetInputMode(window, GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
+void FluidEngine::setVSyncOn(bool value) {
+	isVSyncOn = value;
+	glfwSwapInterval(isVSyncOn ? 1 : 0);
+}
+
 InputHandler& FluidEngine::getInputHandler() {
 	return input;
 }
@@ -142,6 +148,10 @@ Camera* FluidEngine::getCamera() {
 
 glm::vec2 FluidEngine::getScreenDimension() const {
 	return screenDimension;
+}
+
+bool FluidEngine::getIsVSyncOn() const {
+	return isVSyncOn;
 }
 
 float FluidEngine::getDeltaTime() const {

@@ -1,4 +1,5 @@
 #include "GUIHandler.h"
+#include "FluidEngine.h"
 #include "FluidSimulation.h"
 #include "FluidRenderer.h"
 #include "FluidSimulationConfig.h"
@@ -22,7 +23,26 @@ void GUIHandler::update() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+	FluidEngine* engine = FluidEngine::getInstance();
+
 	ImGui::Begin("Simulation");
+	static int fpsIterationCount = 0;
+	static float deltaTime = 0.0f;
+	static float currentAvgFPS = 0.0f;
+	if (fpsIterationCount > 10) {
+		currentAvgFPS = 1.0f / (deltaTime / (float)fpsIterationCount);
+		fpsIterationCount = 0;
+		deltaTime = 0.0f;
+	}
+	deltaTime += engine->getDeltaTime();
+	fpsIterationCount++;
+	ImGui::Text("FPS: %.2f", currentAvgFPS);
+
+	static bool isVsyncOn = engine->getIsVSyncOn();
+	if (ImGui::Checkbox("VSync", &isVsyncOn)) {
+		engine->setVSyncOn(isVsyncOn);
+	}
+
 	static float particleRadius = simulation->particleRadius;
 	if (ImGui::SliderFloat("Particle radius", &particleRadius, 0.01f, 1.0f, "%.2f")) {
 		simulation->particleRadius = particleRadius;

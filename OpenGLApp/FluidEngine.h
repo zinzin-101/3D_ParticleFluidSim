@@ -21,6 +21,7 @@ private:
 	float lastTimeElapsed;
 
 	glm::vec2 screenDimension;
+	bool isVSyncOn;
 
 	static FluidEngine* instance;
 	
@@ -39,12 +40,15 @@ public:
 
 	void toggleFullScreen();
 	void setEnableCursor(bool value);
+	void setVSyncOn(bool value);
+
 
 	InputHandler& getInputHandler();
 	GUIHandler& getGUIHandler();
 	FluidSimulation& getSimulation();
 	Camera* getCamera();
 	glm::vec2 getScreenDimension() const;
+	bool getIsVSyncOn() const;
 	float getDeltaTime() const;
 
 	static FluidEngine* getInstance();
