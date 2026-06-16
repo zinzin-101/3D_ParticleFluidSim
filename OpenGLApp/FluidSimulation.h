@@ -7,7 +7,6 @@
 class FluidSimulation {
 private:
 	FluidRenderer renderer;
-	glm::vec3 gravitationalForce;
 	std::vector<Particle> particles;
 
 	void initSimulation();
@@ -16,7 +15,9 @@ private:
 	void handleBoundaries();
 
 public:
+	glm::vec3 gravitationalForce;
 	float particleRadius;
+	bool pause;
 
 	FluidSimulation();
 	void init();

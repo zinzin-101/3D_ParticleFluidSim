@@ -1,6 +1,9 @@
 #include "GUIHandler.h"
 #include "FluidSimulation.h"
 #include "FluidRenderer.h"
+#include "FluidSimulationConfig.h"
+
+using namespace FluidSimulationConfig;
 
 void GUIHandler::init(GLFWwindow* window, FluidSimulation* simulation) {
 	IMGUI_CHECKVERSION();
@@ -30,9 +33,25 @@ void GUIHandler::update() {
 		renderer->renderScale = renderScale;
 	}
 
+	glm::vec3 gravity = simulation->gravitationalForce;
+	if (ImGui::InputFloat3("gravity", &gravity[0])) {
+		simulation->gravitationalForce = gravity;
+	}
 
+	static bool resetGravityOnReset = false;
 	if (ImGui::Button("Reset Simulation")) {
 		simulation->reset();
+
+		if (resetGravityOnReset) {
+			simulation->gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
+			gravity = simulation->gravitationalForce;
+		}
+	}
+	ImGui::Checkbox("Reset gravity", &resetGravityOnReset);
+
+	static bool pauseSimulation = false;
+	if (ImGui::Checkbox("pause", &pauseSimulation)) {
+		simulation->pause = pauseSimulation;
 	}
 
 	ImGui::End();

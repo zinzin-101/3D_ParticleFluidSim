@@ -1,9 +1,10 @@
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
+#include <iostream>
 
 using namespace FluidSimulationConfig;
 
-FluidSimulation::FluidSimulation(): gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), particleRadius(DEFAULT_PARTICLE_RADIUS) {}
+FluidSimulation::FluidSimulation(): gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), particleRadius(DEFAULT_PARTICLE_RADIUS), pause(false) {}
 
 void FluidSimulation::initSimulation() {
 	for (int x = -1; x <= 1; x++) {
@@ -15,8 +16,6 @@ void FluidSimulation::initSimulation() {
 			}
 		}
 	}
-
-	gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
 }
 
 void FluidSimulation::applyGravity(float dt) {
@@ -38,7 +37,14 @@ void FluidSimulation::init() {
 }
 
 void FluidSimulation::update(float dt) {
+	if (pause) return;
+
 	applyGravity(dt);
+
+	glm::vec3 pos = particles.at(0).position;
+	glm::vec3 vel = particles.at(0).velocity;
+	std::cout << "pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
+	std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
 }
 
 void FluidSimulation::render(Camera* camera) {
