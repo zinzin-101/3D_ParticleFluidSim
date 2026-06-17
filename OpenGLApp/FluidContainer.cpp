@@ -61,10 +61,15 @@ void FluidContainer::resolveCollision(Particle& particle, float radius) {
 			glm::vec3 closestPoint = getClosestPointOnPlane(pos, planes[i]);
 			pos = closestPoint - normal * radius;
 
-			particle.position = pos;
-			particle.velocity = glm::vec3(0.0f);
+			float normalSpeed = glm::dot(normal, vel);
+			if (normalSpeed > 0.0f) {
+				vel -= 1.5f * normal * normalSpeed;
+			}
 		}
 	}
+
+	particle.position = pos;
+	particle.velocity = vel;
 }
 
 void FluidContainer::translates(glm::vec3 translation) {

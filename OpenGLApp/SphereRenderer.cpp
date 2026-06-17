@@ -21,7 +21,8 @@ SphereRenderer::~SphereRenderer() {
 }
 
 void SphereRenderer::init() {
-    simpleShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
+    instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
+    simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
 
     sphereVAO = 0;
     sphereVBO = 0;
@@ -139,16 +140,16 @@ void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScal
     glBufferSubData(GL_ARRAY_BUFFER, 0, instanceCount * sizeof(glm::vec3), instanceData.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    simpleShader.use();
+    instancingShader.use();
     //glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
     glm::mat3 normalMatrix = glm::mat3(1.0f);
-    simpleShader.setMat3("normalMatrix", normalMatrix);
-    simpleShader.setMat4("view", camera->getViewMatrix());
-    simpleShader.setMat4("projection", camera->getProjectionMatrix());
-    simpleShader.setVec3("color", DEFAULT_SPHERE_COLOR);
-    simpleShader.setVec3("camPos", camera->transform.position);
-    simpleShader.setFloat("radius", radius);
-    simpleShader.setFloat("renderScale", renderScale);
+    instancingShader.setMat3("normalMatrix", normalMatrix);
+    instancingShader.setMat4("view", camera->getViewMatrix());
+    instancingShader.setMat4("projection", camera->getProjectionMatrix());
+    instancingShader.setVec3("color", DEFAULT_SPHERE_COLOR);
+    instancingShader.setVec3("camPos", camera->transform.position);
+    instancingShader.setFloat("radius", radius);
+    instancingShader.setFloat("renderScale", renderScale);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

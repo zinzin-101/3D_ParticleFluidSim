@@ -13,6 +13,7 @@ private:
 
 	GLuint instanceVBO;
 
+	Shader instancingShader;
 	Shader simpleShader;
 
 public:

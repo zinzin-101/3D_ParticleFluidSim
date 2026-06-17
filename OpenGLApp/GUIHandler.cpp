@@ -77,6 +77,7 @@ void GUIHandler::update() {
 	ImGui::Checkbox("Reset container on reset", &resetContainerOnReset);
 
 	static bool pauseSimulation = false;
+	pauseSimulation = simulation->pause;
 	if (ImGui::Checkbox("Pause", &pauseSimulation)) {
 		simulation->pause = pauseSimulation;
 	}
@@ -119,6 +120,17 @@ void GUIHandler::update() {
 			container->planeOpacity = containerOpacity;
 			container->planeOpacity = containerOpacity;
 		}
+	}
+
+	ImGui::Text("Initial parameters");
+	static int numOfParticles = (int)simulation->numOfParticles;
+	ImGui::SliderInt("Number of particles", &numOfParticles, 0, 1000000);
+	static float spacing = simulation->particleSpacing;
+	ImGui::SliderFloat("Particle spacing", &spacing, 0.001f, 1.0f);
+	if (ImGui::Button("Apply initial parameters")) {
+		simulation->numOfParticles = numOfParticles;
+		simulation->particleSpacing = spacing;
+		simulation->reset();
 	}
 
 	ImGui::End();

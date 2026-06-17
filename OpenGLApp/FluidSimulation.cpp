@@ -4,18 +4,91 @@
 
 using namespace FluidSimulationConfig;
 
-FluidSimulation::FluidSimulation(): gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), particleRadius(DEFAULT_PARTICLE_RADIUS), pause(false), showContainer(false) {}
+FluidSimulation::FluidSimulation(): 
+	numOfParticles(DEFAULT_NUMBER_OF_PARTICLES),
+	particleSpacing(DEFAULT_PARTICLE_SPACING),
+	gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), 
+	particleRadius(DEFAULT_PARTICLE_RADIUS), 
+	pause(true), 
+	showContainer(false) { }
 
 void FluidSimulation::initSimulation() {
-	for (int x = -1; x <= 1; x++) {
-		for (int y = 5; y <= 7; y++) {
-			for (int z = -1; z <= 1; z++) {
-				Particle particle;
-				particle.position = glm::vec3(x, y, z) + container.getCurrentPosition();
-				particles.emplace_back(particle);
-			}
-		}
-	}
+
+    glm::vec3 origin = container.getCurrentPosition();
+    unsigned int currentNumOfParticles = 0;
+    float increment = particleSpacing;
+
+    float currentX = 0.0f;
+    float currentY = 0.0f;
+    float currentZ = 0.0f;
+
+    if (currentNumOfParticles < numOfParticles) {
+        Particle particle;
+        particle.position = origin;
+        particles.emplace_back(particle);
+        currentNumOfParticles++;
+    }
+
+    while (currentNumOfParticles < numOfParticles) {
+
+        currentX += increment;
+        currentY += increment;
+        currentZ += increment;
+
+        for (float yi = -currentY; yi <= currentY; yi += increment) {
+            for (float zi = -currentZ; zi <= currentZ; zi += increment) {
+                if (currentNumOfParticles >= numOfParticles) break;
+
+                Particle p1;
+                p1.position = glm::vec3(currentX, yi, zi) + origin;
+                particles.emplace_back(p1);
+                currentNumOfParticles++;
+
+                if (currentNumOfParticles < numOfParticles && currentX > 0) {
+                    Particle p2;
+                    p2.position = glm::vec3(-currentX, yi, zi) + origin;
+                    particles.emplace_back(p2);
+                    currentNumOfParticles++;
+                }
+            }
+        }
+
+        for (float xi = -currentX + increment; xi <= currentX - increment; xi += increment) {
+            for (float zi = -currentZ; zi <= currentZ; zi += increment) {
+                if (currentNumOfParticles >= numOfParticles) break;
+
+                Particle p1;
+                p1.position = glm::vec3(xi, currentY, zi) + origin;
+                particles.emplace_back(p1);
+                currentNumOfParticles++;
+
+                if (currentNumOfParticles < numOfParticles && currentY > 0) {
+                    Particle p2;
+                    p2.position = glm::vec3(xi, -currentY, zi) + origin;
+                    particles.emplace_back(p2);
+                    currentNumOfParticles++;
+                }
+            }
+        }
+
+        for (float xi = -currentX + increment; xi <= currentX - increment; xi += increment) {
+            for (float yi = -currentY + increment; yi <= currentY - increment; yi += increment) {
+                if (currentNumOfParticles >= numOfParticles) break;
+
+                Particle p1;
+                p1.position = glm::vec3(xi, yi, currentZ) + origin;
+                particles.emplace_back(p1);
+                currentNumOfParticles++;
+
+                if (currentNumOfParticles < numOfParticles && currentZ > 0) {
+                    Particle p2;
+                    p2.position = glm::vec3(xi, yi, -currentZ) + origin;
+                    particles.emplace_back(p2);
+                    currentNumOfParticles++;
+                }
+            }
+        }
+    }
 }
 
 void FluidSimulation::applyGravity(float dt) {
@@ -63,6 +136,7 @@ void FluidSimulation::render(Camera* camera) {
 void FluidSimulation::reset() {
 	particles.clear();
 	initSimulation();
+    pause = true;
 }
 
 FluidRenderer* FluidSimulation::getRenderer() {

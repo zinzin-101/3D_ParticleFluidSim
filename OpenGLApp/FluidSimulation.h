@@ -17,10 +17,14 @@ private:
 	void handleBoundaries();
 
 public:
+	unsigned int numOfParticles;
+	float particleSpacing;
+
 	glm::vec3 gravitationalForce;
 	float particleRadius;
 	bool pause;
 	bool showContainer;
+
 
 	FluidSimulation();
 	void init();
