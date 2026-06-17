@@ -42,7 +42,6 @@ public:
 	void setEnableCursor(bool value);
 	void setVSyncOn(bool value);
 
-
 	InputHandler* getInputHandler();
 	GUIHandler* getGUIHandler();
 	FluidSimulation* getSimulation();

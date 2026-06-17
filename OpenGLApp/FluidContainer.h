@@ -6,6 +6,7 @@
 class FluidContainer {
 private:
 	glm::vec4 planes[6];
+	glm::vec3 currentRotation;
 	glm::vec3 currentScale;
 	glm::vec3 currentPosition;
 

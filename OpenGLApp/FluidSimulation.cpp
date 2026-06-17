@@ -53,11 +53,11 @@ void FluidSimulation::update(float dt) {
 }
 
 void FluidSimulation::render(Camera* camera) {
+	renderer.render(particles, particleRadius, camera);
+
 	if (showContainer) {
 		container.visualize(camera, renderer.renderScale);
 	}
-
-	renderer.render(particles, particleRadius, camera);
 }
 
 void FluidSimulation::reset() {
