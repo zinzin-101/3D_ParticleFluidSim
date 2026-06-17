@@ -10,11 +10,25 @@ private:
 	FluidRenderer renderer;
 	FluidContainer container;
 	std::vector<Particle> particles;
+	std::vector<float> densities;
 
 	void initSimulation();
 
+	float smoothingKernel(float radius, float distance);
+	float smoothingKernelDerivative(float radius, float distance);
+	float calculateDensity(unsigned int particleIndex);
+	glm::vec3 calculatePressureForce(unsigned int particleIndex);
+	float calculateSharedPressure(float density1, float density2);
+	void updateDensities();
+
+	float densityToPressure(float density);
+
 	void applyGravity(float dt);
 	void handleBoundaries();
+
+	void updateParticlesProperties(float dt);
+	void applyPressureForce(float dt);
+	void updateParticlesPositions(float dt);
 
 public:
 	unsigned int numOfParticles;
@@ -22,9 +36,14 @@ public:
 
 	glm::vec3 gravitationalForce;
 	float particleRadius;
+	float particleMass;
 	bool pause;
 	bool showContainer;
 
+	float smoothingRadius;
+
+	float targetDensity;
+	float pressureMultiplier;
 
 	FluidSimulation();
 	void init();

@@ -11,4 +11,10 @@ namespace FluidSimulationConfig {
 
 	constexpr unsigned int DEFAULT_NUMBER_OF_PARTICLES = 1000;
 	constexpr float DEFAULT_PARTICLE_SPACING = DEFAULT_PARTICLE_RADIUS * 2.0f;
+
+	constexpr float DEFAULT_PARTICLE_MASS = 1.0f;
+	constexpr float DEFAULT_SMOOTHING_RADIUS = 5.0f;
+
+	constexpr float DEFAULT_TARGET_DENSITY = 1.0f;
+	constexpr float DEFAULT_PRESSURE_MULTIPLIER = 1.0f;
 }
