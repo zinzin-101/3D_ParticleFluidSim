@@ -20,12 +20,12 @@ glm::vec3 FluidContainer::getClosestPointOnPlane(const glm::vec3& position, cons
 
 void FluidContainer::reset() {
 	static const glm::vec3 CUBE_FACE_DIR[6] = {
-	glm::vec3(1.0f, 0.0f, 0.0f),
-	glm::vec3(-1.0f, 0.0f, 0.0f),
-	glm::vec3(0.0f, 1.0f, 0.0f),
-	glm::vec3(0.0f, -1.0f, 0.0f),
-	glm::vec3(0.0f, 0.0f, 1.0f),
-	glm::vec3(0.0f, 0.0f, -1.0f)
+		glm::vec3(1.0f, 0.0f, 0.0f),
+		glm::vec3(-1.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, -1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f),
+		glm::vec3(0.0f, 0.0f, -1.0f)
 	};
 
 	float halfDefaultContainerLength = DEFAULT_CUBE_CONTAINER_SIDE_LENGTH / 2.0f;
@@ -155,7 +155,15 @@ void FluidContainer::visualize(Camera* camera, float renderScale) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 
-	int oppositePairs[6] = { 1, 0, 3, 2, 5, 4 };
+	static const int oppositePairs[6] = { 1, 0, 3, 2, 5, 4 };
+	static const int adjacentPlanes[6][4] = {
+		{ 2, 3, 4, 5 },
+		{ 2, 3, 4, 5 },
+		{ 0, 1, 4, 5 },
+		{ 0, 1, 4, 5 },
+		{ 0, 1, 2, 3 },
+		{ 0, 1, 2, 3 }
+	};
 
 	for (int i = 0; i < 6; i++) {
 		glm::vec3 ni(planes[i].x, planes[i].y, planes[i].z);
@@ -165,18 +173,10 @@ void FluidContainer::visualize(Camera* camera, float renderScale) {
 		float distToPlane = glm::dot(ni, currentPosition) + di;
 		glm::vec3 faceCenter = currentPosition - distToPlane * ni;
 
-		// find adjacent planes grouped as two opposite pairs {a0,a1} and {b0,b1}
-		std::vector<int> adjacentPlanes;
-		for (int j = 0; j < 6; j++) {
-			if (j != i && j != oppositePairs[i]) {
-				adjacentPlanes.push_back(j);
-			}
-		}
-
-		int a0 = adjacentPlanes[0];
+		int a0 = adjacentPlanes[i][0];
 		int a1 = oppositePairs[a0];
 		int b0 = -1;
-		for (int j : adjacentPlanes) {
+		for (int j : adjacentPlanes[i]) {
 			if (j != a0 && j != a1) {
 				b0 = j;
 				break;
