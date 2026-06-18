@@ -6,6 +6,7 @@ using namespace FluidSimulationConfig;
 
 FluidSimulation::FluidSimulation(): 
     spatialHashGrid(DEFAULT_SMOOTHING_RADIUS, DEFAULT_NUMBER_OF_PARTICLES),
+    accumulatedDeltaTime(0.0f),
 	numOfParticles(DEFAULT_NUMBER_OF_PARTICLES),
 	particleSpacing(DEFAULT_PARTICLE_SPACING),
 	gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), 
@@ -138,7 +139,7 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
         float distance = glm::distance(particles[particleIndex].position, particles[i].position);
         glm::vec3 dir = glm::vec3(0.0f, -1.0f, 0.0f);
         if (distance != 0.0f) {
-            dir = (particles[particleIndex].position - particles[i].position) / distance;
+            dir = (particles[i].position - particles[particleIndex].position) / distance;
         }
         float gradient = smoothingKernelDerivative(smoothingRadius, distance);
         float density = densities[i];
@@ -202,6 +203,7 @@ void FluidSimulation::applyPressureForce(float dt) {
         if (densities[i] != 0.0f) {
             glm::vec3 pressureAcceleration = pressureForce / densities[i];
             particles[i].velocity += pressureAcceleration * dt;
+            //particles[i].velocity = -pressureAcceleration * dt;
         }
     }
 }
@@ -210,6 +212,7 @@ void FluidSimulation::updateParticlesPositions(float dt) {
     for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
         // update position
         particles[i].position += particles[i].velocity * dt;
+        particles[i].velocity *= DEFAULT_VELOCITY_DAMPING;
 
         // resolve container collision
         container.resolveCollision(particles[i], particleRadius);
@@ -224,11 +227,19 @@ void FluidSimulation::init() {
 void FluidSimulation::update(float dt) {
 	if (pause) return;
 
-    applyGravity(dt);
-    spatialHashGrid.createHashGrid(particles);
-    updateParticlesProperties(dt);
-    applyPressureForce(dt);
-    updateParticlesPositions(dt);
+    accumulatedDeltaTime += dt;
+    if (accumulatedDeltaTime < FIXED_DT) return;
+
+    int iterations = (int)(accumulatedDeltaTime / FIXED_DT);
+    accumulatedDeltaTime -= FIXED_DT * (float)iterations;
+
+    for (int i = 0; i < iterations; i++) {
+        applyGravity(FIXED_DT);
+        spatialHashGrid.createHashGrid(particles);
+        updateParticlesProperties(FIXED_DT);
+        applyPressureForce(FIXED_DT);
+        updateParticlesPositions(FIXED_DT);
+    }
 
 	//applyGravity(dt);
 

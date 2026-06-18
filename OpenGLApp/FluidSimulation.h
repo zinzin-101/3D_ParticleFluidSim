@@ -14,6 +14,8 @@ private:
 	std::vector<Particle> particles;
 	std::vector<float> densities;
 
+	float accumulatedDeltaTime;
+
 	void initSimulation();
 
 	float smoothingKernel(float radius, float distance);
