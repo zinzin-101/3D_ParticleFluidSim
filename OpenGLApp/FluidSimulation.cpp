@@ -236,12 +236,19 @@ void FluidSimulation::update(float dt) {
     int iterations = (int)(accumulatedDeltaTime / FIXED_DT);
     accumulatedDeltaTime -= FIXED_DT * (float)iterations;
 
-    for (int i = 0; i < iterations; i++) {
-        applyGravity(FIXED_DT);
+    float subStepDeltaTime = FIXED_DT / SIMULATION_STEPS;
+
+    int n = iterations * SIMULATION_STEPS;
+    if (n > MAX_SIMULATION_STEPS) {
+        n = MAX_SIMULATION_STEPS;
+    }
+
+    for (int i = 0; i < n; i++) {
+        applyGravity(subStepDeltaTime);
         spatialHashGrid.createHashGrid(particles);
-        updateParticleDensities(FIXED_DT);
-        applyPressureForce(FIXED_DT);
-        updateParticlePositions(FIXED_DT);
+        updateParticleDensities(subStepDeltaTime);
+        applyPressureForce(subStepDeltaTime);
+        updateParticlePositions(subStepDeltaTime);
     }
 
 	//applyGravity(dt);

@@ -30,7 +30,7 @@ void GUIHandler::update() {
 	static int fpsIterationCount = 0;
 	static float deltaTime = 0.0f;
 	static float currentAvgFPS = 0.0f;
-	if (fpsIterationCount > 60) {
+	if (fpsIterationCount > 10) {
 		currentAvgFPS = 1.0f / (deltaTime / (float)fpsIterationCount);
 		fpsIterationCount = 0;
 		deltaTime = 0.0f;
@@ -117,7 +117,7 @@ void GUIHandler::update() {
 		simulation->pause = pauseSimulation;
 	}
 
-	if (ImGui::Button("Face container")) {
+	if (ImGui::Button("Look at container")) {
 		glm::vec3 targetPos = simulation->getContainer()->getCurrentPosition();
 		Camera* cam = engine->getCamera();
 		cam->setForward(targetPos - cam->transform.position);
