@@ -2,6 +2,7 @@
 #include "FluidRenderer.h"
 #include "FluidContainer.h"
 #include "Particle.h"
+#include "SpatialHashGrid.h"
 #include "Camera.h"
 #include <vector>
 
@@ -9,6 +10,7 @@ class FluidSimulation {
 private:
 	FluidRenderer renderer;
 	FluidContainer container;
+	SpatialHashGrid spatialHashGrid;
 	std::vector<Particle> particles;
 	std::vector<float> densities;
 
@@ -30,6 +32,7 @@ private:
 	void applyPressureForce(float dt);
 	void updateParticlesPositions(float dt);
 
+
 public:
 	unsigned int numOfParticles;
 	float particleSpacing;
@@ -44,6 +47,8 @@ public:
 
 	float targetDensity;
 	float pressureMultiplier;
+
+
 
 	FluidSimulation();
 	void init();
