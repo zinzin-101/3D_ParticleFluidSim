@@ -13,6 +13,7 @@ private:
 	SpatialHashGrid spatialHashGrid;
 	std::vector<Particle> particles;
 	std::vector<float> densities;
+	std::vector<glm::vec3> predictedPositions;
 
 	float accumulatedDeltaTime;
 
@@ -30,9 +31,9 @@ private:
 	void applyGravity(float dt);
 	void handleBoundaries();
 
-	void updateParticlesProperties(float dt);
+	void updateParticleDensities(float dt);
 	void applyPressureForce(float dt);
-	void updateParticlesPositions(float dt);
+	void updateParticlePositions(float dt);
 
 
 public:
@@ -49,8 +50,6 @@ public:
 
 	float targetDensity;
 	float pressureMultiplier;
-
-
 
 	FluidSimulation();
 	void init();
