@@ -1,5 +1,6 @@
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
+#include "Utility.h"
 #include <iostream>
 
 using namespace FluidSimulationConfig;
@@ -105,14 +106,23 @@ void FluidSimulation::initSimulation() {
 float FluidSimulation::smoothingKernel(float radius, float distance) {
     if (distance >= radius) return 0;
 
-    float volume = (glm::pi<float>() * std::pow(radius, 4.0f)) / 6.0f;
-    return (radius - distance) * (radius - distance) / volume;
+    //float volume = (glm::pi<float>() * std::pow(radius, 4.0f)) / 6.0f;
+    //return (radius - distance) * (radius - distance) / volume;
+    float volume = (glm::pi<float>() * (radius * radius * radius * radius * radius)) / 10.0f;
+    float diff = radius - distance;
+
+    return (diff * diff) / volume;
 }
 
 float FluidSimulation::smoothingKernelDerivative(float radius, float distance) {
     if (distance >= radius) return 0.0f;
-    float scale = 12.0f / (std::pow(radius, 4.0f) * glm::pi<float>());
-    return (distance - radius) * scale;
+    //float scale = 12.0f / (std::pow(radius, 4.0f) * glm::pi<float>());
+    //return (distance - radius) * scale;
+    float r6 = radius * radius * radius * radius * radius * radius;
+    float scale = -45.0f / (glm::pi<float>() * r6);
+
+    float diff = radius - distance;
+    return scale * diff * diff;
 }
 
 float FluidSimulation::viscositySmoothingKernel(float radius, float distance) {
@@ -143,9 +153,15 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
         unsigned int i = (unsigned int)spatialHashGrid.getQueryId(query);
         if (i == particleIndex) continue;
         float distance = glm::distance(predictedPositions[particleIndex], predictedPositions[i]);
-        glm::vec3 dir = glm::vec3(0.0f, -1.0f, 0.0f);
+        glm::vec3 dir = glm::vec3(0.0f);
         if (distance != 0.0f) {
-            dir = (particles[i].position - particles[particleIndex].position) / distance;
+            dir = (predictedPositions[i] - predictedPositions[particleIndex]) / distance;
+        }
+        else {
+            dir.x = (2.0f * randFloat()) - 1.0f;
+            dir.y = (2.0f * randFloat()) - 1.0f;
+            dir.z = (2.0f * randFloat()) - 1.0f;
+            dir = glm::normalize(dir);
         }
         float gradient = smoothingKernelDerivative(smoothingRadius, distance);
         float density = densities[i];
@@ -166,18 +182,22 @@ float FluidSimulation::calculateSharedPressure(float density1, float density2) {
 
 glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
     glm::vec3 viscosityForce = glm::vec3(0.0f);
-    glm::vec3 position = particles[particleIndex].position;
+    glm::vec3 position = predictedPositions[particleIndex];
 
     spatialHashGrid.query(position, smoothingRadius);
     for (int query = 0; query < spatialHashGrid.getQuerySize(); query++) {
         unsigned int i = (unsigned int)spatialHashGrid.getQueryId(query);
         if (i == particleIndex) continue;
-        float distance = glm::distance(position, particles[i].position);
-        float influence = viscositySmoothingKernel(distance, smoothingRadius);
-        viscosityForce += (particles[i].velocity - particles[particleIndex].velocity) * influence;
+        float distance = glm::distance(position, predictedPositions[i]);
+        if (distance <= 0.0f) continue;
+        float influence = viscositySmoothingKernel(smoothingRadius, distance);
+        glm::vec3 relativeVelocity = (particles[i].velocity - particles[particleIndex].velocity);
+        if (densities[i] > 0.0f) {
+            viscosityForce += (relativeVelocity / densities[i]) * influence;
+        }
     }
 
-    return viscosityMultiplier * viscosityForce;
+    return viscosityForce * particleMass * viscosityMultiplier;
 }
 
 void FluidSimulation::updateDensities() {
@@ -233,6 +253,14 @@ void FluidSimulation::applyPressureForce(float dt) {
     }
 }
 
+void FluidSimulation::applyViscosityForce(float dt) {
+    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+        glm::vec3 viscosityForce = calculateViscosityForce(i);
+        particles[i].velocity += viscosityForce  * dt;
+
+    }
+}
+
 void FluidSimulation::updateParticlePositions(float dt) {
     for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
         // update position
@@ -270,6 +298,7 @@ void FluidSimulation::update(float dt) {
         spatialHashGrid.createHashGrid(particles);
         updateParticleDensities(subStepDeltaTime);
         applyPressureForce(subStepDeltaTime);
+        applyViscosityForce(subStepDeltaTime);
         updateParticlePositions(subStepDeltaTime);
     }
 

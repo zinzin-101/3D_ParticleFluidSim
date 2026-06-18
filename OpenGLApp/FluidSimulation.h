@@ -35,6 +35,7 @@ private:
 
 	void updateParticleDensities(float dt);
 	void applyPressureForce(float dt);
+	void applyViscosityForce(float dt);
 	void updateParticlePositions(float dt);
 
 public:

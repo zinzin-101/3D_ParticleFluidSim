@@ -158,6 +158,7 @@
     <ClCompile Include="SpatialHashGrid.cpp" />
     <ClCompile Include="SphereRenderer.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\imgui\imconfig.h" />
@@ -187,6 +188,7 @@
     <ClInclude Include="SphereRenderer.h" />
     <ClInclude Include="SphereRendererConfig.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\PlaneShader.frag" />
