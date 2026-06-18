@@ -48,20 +48,40 @@ void GUIHandler::update() {
 	if (ImGui::SliderFloat("Particle radius", &particleRadius, 0.01f, 1.0f, "%.2f")) {
 		simulation->particleRadius = particleRadius;
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##pr")) {
+		simulation->particleRadius = DEFAULT_PARTICLE_RADIUS;
+		particleRadius = simulation->particleRadius;
+	}
 
 	static float smoothingRadius = simulation->smoothingRadius;
 	if (ImGui::SliderFloat("Smoothing radius", &smoothingRadius, 0.01f, 10.0f, "%.2f")) {
 		simulation->smoothingRadius = smoothingRadius;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##sr")) {
+		simulation->smoothingRadius = DEFAULT_SMOOTHING_RADIUS;
+		smoothingRadius = simulation->smoothingRadius;
 	}
 
 	static float targetDensity = simulation->targetDensity;
 	if (ImGui::SliderFloat("Target density", &targetDensity, 0.01f, 10.0f, "%.2f")) {
 		simulation->targetDensity = targetDensity;
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##td")) {
+		simulation->targetDensity = DEFAULT_TARGET_DENSITY;
+		targetDensity = simulation->targetDensity;
+	}
 
 	static float pressureMultiplier = simulation->pressureMultiplier;
-	if (ImGui::SliderFloat("Pressure multiplier", &pressureMultiplier, 0.01f, 10.0f, "%.2f")) {
+	if (ImGui::SliderFloat("Pressure multiplier", &pressureMultiplier, 0.01f, 1000.0f, "%.2f")) {
 		simulation->pressureMultiplier = pressureMultiplier;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##pm")) {
+		simulation->pressureMultiplier = DEFAULT_PRESSURE_MULTIPLIER;
+		pressureMultiplier = simulation->pressureMultiplier;
 	}
 
 	static float renderScale = renderer->renderScale;
@@ -97,7 +117,17 @@ void GUIHandler::update() {
 		simulation->pause = pauseSimulation;
 	}
 
+	if (ImGui::Button("Face container")) {
+		glm::vec3 targetPos = simulation->getContainer()->getCurrentPosition();
+		Camera* cam = engine->getCamera();
+		cam->setForward(targetPos - cam->transform.position);
+	}
+
 	ImGui::Text("Container Transform:");
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##ct")) {
+		container->reset();
+	}
 	float dt = engine->getDeltaTime();
 	static float containerTranslation[3] = { 0.0f, 0.0f, 0.0f };
 	if (ImGui::DragFloat3("Translate", containerTranslation, 1.0f, 0.0f, 0.0f)) {
@@ -141,8 +171,18 @@ void GUIHandler::update() {
 	ImGui::Text("Initial parameters");
 	static int numOfParticles = (int)simulation->numOfParticles;
 	ImGui::SliderInt("Number of particles", &numOfParticles, 0, 1000000);
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##np")) {
+		numOfParticles = DEFAULT_NUMBER_OF_PARTICLES;
+	}
+
 	static float spacing = simulation->particleSpacing;
 	ImGui::SliderFloat("Particle spacing", &spacing, 0.001f, 1.0f);
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##ps")) {
+		spacing = DEFAULT_PARTICLE_SPACING;
+	}
+
 	if (ImGui::Button("Apply initial parameters")) {
 		simulation->numOfParticles = numOfParticles;
 		simulation->particleSpacing = spacing;

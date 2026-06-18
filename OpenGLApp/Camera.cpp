@@ -17,9 +17,17 @@ Camera::Camera(): fov(DEFAULT_FOV), nearPlane(DEFAULT_NEAR_PLANE), farPlane(DEFA
 }
 
 void Camera::setForward(glm::vec3 forward) {
-	this->forward = glm::normalize(forward);
-	right = glm::normalize(glm::cross(this->forward, worldUp));
-	up = glm::normalize(glm::cross(right, this->forward));
+	//this->forward = glm::normalize(forward);
+	//right = glm::normalize(glm::cross(this->forward, worldUp));
+	//up = glm::normalize(glm::cross(right, this->forward));
+
+	forward = glm::normalize(forward);
+	float pitch = glm::degrees(asin(forward.y));
+	float yaw = glm::degrees(atan2(forward.z, forward.x)) + 90.0f;
+	transform.eulerRotation.x = pitch;
+	transform.eulerRotation.y = yaw;
+
+	updateCameraVector();
 }
 
 glm::mat4 Camera::getViewMatrix() const {
