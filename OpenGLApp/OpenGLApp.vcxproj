@@ -155,6 +155,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PlaneRenderer.cpp" />
+    <ClCompile Include="SpatialHashGrid.cpp" />
     <ClCompile Include="SphereRenderer.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
@@ -182,6 +183,7 @@
     <ClInclude Include="Particle.h" />
     <ClInclude Include="PlaneRenderer.h" />
     <ClInclude Include="PlaneRendererConfig.h" />
+    <ClInclude Include="SpatialHashGrid.h" />
     <ClInclude Include="SphereRenderer.h" />
     <ClInclude Include="SphereRendererConfig.h" />
     <ClInclude Include="Transform.h" />
