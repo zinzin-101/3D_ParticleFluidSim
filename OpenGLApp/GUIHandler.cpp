@@ -30,7 +30,7 @@ void GUIHandler::update() {
 	static int fpsIterationCount = 0;
 	static float deltaTime = 0.0f;
 	static float currentAvgFPS = 0.0f;
-	if (fpsIterationCount > 10) {
+	if (fpsIterationCount > 60) {
 		currentAvgFPS = 1.0f / (deltaTime / (float)fpsIterationCount);
 		fpsIterationCount = 0;
 		deltaTime = 0.0f;
