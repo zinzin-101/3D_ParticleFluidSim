@@ -17,7 +17,7 @@ FluidSimulation::FluidSimulation():
     smoothingRadius(DEFAULT_SMOOTHING_RADIUS),
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
-    viscosity(DEFAULT_VISCOSITY)
+    viscosityMultiplier(DEFAULT_VISCOSITY)
 { }
 
 void FluidSimulation::initSimulation() {
@@ -177,7 +177,7 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         viscosityForce += (particles[i].velocity - particles[particleIndex].velocity) * influence;
     }
 
-    return viscosity * viscosityForce;
+    return viscosityMultiplier * viscosityForce;
 }
 
 void FluidSimulation::updateDensities() {
@@ -188,7 +188,8 @@ void FluidSimulation::updateDensities() {
 
 float FluidSimulation::densityToPressure(float density) {
     float densityDifference = density - targetDensity;
-    float pressure = densityDifference * pressureMultiplier;
+    //float pressure = densityDifference * pressureMultiplier;
+    float pressure = (std::max)(0.0f, densityDifference) * pressureMultiplier;
     return pressure;
 }
 

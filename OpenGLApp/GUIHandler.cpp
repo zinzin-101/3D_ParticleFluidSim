@@ -84,14 +84,14 @@ void GUIHandler::update() {
 		pressureMultiplier = simulation->pressureMultiplier;
 	}
 
-	static float viscosity = simulation->viscosity;
-	if (ImGui::SliderFloat("Viscosity", &viscosity, 0.0f, 2.0f, "%.2f")) {
-		simulation->viscosity = viscosity;
+	static float viscosityMultiplier = simulation->viscosityMultiplier;
+	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 2.0f, "%.2f")) {
+		simulation->viscosityMultiplier = viscosityMultiplier;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Reset##v")) {
-		simulation->viscosity = DEFAULT_VISCOSITY;
-		viscosity = simulation->viscosity;
+		simulation->viscosityMultiplier = DEFAULT_VISCOSITY;
+		viscosityMultiplier = simulation->viscosityMultiplier;
 	}
 
 	static float renderScale = renderer->renderScale;

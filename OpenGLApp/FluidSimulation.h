@@ -52,7 +52,7 @@ public:
 	float targetDensity;
 	float pressureMultiplier;
 
-	float viscosity;
+	float viscosityMultiplier;
 
 	FluidSimulation();
 	void init();
