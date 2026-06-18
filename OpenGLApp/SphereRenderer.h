@@ -17,7 +17,7 @@ private:
 	Shader simpleShader;
 
 public:
-	std::vector<glm::vec3> instanceData;
+	std::vector<glm::vec4> instanceData;
 
 	SphereRenderer();
 	~SphereRenderer();

@@ -87,12 +87,11 @@ void SphereRenderer::init() {
     // instance VBO
     glGenBuffers(1, &instanceVBO);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * sizeof(glm::vec3), &instanceData[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * sizeof(glm::vec4), &instanceData[0], GL_DYNAMIC_DRAW);
 
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)0);
 
-    // Crucial for instancing: updates once per instance, not per vertex
     glVertexAttribDivisor(2, 1);
 
     // generate EBO
@@ -137,7 +136,7 @@ void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScal
     if (instanceCount == 0) return;
 
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, instanceCount * sizeof(glm::vec3), instanceData.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, instanceCount * sizeof(glm::vec4), instanceData.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     instancingShader.use();

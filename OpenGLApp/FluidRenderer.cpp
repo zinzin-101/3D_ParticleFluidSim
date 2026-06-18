@@ -25,7 +25,7 @@ void FluidRenderer::render(const std::vector<Particle>& particles, float radius,
     
     unsigned int idx = 0;
     for (const Particle& particle : particles) {
-        sphereRenderer.instanceData[idx] = particle.getPosition();
+        sphereRenderer.instanceData[idx] = glm::vec4(particle.getPosition(), glm::length(particle.getVelocity()));
         idx++;
         if (idx >= MAX_INSTANCES) break;
     }
