@@ -84,14 +84,34 @@ void GUIHandler::update() {
 		pressureMultiplier = simulation->pressureMultiplier;
 	}
 
+	static float viscosity = simulation->viscosity;
+	if (ImGui::SliderFloat("Viscosity", &viscosity, 0.0f, 2.0f, "%.2f")) {
+		simulation->viscosity = viscosity;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##v")) {
+		simulation->viscosity = DEFAULT_VISCOSITY;
+		viscosity = simulation->viscosity;
+	}
+
 	static float renderScale = renderer->renderScale;
 	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
 		renderer->renderScale = renderScale;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##rs")) {
+		renderer->renderScale = 1.0f;
+		renderScale = renderer->renderScale;
 	}
 
 	glm::vec3 gravity = simulation->gravitationalForce;
 	if (ImGui::InputFloat3("Gravity", &gravity[0])) {
 		simulation->gravitationalForce = gravity;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##g")) {
+		simulation->gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
+		gravity = simulation->gravitationalForce;
 	}
 
 	static bool resetGravityOnReset = false;

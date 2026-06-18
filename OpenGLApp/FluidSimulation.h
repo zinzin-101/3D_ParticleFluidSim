@@ -21,9 +21,11 @@ private:
 
 	float smoothingKernel(float radius, float distance);
 	float smoothingKernelDerivative(float radius, float distance);
+	float viscositySmoothingKernel(float radius, float distance);
 	float calculateDensity(unsigned int particleIndex);
 	glm::vec3 calculatePressureForce(unsigned int particleIndex);
 	float calculateSharedPressure(float density1, float density2);
+	glm::vec3 calculateViscosityForce(unsigned int particleIndex);
 	void updateDensities();
 
 	float densityToPressure(float density);
@@ -34,7 +36,6 @@ private:
 	void updateParticleDensities(float dt);
 	void applyPressureForce(float dt);
 	void updateParticlePositions(float dt);
-
 
 public:
 	unsigned int numOfParticles;
@@ -50,6 +51,8 @@ public:
 
 	float targetDensity;
 	float pressureMultiplier;
+
+	float viscosity;
 
 	FluidSimulation();
 	void init();
