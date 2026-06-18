@@ -223,7 +223,7 @@ void FluidContainer::visualize(Camera* camera, float renderScale) {
 		model[0] = glm::vec4(edgeU * su * renderScale, 0.0f);
 		model[1] = glm::vec4(edgeV * sv * renderScale, 0.0f);
 		model[2] = glm::vec4(ni, 0.0f);
-		model[3] = glm::vec4(uvCenter, 1.0f);
+		model[3] = glm::vec4(uvCenter * renderScale, 1.0f);
 
 		planeVisualizer.draw(camera, planeOpacity, model);
 	}
