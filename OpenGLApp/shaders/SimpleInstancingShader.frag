@@ -24,8 +24,8 @@ void main() {
     vec3 viewDir = normalize(camPos - FragPos);
     currentColor = GetColorFromSpeed(Speed);
     vec3 result = CalcDirLight(lightDir, normalize(Normal), viewDir);
-    //FragColor = vec4(color, 1.0);
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(currentColor, 1.0);
+    //FragColor = vec4(result, 1.0);
 }
 
 vec3 CalcDirLight(vec3 lightDirection, vec3 normal, vec3 viewDirection) {

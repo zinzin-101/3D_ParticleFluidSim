@@ -6,4 +6,6 @@ namespace FluidEngineConfig {
 	constexpr bool INIT_IN_FULL_SCREEN = false;
 	inline const char* WINDOW_NAME = "3D_ParticleFluidSim";
 	constexpr bool DEFAULT_ENABLE_VSYNC = true;
+
+	constexpr float DEFAULT_MOUSE_SENSITIVITY = 0.05f;
 }

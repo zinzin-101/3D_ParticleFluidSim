@@ -1,8 +1,10 @@
 #include "GUIHandler.h"
 #include "FluidEngine.h"
+#include "FluidEngineConfig.h"
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
 
+using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
 
 void GUIHandler::init(GLFWwindow* window, FluidSimulation* simulation) {
@@ -75,7 +77,7 @@ void GUIHandler::update() {
 	}
 
 	static float pressureMultiplier = simulation->pressureMultiplier;
-	if (ImGui::SliderFloat("Pressure multiplier", &pressureMultiplier, 0.01f, 1000.0f, "%.2f")) {
+	if (ImGui::SliderFloat("Pressure multiplier", &pressureMultiplier, 0.01f, 2000.0f, "%.2f")) {
 		simulation->pressureMultiplier = pressureMultiplier;
 	}
 	ImGui::SameLine();
@@ -94,14 +96,14 @@ void GUIHandler::update() {
 		viscosityMultiplier = simulation->viscosityMultiplier;
 	}
 
-	static float renderScale = renderer->renderScale;
-	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
-		renderer->renderScale = renderScale;
+	static float mass = simulation->particleMass;
+	if (ImGui::SliderFloat("Mass", &mass, 0.1f, 10.0f, "%.1f")) {
+		simulation->particleMass= mass;
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("Reset##rs")) {
-		renderer->renderScale = 1.0f;
-		renderScale = renderer->renderScale;
+	if (ImGui::Button("Reset##m")) {
+		simulation->particleMass = DEFAULT_PARTICLE_MASS;
+		mass = simulation->particleMass;
 	}
 
 	glm::vec3 gravity = simulation->gravitationalForce;
@@ -112,6 +114,26 @@ void GUIHandler::update() {
 	if (ImGui::Button("Reset##g")) {
 		simulation->gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
 		gravity = simulation->gravitationalForce;
+	}
+
+	static float renderScale = renderer->renderScale;
+	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
+		renderer->renderScale = renderScale;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##rs")) {
+		renderer->renderScale = 1.0f;
+		renderScale = renderer->renderScale;
+	}
+
+	static float mouseSensitivity = engine->mouseSensitivity * 100.0f;
+	if (ImGui::SliderFloat("Mouse sensitivity", &mouseSensitivity, 0.1f, 25.0f, "%.1f")) {
+		engine->mouseSensitivity = mouseSensitivity / 100.0f;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##ms")) {
+		engine->mouseSensitivity = DEFAULT_MOUSE_SENSITIVITY;
+		mouseSensitivity = engine->mouseSensitivity * 100.0f;
 	}
 
 	static bool resetGravityOnReset = false;

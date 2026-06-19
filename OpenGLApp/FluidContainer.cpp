@@ -240,3 +240,7 @@ glm::vec3 FluidContainer::getCurrentPosition() const {
 glm::vec3 FluidContainer::getCurrentScale() const {
 	return currentScale;
 }
+
+glm::vec3 FluidContainer::getCurrentRotation() const {
+	return currentRotation;
+}

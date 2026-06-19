@@ -7,7 +7,14 @@ using namespace FluidEngineConfig;
 
 FluidEngine* FluidEngine::instance = nullptr;
 
-FluidEngine::FluidEngine() : window(nullptr), deltaTime(0.0f), lastTimeElapsed(0.0f), screenDimension(), isVSyncOn(false) {
+FluidEngine::FluidEngine(): 
+	window(nullptr), 
+	deltaTime(0.0f), 
+	lastTimeElapsed(0.0f), 
+	screenDimension(), 
+	isVSyncOn(false), 
+	mouseSensitivity(DEFAULT_MOUSE_SENSITIVITY) 
+{
 	if (instance != nullptr) {
 		throw std::runtime_error("Trying to create a new engine instance with already existing instance");
 	}
@@ -200,8 +207,8 @@ void FluidEngine::processInput(GLFWwindow* window) {
 			engine->setEnableCursor(false);
 
 			glm::vec2 mouseOffset = input.getMouseOffset();
-			camera->transform.eulerRotation.x -= mouseOffset.y * 5.0f * dt;
-			camera->transform.eulerRotation.y += mouseOffset.x * 5.0f * dt;
+			camera->transform.eulerRotation.x -= mouseOffset.y * engine->mouseSensitivity;
+			camera->transform.eulerRotation.y += mouseOffset.x * engine->mouseSensitivity;
 			if (camera->transform.eulerRotation.x > 89.0f)
 				camera->transform.eulerRotation.x = 89.0f;
 			if (camera->transform.eulerRotation.x < -89.0f)

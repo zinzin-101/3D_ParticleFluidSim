@@ -30,4 +30,5 @@ public:
 
 	glm::vec3 getCurrentPosition() const;
 	glm::vec3 getCurrentScale() const;
+	glm::vec3 getCurrentRotation() const;
 };

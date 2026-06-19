@@ -32,6 +32,7 @@ private:
 	void cleanup();
 
 public:
+	float mouseSensitivity;
 
 	FluidEngine();
 	~FluidEngine();
