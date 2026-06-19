@@ -44,8 +44,9 @@ vec3 CalcDirLight(vec3 lightDirection, vec3 normal, vec3 viewDirection) {
 
 vec3 GetColorFromSpeed(float speed){
     float minSpeed = 0.0;
-    float maxSpeed = 8.0;
+    float maxSpeed = 5.0;
     float x = clamp((speed - minSpeed) / (maxSpeed - minSpeed), 0.0, 1.0);
+    x = mix(0.12, 1.0, x);
 
     // turbo polynomial approximation coefficients
     const vec4 kRedVec4 = vec4(0.13572138, 4.61539260, -42.66032258, 132.13108234);
