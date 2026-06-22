@@ -8,12 +8,20 @@
 
 class FluidSimulation {
 private:
+	struct DensityPair {
+		float density;
+		float nearDensity;
+		DensityPair();
+		DensityPair(float density, float fnearDensity);
+	};
+
 	FluidRenderer renderer;
 	FluidContainer container;
 	SpatialHashGrid spatialHashGrid;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> velocities;
 	std::vector<float> densities;
+	std::vector<float> nearDensities;
 	std::vector<glm::vec3> predictedPositions;
 
 	float accumulatedDeltaTime;
@@ -23,12 +31,17 @@ private:
 
 	void initSimulation();
 
-	float smoothingKernel(float radius, float distance);
-	float smoothingKernelDerivative(float radius, float distance);
-	float viscositySmoothingKernel(float radius, float distance);
-	float calculateDensity(unsigned int particleIndex);
+	// kernel functions
+	float smoothingKernelPow2(float radius, float distance);
+	float smoothingKernelPow2Derivative(float radius, float distance);
+	float smoothingKernelPow3(float radius, float distance);
+	float smoothingKernelPow3Derivative(float radius, float distance);
+	float swmoothingKernelPoly6(float radius, float distance);
+
+	DensityPair calculateDensity(unsigned int particleIndex);
 	glm::vec3 calculatePressureForce(unsigned int particleIndex);
 	float calculateSharedPressure(float density1, float density2);
+	float calculateSharedNearPressure(float nearDensity1, float nearDensity2);
 	glm::vec3 calculateViscosityForce(unsigned int particleIndex);
 	void updateDensities();
 
@@ -55,7 +68,9 @@ public:
 	float smoothingRadius;
 
 	float targetDensity;
+	float targetNearDensity;
 	float pressureMultiplier;
+	float nearPressureMultiplier;
 
 	float viscosityMultiplier;
 

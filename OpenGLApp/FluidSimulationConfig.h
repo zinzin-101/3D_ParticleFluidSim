@@ -20,7 +20,9 @@ namespace FluidSimulationConfig {
 	constexpr float DEFAULT_PARTICLE_SPACING = 0.6f;
 
 	constexpr float DEFAULT_TARGET_DENSITY = 1.0f;
+	constexpr float DEFAULT_TARGET_NEAR_DENSITY = 0.0f;
 	constexpr float DEFAULT_PRESSURE_MULTIPLIER = 1000.0f;
+	constexpr float DEFAULT_NEAR_PRESSURE_MULTIPLIER = 5.0f;
 
 	constexpr float DEFAULT_VISCOSITY = 0.05f;
 

@@ -86,6 +86,16 @@ void GUIHandler::update() {
 		pressureMultiplier = simulation->pressureMultiplier;
 	}
 
+	static float nearPressureMultiplier = simulation->nearPressureMultiplier;
+	if (ImGui::SliderFloat("Near pressure multiplier", &nearPressureMultiplier, 0.01f, 2000.0f, "%.2f")) {
+		simulation->nearPressureMultiplier = nearPressureMultiplier;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##npm")) {
+		simulation->nearPressureMultiplier = DEFAULT_NEAR_PRESSURE_MULTIPLIER;
+		nearPressureMultiplier = simulation->nearPressureMultiplier;
+	}
+
 	static float viscosityMultiplier = simulation->viscosityMultiplier;
 	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 100.0f, "%.2f")) {
 		simulation->viscosityMultiplier = viscosityMultiplier;
