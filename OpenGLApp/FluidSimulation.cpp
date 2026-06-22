@@ -247,8 +247,8 @@ void FluidSimulation::updateDensities() {
 
 float FluidSimulation::densityToPressure(float density) {
     float densityDifference = density - targetDensity;
-    //float pressure = densityDifference * pressureMultiplier;
-    float pressure = (std::max)(0.0f, densityDifference) * pressureMultiplier;
+    float pressure = densityDifference * pressureMultiplier;
+    //float pressure = (std::max)(0.0f, densityDifference) * pressureMultiplier;
     //float nearPressure = nearDensity * nearPressureMultiplier;
     //return PressurePair(pressure, nearPressure);
     return pressure;
