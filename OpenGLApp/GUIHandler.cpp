@@ -76,16 +76,6 @@ void GUIHandler::update() {
 		targetDensity = simulation->targetDensity;
 	}
 
-	static float targetNearDensity = simulation->targetNearDensity;
-	if (ImGui::SliderFloat("Target near density", &targetNearDensity, 0.0f, 10.0f, "%.2f")) {
-		simulation->targetNearDensity = targetNearDensity;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset##tnd")) {
-		simulation->targetNearDensity = DEFAULT_TARGET_NEAR_DENSITY;
-		targetNearDensity = simulation->targetNearDensity;
-	}
-
 	static float pressureMultiplier = simulation->pressureMultiplier;
 	if (ImGui::SliderFloat("Pressure multiplier", &pressureMultiplier, 0.00f, 2000.0f, "%.2f")) {
 		simulation->pressureMultiplier = pressureMultiplier;
@@ -107,7 +97,7 @@ void GUIHandler::update() {
 	}
 
 	static float viscosityMultiplier = simulation->viscosityMultiplier;
-	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 100.0f, "%.2f")) {
+	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 5.0f, "%.3f")) {
 		simulation->viscosityMultiplier = viscosityMultiplier;
 	}
 	ImGui::SameLine();

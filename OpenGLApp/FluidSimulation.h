@@ -68,7 +68,6 @@ public:
 	float smoothingRadius;
 
 	float targetDensity;
-	float targetNearDensity;
 	float pressureMultiplier;
 	float nearPressureMultiplier;
 

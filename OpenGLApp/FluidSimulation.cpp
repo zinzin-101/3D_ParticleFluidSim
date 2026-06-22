@@ -20,7 +20,6 @@ FluidSimulation::FluidSimulation():
 	showContainer(false),
     smoothingRadius(DEFAULT_SMOOTHING_RADIUS),
     targetDensity(DEFAULT_TARGET_DENSITY),
-    targetNearDensity(DEFAULT_TARGET_NEAR_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
     nearPressureMultiplier(DEFAULT_NEAR_PRESSURE_MULTIPLIER),
     viscosityMultiplier(DEFAULT_VISCOSITY)
@@ -189,14 +188,14 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
         float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
         float density = densities[i];
         float sharedPressure = calculateSharedPressure(density, densities[particleIndex]);
-        if (density != 0.0f) {
+        if (density > 1e-6f) {
             pressureForce += sharedPressure * particleMass * gradient * dir / density;
         }
 
         float nearGradient = smoothingKernelPow3Derivative(smoothingRadius, distance);
         float nearDensity = nearDensities[i];
         float sharedNearPressure = calculateSharedNearPressure(nearDensity, nearDensities[particleIndex]);
-        if (nearDensity != 0.0f) {
+        if (nearDensity > 1e-6f) {
             pressureForce += sharedNearPressure * particleMass * nearGradient * dir / nearDensity;
         }
     }
@@ -229,13 +228,13 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         float influence = viscosityKernelLaplacian(smoothingRadius, distance);
         glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
         
-        float denom = densities[i] * densities[particleIndex];
+        float denom = densities[i];
         if (denom > 1e-6f) {
-            viscosityForce += (relativeVelocity / denom) * influence;
+            viscosityForce += particleMass * (relativeVelocity / denom) * influence;
         }
     }
 
-    return viscosityForce * particleMass * viscosityMultiplier;
+    return viscosityForce * viscosityMultiplier;
 }
 
 void FluidSimulation::updateDensities() {
@@ -248,8 +247,8 @@ void FluidSimulation::updateDensities() {
 
 float FluidSimulation::densityToPressure(float density) {
     float densityDifference = density - targetDensity;
-    float pressure = densityDifference * pressureMultiplier;
-    //float pressure = (std::max)(0.0f, densityDifference) * pressureMultiplier;
+    //float pressure = densityDifference * pressureMultiplier;
+    float pressure = (std::max)(0.0f, densityDifference) * pressureMultiplier;
     //float nearPressure = nearDensity * nearPressureMultiplier;
     //return PressurePair(pressure, nearPressure);
     return pressure;
@@ -289,7 +288,7 @@ void FluidSimulation::updateParticleDensities(float dt) {
 void FluidSimulation::applyPressureForce(float dt) {
     for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         glm::vec3 pressureForce = calculatePressureForce(i);
-        if (densities[i] != 0.0f) {
+        if (densities[i] > 1e-6f) {
             glm::vec3 pressureAcceleration = pressureForce / densities[i];
             velocities[i] += pressureAcceleration * dt;
             //particles[i].velocity = -pressureAcceleration * dt;
