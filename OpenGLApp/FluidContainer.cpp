@@ -41,18 +41,18 @@ void FluidContainer::reset() {
 	currentPosition = DEFAULT_CUBE_CONTAINER_ORIGIN;
 }
 
-bool FluidContainer::isInside(const Particle& particle, float radius) {
+bool FluidContainer::isInside(const glm::vec3& position, float radius) {
 	for (int i = 0; i < 6; i++) {
-		float h = glm::dot(glm::vec4(particle.getPosition(), 1.0f), planes[i]);
+		float h = glm::dot(glm::vec4(position, 1.0f), planes[i]);
 		if (h - radius >= 0.0f) return false;
 	}
 
 	return true;
 }
 
-void FluidContainer::resolveCollision(Particle& particle, float radius) {
-	glm::vec3 pos = particle.getPosition();
-	glm::vec3 vel = particle.getVelocity();
+void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius) {
+	glm::vec3 pos = position;
+	glm::vec3 vel = velocity;
 
 	for (int i = 0; i < 6; i++) {
 		glm::vec3 normal(planes[i].x, planes[i].y, planes[i].z);
@@ -68,8 +68,8 @@ void FluidContainer::resolveCollision(Particle& particle, float radius) {
 		}
 	}
 
-	particle.position = pos;
-	particle.velocity = vel;
+	position = pos;
+	velocity = vel;
 }
 
 void FluidContainer::translates(glm::vec3 translation) {

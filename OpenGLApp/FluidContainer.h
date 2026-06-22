@@ -19,8 +19,8 @@ public:
 	float planeOpacity;
 
 	FluidContainer();
-	bool isInside(const Particle& particle, float radius);
-	void resolveCollision(Particle& particle, float radius);
+	bool isInside(const glm::vec3& position, float radius);
+	void resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius);
 	void translates(glm::vec3 translation);
 	void scales(glm::vec3 scaling);
 	void rotates(float degrees, glm::vec3 axis);

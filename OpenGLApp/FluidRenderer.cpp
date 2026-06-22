@@ -11,11 +11,11 @@ void FluidRenderer::init() {
     sphereRenderer.init();
 }
 
-void FluidRenderer::render(const std::vector<Particle>& particles, float radius, Camera* camera, bool useInstancing) {
+void FluidRenderer::render(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& velocities, float radius, Camera* camera, bool useInstancing) {
     if (!useInstancing) {
-        for (const Particle& particle : particles) {
+        for (const glm::vec3& position : positions) {
             glm::mat4 model(1.0f);
-            model = glm::translate(model, particle.getPosition() * renderScale);
+            model = glm::translate(model, position * renderScale);
             model = glm::scale(model, glm::vec3(renderScale * radius));
             sphereRenderer.draw(camera, model);
         }
@@ -24,8 +24,8 @@ void FluidRenderer::render(const std::vector<Particle>& particles, float radius,
     }
     
     unsigned int idx = 0;
-    for (const Particle& particle : particles) {
-        sphereRenderer.instanceData[idx] = glm::vec4(particle.getPosition(), glm::length(particle.getVelocity()));
+    for (const glm::vec3& position : positions) {
+        sphereRenderer.instanceData[idx] = glm::vec4(position, glm::length(velocities[idx]));
         idx++;
         if (idx >= MAX_INSTANCES) break;
     }

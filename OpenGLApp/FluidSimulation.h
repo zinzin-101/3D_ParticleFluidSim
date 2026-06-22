@@ -11,11 +11,15 @@ private:
 	FluidRenderer renderer;
 	FluidContainer container;
 	SpatialHashGrid spatialHashGrid;
-	std::vector<Particle> particles;
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> velocities;
 	std::vector<float> densities;
 	std::vector<glm::vec3> predictedPositions;
 
 	float accumulatedDeltaTime;
+
+	unsigned int addParticle(glm::vec3 position, glm::vec3 velocity = glm::vec3(0.0f));
+	void clearParticles();
 
 	void initSimulation();
 

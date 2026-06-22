@@ -12,5 +12,5 @@ public:
 
 	FluidRenderer();
 	void init();
-	void render(const std::vector<Particle>& particles, float radius, Camera* camera, bool useInstancing = true);
+	void render(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& velocities, float radius, Camera* camera, bool useInstancing = true);
 };

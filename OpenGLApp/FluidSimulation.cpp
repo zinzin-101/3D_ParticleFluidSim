@@ -21,6 +21,18 @@ FluidSimulation::FluidSimulation():
     viscosityMultiplier(DEFAULT_VISCOSITY)
 { }
 
+unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity) {
+    unsigned int index = (unsigned int)positions.size();
+    positions.emplace_back(position);
+    velocities.emplace_back(velocity);
+    return index;
+}
+
+void FluidSimulation::clearParticles() {
+    positions.clear();
+    velocities.clear();
+}
+
 void FluidSimulation::initSimulation() {
 
     glm::vec3 origin = container.getCurrentPosition();
@@ -32,9 +44,10 @@ void FluidSimulation::initSimulation() {
     float currentZ = 0.0f;
 
     if (currentNumOfParticles < numOfParticles) {
-        Particle particle;
-        particle.position = origin;
-        particles.emplace_back(particle);
+        //Particle particle;
+        //particle.position = origin;
+        //particles.emplace_back(particle);
+        addParticle(origin);
         currentNumOfParticles++;
     }
 
@@ -48,15 +61,13 @@ void FluidSimulation::initSimulation() {
             for (float zi = -currentZ; zi <= currentZ; zi += increment) {
                 if (currentNumOfParticles >= numOfParticles) break;
 
-                Particle p1;
-                p1.position = glm::vec3(currentX, yi, zi) + origin;
-                particles.emplace_back(p1);
+                glm::vec3 p1 = glm::vec3(currentX, yi, zi) + origin;
+                addParticle(p1);
                 currentNumOfParticles++;
 
                 if (currentNumOfParticles < numOfParticles && currentX > 0) {
-                    Particle p2;
-                    p2.position = glm::vec3(-currentX, yi, zi) + origin;
-                    particles.emplace_back(p2);
+                    glm::vec3 p2 = glm::vec3(-currentX, yi, zi) + origin;
+                    addParticle(p2);
                     currentNumOfParticles++;
                 }
             }
@@ -66,15 +77,13 @@ void FluidSimulation::initSimulation() {
             for (float zi = -currentZ; zi <= currentZ; zi += increment) {
                 if (currentNumOfParticles >= numOfParticles) break;
 
-                Particle p1;
-                p1.position = glm::vec3(xi, currentY, zi) + origin;
-                particles.emplace_back(p1);
+                glm::vec3 p1 = glm::vec3(xi, currentY, zi) + origin;
+                addParticle(p1);
                 currentNumOfParticles++;
 
                 if (currentNumOfParticles < numOfParticles && currentY > 0) {
-                    Particle p2;
-                    p2.position = glm::vec3(xi, -currentY, zi) + origin;
-                    particles.emplace_back(p2);
+                    glm::vec3 p2 = glm::vec3(xi, -currentY, zi) + origin;
+                    addParticle(p2);
                     currentNumOfParticles++;
                 }
             }
@@ -84,23 +93,21 @@ void FluidSimulation::initSimulation() {
             for (float yi = -currentY + increment; yi <= currentY - increment; yi += increment) {
                 if (currentNumOfParticles >= numOfParticles) break;
 
-                Particle p1;
-                p1.position = glm::vec3(xi, yi, currentZ) + origin;
-                particles.emplace_back(p1);
+                glm::vec3 p1= glm::vec3(xi, yi, currentZ) + origin;
+                addParticle(p1);
                 currentNumOfParticles++;
 
                 if (currentNumOfParticles < numOfParticles && currentZ > 0) {
-                    Particle p2;
-                    p2.position = glm::vec3(xi, yi, -currentZ) + origin;
-                    particles.emplace_back(p2);
+                    glm::vec3 p2 = glm::vec3(xi, yi, -currentZ) + origin;
+                    addParticle(p2);
                     currentNumOfParticles++;
                 }
             }
         }
     }
 
-    densities.resize(particles.size());
-    predictedPositions.resize(particles.size());
+    densities.resize(positions.size());
+    predictedPositions.resize(positions.size());
 }
 
 float FluidSimulation::smoothingKernel(float radius, float distance) {
@@ -191,7 +198,7 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         float distance = glm::distance(position, predictedPositions[i]);
         if (distance <= 0.0f) continue;
         float influence = viscositySmoothingKernel(smoothingRadius, distance);
-        glm::vec3 relativeVelocity = (particles[i].velocity - particles[particleIndex].velocity);
+        glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
         if (densities[i] > 0.0f) {
             viscosityForce += (relativeVelocity / densities[i]) * influence;
         }
@@ -201,7 +208,7 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
 }
 
 void FluidSimulation::updateDensities() {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         densities[i] = calculateDensity(i);
     }
 }
@@ -214,26 +221,26 @@ float FluidSimulation::densityToPressure(float density) {
 }
 
 void FluidSimulation::applyGravity(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
-		particles[i].velocity += gravitationalForce * dt;
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+		velocities[i] += gravitationalForce * dt;
 		//particle.position += particle.velocity * dt;
 
-        predictedPositions[i] = particles[i].position + particles[i].velocity * dt;
+        predictedPositions[i] = positions[i] + velocities[i] * dt;
 	}
 }
 
 void FluidSimulation::handleBoundaries() {
-	for (Particle& particle : particles) {
+	for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
 		/*if (!container.IsInside(particle, particleRadius)) {
 			container.ResolveCollision(particle, particleRadius);
 		}*/
 
-		container.resolveCollision(particle, particleRadius);
+		container.resolveCollision(positions[i], velocities[i], particleRadius);
 	}
 }
 
 void FluidSimulation::updateParticleDensities(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         // apply gravity
         //particles[i].velocity += gravitationalForce * dt;
 
@@ -243,32 +250,32 @@ void FluidSimulation::updateParticleDensities(float dt) {
 }
 
 void FluidSimulation::applyPressureForce(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         glm::vec3 pressureForce = calculatePressureForce(i);
         if (densities[i] != 0.0f) {
             glm::vec3 pressureAcceleration = pressureForce / densities[i];
-            particles[i].velocity += pressureAcceleration * dt;
+            velocities[i] += pressureAcceleration * dt;
             //particles[i].velocity = -pressureAcceleration * dt;
         }
     }
 }
 
 void FluidSimulation::applyViscosityForce(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         glm::vec3 viscosityForce = calculateViscosityForce(i);
-        particles[i].velocity += viscosityForce  * dt;
+        velocities[i] += viscosityForce * dt;
 
     }
 }
 
 void FluidSimulation::updateParticlePositions(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)particles.size(); i++) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         // update position
-        particles[i].position += particles[i].velocity * dt;
-        particles[i].velocity *= DEFAULT_VELOCITY_DAMPING;
+        positions[i] += velocities[i] * dt;
+        velocities[i] *= DEFAULT_VELOCITY_DAMPING;
 
         // resolve container collision
-        container.resolveCollision(particles[i], particleRadius);
+        container.resolveCollision(positions[i], velocities[i], particleRadius);
     }
 }
 
@@ -295,7 +302,7 @@ void FluidSimulation::update(float dt) {
 
     for (int i = 0; i < n; i++) {
         applyGravity(subStepDeltaTime);
-        spatialHashGrid.createHashGrid(particles);
+        spatialHashGrid.createHashGrid(positions);
         updateParticleDensities(subStepDeltaTime);
         applyPressureForce(subStepDeltaTime);
         applyViscosityForce(subStepDeltaTime);
@@ -315,7 +322,7 @@ void FluidSimulation::update(float dt) {
 }
 
 void FluidSimulation::render(Camera* camera) {
-	renderer.render(particles, particleRadius, camera);
+	renderer.render(positions, velocities, particleRadius, camera);
 
 	if (showContainer) {
 		container.visualize(camera, renderer.renderScale);
@@ -323,9 +330,9 @@ void FluidSimulation::render(Camera* camera) {
 }
 
 void FluidSimulation::reset() {
-	particles.clear();
+    clearParticles();
 	initSimulation();
-    spatialHashGrid.reset(smoothingRadius, (int)particles.size());
+    spatialHashGrid.reset(smoothingRadius, (int)positions.size());
     pause = true;
 }
 
