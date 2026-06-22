@@ -6,7 +6,6 @@
 #include "FluidSimulation.h"
 #include "GUIHandler.h"
 #include "InputHandler.h"
-#include "Camera.h"
 
 struct GLFWWindow;
 
@@ -16,7 +15,6 @@ private:
 	FluidSimulation simulation;
 	GUIHandler gui;
 	InputHandler input;
-	Camera camera;
 	float deltaTime;
 	float lastTimeElapsed;
 

@@ -5,19 +5,25 @@
 using namespace FluidSimulationConfig;
 using namespace SphereRendererConfig;
 
-FluidRenderer::FluidRenderer(): renderScale(DEFAULT_RENDER_SCALE) {}
+FluidRenderer::FluidRenderer(): renderScale(DEFAULT_RENDER_SCALE) {
+    camera.farPlane = DEFAULT_RENDER_DISTANCE;
+}
 
 void FluidRenderer::init() {
     sphereRenderer.init();
 }
 
-void FluidRenderer::render(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& velocities, float radius, Camera* camera, bool useInstancing) {
+void FluidRenderer::update() {
+    camera.update();
+}
+
+void FluidRenderer::render(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& velocities, float radius, bool useInstancing) {
     if (!useInstancing) {
         for (const glm::vec3& position : positions) {
             glm::mat4 model(1.0f);
             model = glm::translate(model, position * renderScale);
             model = glm::scale(model, glm::vec3(renderScale * radius));
-            sphereRenderer.draw(camera, model);
+            sphereRenderer.draw(&camera, model);
         }
 
         return;
@@ -29,5 +35,13 @@ void FluidRenderer::render(const std::vector<glm::vec3>& positions, const std::v
         idx++;
         if (idx >= MAX_INSTANCES) break;
     }
-    sphereRenderer.drawInstance(camera, radius, renderScale, idx);
+    sphereRenderer.drawInstance(&camera, radius, renderScale, idx);
+}
+
+void FluidRenderer::setRenderDistance(float distance) {
+    camera.farPlane = distance;
+}
+
+Camera* FluidRenderer::getCamera() {
+    return &camera;
 }

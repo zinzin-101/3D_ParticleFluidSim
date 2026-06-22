@@ -72,13 +72,12 @@ void FluidEngine::initGL() {
 void FluidEngine::update() {
 	gui.update();
 	simulation.update(deltaTime);
-	camera.update();
 }
 
 void FluidEngine::render() {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	simulation.render(&camera);
+	simulation.render();
 	gui.render();
 }
 
@@ -151,7 +150,7 @@ FluidSimulation* FluidEngine::getSimulation() {
 }
 
 Camera* FluidEngine::getCamera() {
-	return &camera;
+	return simulation.getRenderer()->getCamera();
 }
 
 glm::vec2 FluidEngine::getScreenDimension() const {

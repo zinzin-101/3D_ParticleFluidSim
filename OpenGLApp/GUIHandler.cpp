@@ -146,6 +146,16 @@ void GUIHandler::update() {
 		renderScale = renderer->renderScale;
 	}
 
+	static float renderDistance = renderer->getCamera()->farPlane;
+	if (ImGui::SliderFloat("Render distance", &renderDistance, 5.0f, 1000.0f, "%.1f")) {
+		renderer->setRenderDistance(renderDistance);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##rd")) {
+		renderer->setRenderDistance(DEFAULT_RENDER_DISTANCE); 
+		renderDistance = renderer->getCamera()->farPlane;
+	}
+
 	static float mouseSensitivity = engine->mouseSensitivity * 100.0f;
 	if (ImGui::SliderFloat("Mouse sensitivity", &mouseSensitivity, 0.1f, 25.0f, "%.1f")) {
 		engine->mouseSensitivity = mouseSensitivity / 100.0f;

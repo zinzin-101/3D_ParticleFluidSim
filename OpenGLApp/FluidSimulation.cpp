@@ -322,6 +322,8 @@ void FluidSimulation::init() {
 }
 
 void FluidSimulation::update(float dt) {
+    renderer.update();
+
 	if (pause) return;
 
     accumulatedDeltaTime += dt;
@@ -359,11 +361,11 @@ void FluidSimulation::update(float dt) {
 	//std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
 }
 
-void FluidSimulation::render(Camera* camera) {
-	renderer.render(positions, velocities, particleRadius, camera);
+void FluidSimulation::render() {
+	renderer.render(positions, velocities, particleRadius);
 
 	if (showContainer) {
-		container.visualize(camera, renderer.renderScale);
+		container.visualize(renderer.getCamera(), renderer.renderScale);
 	}
 }
 
