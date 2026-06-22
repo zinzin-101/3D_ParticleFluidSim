@@ -145,11 +145,10 @@ float FluidSimulation::smoothingKernelPow3Derivative(float radius, float distanc
     return scale * v * v;
 }
 
-float FluidSimulation::swmoothingKernelPoly6(float radius, float distance) {
+float FluidSimulation::viscosityKernelLaplacian(float radius, float distance) {
     if (distance >= radius) return 0.0f;
-    float v = radius * radius - distance * distance;
-    float volume = (glm::pi<float>() * std::pow(radius, 8.0f)) / 4.0f;
-    return (v * v * v) / volume;
+    float scale = 45.0f / (glm::pi<float>() * std::pow(radius, 6.0f));
+    return scale * (radius - distance);
 }
 
 FluidSimulation::DensityPair FluidSimulation::calculateDensity(unsigned int particleIndex) {
@@ -227,11 +226,11 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         if (i == particleIndex) continue;
         float distance = glm::distance(position, predictedPositions[i]);
         if (distance <= 0.0f) continue;
-        float influence = swmoothingKernelPoly6(smoothingRadius, distance);
+        float influence = viscosityKernelLaplacian(smoothingRadius, distance);
         glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
         
         float denom = densities[i] * densities[particleIndex];
-        if (denom > 0.0f) {
+        if (denom > 1e-6f) {
             viscosityForce += (relativeVelocity / denom) * influence;
         }
     }
@@ -326,6 +325,7 @@ void FluidSimulation::update(float dt) {
 	if (pause) return;
 
     accumulatedDeltaTime += dt;
+    accumulatedDeltaTime = (std::min)(accumulatedDeltaTime, FIXED_DT * (float)SIMULATION_STEPS);
     if (accumulatedDeltaTime < FIXED_DT) return;
 
     int iterations = (int)(accumulatedDeltaTime / FIXED_DT);

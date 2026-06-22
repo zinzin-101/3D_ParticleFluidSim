@@ -77,7 +77,7 @@ void GUIHandler::update() {
 	}
 
 	static float targetNearDensity = simulation->targetNearDensity;
-	if (ImGui::SliderFloat("Target near density", &targetNearDensity, 0.01f, 10.0f, "%.2f")) {
+	if (ImGui::SliderFloat("Target near density", &targetNearDensity, 0.0f, 10.0f, "%.2f")) {
 		simulation->targetNearDensity = targetNearDensity;
 	}
 	ImGui::SameLine();

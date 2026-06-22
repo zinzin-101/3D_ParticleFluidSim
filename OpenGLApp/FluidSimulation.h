@@ -36,7 +36,7 @@ private:
 	float smoothingKernelPow2Derivative(float radius, float distance);
 	float smoothingKernelPow3(float radius, float distance);
 	float smoothingKernelPow3Derivative(float radius, float distance);
-	float swmoothingKernelPoly6(float radius, float distance);
+	float viscosityKernelLaplacian(float radius, float distance);
 
 	DensityPair calculateDensity(unsigned int particleIndex);
 	glm::vec3 calculatePressureForce(unsigned int particleIndex);
