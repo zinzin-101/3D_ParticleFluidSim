@@ -36,6 +36,9 @@ unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity
 void FluidSimulation::clearParticles() {
     positions.clear();
     velocities.clear();
+    densities.clear();
+    nearDensities.clear();
+    predictedPositions.clear();
 }
 
 void FluidSimulation::initSimulation() {
@@ -337,7 +340,7 @@ void FluidSimulation::update(float dt) {
 
     for (int i = 0; i < n; i++) {
         applyGravity(subStepDeltaTime);
-        spatialHashGrid.createHashGrid(positions);
+        spatialHashGrid.createHashGrid(predictedPositions);
         updateParticleDensities(subStepDeltaTime);
         applyPressureForce(subStepDeltaTime);
         applyViscosityForce(subStepDeltaTime);
