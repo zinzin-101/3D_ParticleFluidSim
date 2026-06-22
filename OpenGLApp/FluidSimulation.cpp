@@ -44,9 +44,6 @@ void FluidSimulation::initSimulation() {
     float currentZ = 0.0f;
 
     if (currentNumOfParticles < numOfParticles) {
-        //Particle particle;
-        //particle.position = origin;
-        //particles.emplace_back(particle);
         addParticle(origin);
         currentNumOfParticles++;
     }
@@ -133,7 +130,7 @@ float FluidSimulation::smoothingKernelDerivative(float radius, float distance) {
 }
 
 float FluidSimulation::viscositySmoothingKernel(float radius, float distance) {
-    return smoothingKernelDerivative(radius, distance);
+    return smoothingKernel(radius, distance);
 }
 
 float FluidSimulation::calculateDensity(unsigned int particleIndex) {
@@ -199,8 +196,10 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         if (distance <= 0.0f) continue;
         float influence = viscositySmoothingKernel(smoothingRadius, distance);
         glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
-        if (densities[i] > 0.0f) {
-            viscosityForce += (relativeVelocity / densities[i]) * influence;
+        
+        float denom = densities[i] * densities[particleIndex];
+        if (denom > 0.0f) {
+            viscosityForce += (relativeVelocity / denom) * influence;
         }
     }
 

@@ -87,7 +87,7 @@ void GUIHandler::update() {
 	}
 
 	static float viscosityMultiplier = simulation->viscosityMultiplier;
-	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 2.0f, "%.2f")) {
+	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 100.0f, "%.2f")) {
 		simulation->viscosityMultiplier = viscosityMultiplier;
 	}
 	ImGui::SameLine();
