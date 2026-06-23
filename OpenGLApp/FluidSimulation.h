@@ -62,8 +62,6 @@ public:
 	float particleRadius;
 	float particleMass;
 	bool pause;
-	bool showContainer;
-	bool drawContainerAsOutline;
 
 	float smoothingRadius;
 

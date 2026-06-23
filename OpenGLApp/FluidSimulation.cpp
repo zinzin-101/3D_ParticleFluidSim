@@ -16,9 +16,7 @@ FluidSimulation::FluidSimulation():
 	gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), 
 	particleRadius(DEFAULT_PARTICLE_RADIUS), 
     particleMass(DEFAULT_PARTICLE_MASS),
-	pause(true), 
-	showContainer(false),
-    drawContainerAsOutline(true),
+	pause(true),
     smoothingRadius(DEFAULT_SMOOTHING_RADIUS),
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
@@ -181,10 +179,11 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
             dir = (predictedPositions[i] - predictedPositions[particleIndex]) / distance;
         }
         else {
-            dir.x = (2.0f * randFloat()) - 1.0f;
+            /*dir.x = (2.0f * randFloat()) - 1.0f;
             dir.y = (2.0f * randFloat()) - 1.0f;
             dir.z = (2.0f * randFloat()) - 1.0f;
-            dir = glm::normalize(dir);
+            dir = glm::normalize(dir);*/
+            continue;
         }
         float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
         float density = densities[i];
@@ -345,6 +344,30 @@ void FluidSimulation::update(float dt) {
         applyViscosityForce(subStepDeltaTime);
         updateParticlePositions(subStepDeltaTime);
     }
+
+    float avgspeed = 0.0f;
+    float maxspeed = 0.0f;
+    for (auto& vel : velocities) {
+        float speed = glm::length(vel);
+        avgspeed += speed;
+        maxspeed = (std::max)(maxspeed, speed);
+    }
+    avgspeed /= (float)velocities.size();
+    std::cout << "avg speed" << avgspeed << std::endl;
+    std::cout << "max speed" << maxspeed << std::endl;
+
+    float avgdensity = 0.0f;
+    float maxdensity = 0.0f;
+    float mindensity = 999999999.0f;
+    for (auto& density : densities) {
+        avgdensity += density;
+        maxdensity = (std::max)(maxdensity, density);
+        mindensity = (std::min)(mindensity, density);
+    }
+    avgdensity /= (float)velocities.size();
+    std::cout << "avg density" << avgdensity << std::endl;
+    std::cout << "max density" << maxdensity << std::endl;
+    std::cout << "max density" << mindensity << std::endl;
 
 	//applyGravity(dt);
 

@@ -216,15 +216,15 @@ void GUIHandler::update() {
 		containerRotation[0] = containerRotation[1] = containerRotation[2] = 0.0f;
 	}
 
-	static bool showContainer = simulation->showContainer;
+	static bool showContainer = renderer->showContainer;
 	if (ImGui::Checkbox("Show container", &showContainer)) {
-		simulation->showContainer = showContainer;
+		renderer->showContainer = showContainer;
 	}
 
 	if (showContainer) {
-		static bool drawAsOutline = simulation->drawContainerAsOutline;
+		static bool drawAsOutline = renderer->drawContainerAsOutline;
 		if (ImGui::Checkbox("Draw as outline", &drawAsOutline)) {
-			simulation->drawContainerAsOutline = drawAsOutline;
+			renderer->drawContainerAsOutline = drawAsOutline;
 		}
 
 		if (!drawAsOutline) {

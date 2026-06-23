@@ -4,6 +4,8 @@
 #include "Particle.h"
 #include <vector>
 
+class FluidSimulation;
+
 class FluidRenderer {
 private:
 	Camera camera;
@@ -12,10 +14,13 @@ private:
 public:
 	float renderScale;
 
+	bool showContainer;
+	bool drawContainerAsOutline;
+
 	FluidRenderer();
 	void init();
 	void update();
-	void render(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& velocities, float radius, bool useInstancing = true);
+	void render(FluidSimulation* simulation, bool useInstancing = true);
 
 	void setRenderDistance(float distance);
 

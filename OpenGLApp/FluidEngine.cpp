@@ -78,14 +78,7 @@ void FluidEngine::update() {
 void FluidEngine::render() {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	renderer.render(simulation.getPositions(), simulation.getVelocities(), simulation.particleRadius);
-
-	if (simulation.showContainer) {
-		FluidContainer* container = simulation.getContainer();
-		container->visualize(renderer.getCamera(), renderer.renderScale, simulation.drawContainerAsOutline);
-	}
-
+	renderer.render(&simulation);
 	gui.render();
 }
 
