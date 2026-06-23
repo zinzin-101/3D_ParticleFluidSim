@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "FluidSimulation.h"
+#include "FluidRenderer.h"
 #include "GUIHandler.h"
 #include "InputHandler.h"
 
@@ -13,6 +14,7 @@ class FluidEngine {
 private:
 	GLFWwindow* window;
 	FluidSimulation simulation;
+	FluidRenderer renderer;
 	GUIHandler gui;
 	InputHandler input;
 	float deltaTime;
@@ -44,6 +46,7 @@ public:
 	InputHandler* getInputHandler();
 	GUIHandler* getGUIHandler();
 	FluidSimulation* getSimulation();
+	FluidRenderer* getRenderer();
 	Camera* getCamera();
 	glm::vec2 getScreenDimension() const;
 	bool getIsVSyncOn() const;

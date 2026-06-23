@@ -55,7 +55,7 @@ void PlaneRenderer::init() {
     hasInit = true;
 }
 
-void PlaneRenderer::draw(Camera* camera, float opacity, glm::mat4 model) {
+void PlaneRenderer::draw(Camera* camera, float opacity, glm::mat4 model, bool drawAsOutline) {
     if (!hasInit) init();
     
     planeShader.use();
@@ -65,7 +65,7 @@ void PlaneRenderer::draw(Camera* camera, float opacity, glm::mat4 model) {
     planeShader.setMat4("view", camera->getViewMatrix());
     planeShader.setMat4("projection", camera->getProjectionMatrix());
     planeShader.setVec3("color", DEFAULT_PLANE_COLOR);
-    planeShader.setFloat("opacity", opacity);
+    planeShader.setFloat("opacity", drawAsOutline ? 1.0f : opacity);
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);

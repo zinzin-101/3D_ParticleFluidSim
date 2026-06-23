@@ -15,7 +15,6 @@ private:
 		DensityPair(float density, float fnearDensity);
 	};
 
-	FluidRenderer renderer;
 	FluidContainer container;
 	SpatialHashGrid spatialHashGrid;
 	std::vector<glm::vec3> positions;
@@ -64,6 +63,7 @@ public:
 	float particleMass;
 	bool pause;
 	bool showContainer;
+	bool drawContainerAsOutline;
 
 	float smoothingRadius;
 
@@ -76,10 +76,11 @@ public:
 	FluidSimulation();
 	void init();
 	void update(float dt);
-	void render();
 
 	void reset();
 
-	FluidRenderer* getRenderer();
 	FluidContainer* getContainer();
+
+	const std::vector<glm::vec3>& getPositions() const;
+	const std::vector<glm::vec3>& getVelocities() const;
 };

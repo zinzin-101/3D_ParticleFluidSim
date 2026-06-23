@@ -72,12 +72,20 @@ void FluidEngine::initGL() {
 void FluidEngine::update() {
 	gui.update();
 	simulation.update(deltaTime);
+	renderer.update();
 }
 
 void FluidEngine::render() {
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	simulation.render();
+
+	renderer.render(simulation.getPositions(), simulation.getVelocities(), simulation.particleRadius);
+
+	if (simulation.showContainer) {
+		FluidContainer* container = simulation.getContainer();
+		container->visualize(renderer.getCamera(), renderer.renderScale, simulation.drawContainerAsOutline);
+	}
+
 	gui.render();
 }
 
@@ -91,9 +99,10 @@ void FluidEngine::init() {
 	initWindow();
 	input.init(window);
 	initGL();
-	gui.init(window, &simulation);
+	gui.init(window, this);
 
 	simulation.init();
+	renderer.init();
 }
 
 void FluidEngine::run() {
@@ -149,8 +158,12 @@ FluidSimulation* FluidEngine::getSimulation() {
 	return &simulation;
 }
 
+FluidRenderer* FluidEngine::getRenderer() {
+	return &renderer;
+}
+
 Camera* FluidEngine::getCamera() {
-	return simulation.getRenderer()->getCamera();
+	return renderer.getCamera();
 }
 
 glm::vec2 FluidEngine::getScreenDimension() const {

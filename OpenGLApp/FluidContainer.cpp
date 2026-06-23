@@ -150,10 +150,14 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 	}
 }
 
-void FluidContainer::visualize(Camera* camera, float renderScale) {
+void FluidContainer::visualize(Camera* camera, float renderScale, bool drawAsOutline) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
+
+	if (drawAsOutline) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
 
 	static const int oppositePairs[6] = { 1, 0, 3, 2, 5, 4 };
 	static const int adjacentPlanes[6][4] = {
@@ -225,11 +229,12 @@ void FluidContainer::visualize(Camera* camera, float renderScale) {
 		model[2] = glm::vec4(ni, 0.0f);
 		model[3] = glm::vec4(uvCenter * renderScale, 1.0f);
 
-		planeVisualizer.draw(camera, planeOpacity, model);
+		planeVisualizer.draw(camera, planeOpacity, model, drawAsOutline);
 	}
 
 	//glDisable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDepthMask(GL_TRUE);
 }
 

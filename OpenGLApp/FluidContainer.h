@@ -26,7 +26,7 @@ public:
 	void rotates(float degrees, glm::vec3 axis);
 	void reset();
 
-	void visualize(Camera* camera, float renderScale);
+	void visualize(Camera* camera, float renderScale, bool drawAsOutline = false);
 
 	glm::vec3 getCurrentPosition() const;
 	glm::vec3 getCurrentScale() const;

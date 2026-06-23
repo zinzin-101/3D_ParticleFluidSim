@@ -18,6 +18,7 @@ FluidSimulation::FluidSimulation():
     particleMass(DEFAULT_PARTICLE_MASS),
 	pause(true), 
 	showContainer(false),
+    drawContainerAsOutline(true),
     smoothingRadius(DEFAULT_SMOOTHING_RADIUS),
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
@@ -188,14 +189,14 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
         float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
         float density = densities[i];
         float sharedPressure = calculateSharedPressure(density, densities[particleIndex]);
-        if (density > 1e-6f) {
+        if (density > 0.0f) {
             pressureForce += sharedPressure * particleMass * gradient * dir / density;
         }
 
         float nearGradient = smoothingKernelPow3Derivative(smoothingRadius, distance);
         float nearDensity = nearDensities[i];
         float sharedNearPressure = calculateSharedNearPressure(nearDensity, nearDensities[particleIndex]);
-        if (nearDensity > 1e-6f) {
+        if (nearDensity > 0.0f) {
             pressureForce += sharedNearPressure * particleMass * nearGradient * dir / nearDensity;
         }
     }
@@ -229,7 +230,7 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
         
         float denom = densities[i];
-        if (denom > 1e-6f) {
+        if (denom > 0.0f) {
             viscosityForce += particleMass * (relativeVelocity / denom) * influence;
         }
     }
@@ -288,7 +289,7 @@ void FluidSimulation::updateParticleDensities(float dt) {
 void FluidSimulation::applyPressureForce(float dt) {
     for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         glm::vec3 pressureForce = calculatePressureForce(i);
-        if (densities[i] > 1e-6f) {
+        if (densities[i] > 0.0f) {
             glm::vec3 pressureAcceleration = pressureForce / densities[i];
             velocities[i] += pressureAcceleration * dt;
             //particles[i].velocity = -pressureAcceleration * dt;
@@ -316,13 +317,10 @@ void FluidSimulation::updateParticlePositions(float dt) {
 }
 
 void FluidSimulation::init() {
-	renderer.init();
 	initSimulation();
 }
 
 void FluidSimulation::update(float dt) {
-    renderer.update();
-
 	if (pause) return;
 
     accumulatedDeltaTime += dt;
@@ -360,14 +358,6 @@ void FluidSimulation::update(float dt) {
 	//std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
 }
 
-void FluidSimulation::render() {
-	renderer.render(positions, velocities, particleRadius);
-
-	if (showContainer) {
-		container.visualize(renderer.getCamera(), renderer.renderScale);
-	}
-}
-
 void FluidSimulation::reset() {
     clearParticles();
 	initSimulation();
@@ -375,10 +365,14 @@ void FluidSimulation::reset() {
     pause = true;
 }
 
-FluidRenderer* FluidSimulation::getRenderer() {
-	return &renderer;
-}
-
 FluidContainer* FluidSimulation::getContainer() {
 	return &container;
+}
+
+const std::vector<glm::vec3>& FluidSimulation::getPositions() const {
+    return positions;
+}
+
+const std::vector<glm::vec3>& FluidSimulation::getVelocities() const {
+    return velocities;
 }

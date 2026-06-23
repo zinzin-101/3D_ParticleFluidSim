@@ -7,7 +7,7 @@
 using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
 
-void GUIHandler::init(GLFWwindow* window, FluidSimulation* simulation) {
+void GUIHandler::init(GLFWwindow* window, FluidEngine* engine) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -15,8 +15,7 @@ void GUIHandler::init(GLFWwindow* window, FluidSimulation* simulation) {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 440");
 
-	this->simulation = simulation;
-	this->renderer = simulation->getRenderer();
+	this->engine = engine;
 }
 
 void GUIHandler::update() {
@@ -24,9 +23,9 @@ void GUIHandler::update() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	FluidEngine* engine = FluidEngine::getInstance();
+	FluidSimulation* simulation = engine->getSimulation();
+	FluidRenderer* renderer = engine->getRenderer();
 	FluidContainer* container = simulation->getContainer();
-
 
 	ImGui::Begin("Simulation");
 	static int fpsIterationCount = 0;
@@ -223,10 +222,17 @@ void GUIHandler::update() {
 	}
 
 	if (showContainer) {
-		static float containerOpacity = container->planeOpacity;
-		if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
-			container->planeOpacity = containerOpacity;
-			container->planeOpacity = containerOpacity;
+		static bool drawAsOutline = simulation->drawContainerAsOutline;
+		if (ImGui::Checkbox("Draw as outline", &drawAsOutline)) {
+			simulation->drawContainerAsOutline = drawAsOutline;
+		}
+
+		if (!drawAsOutline) {
+			static float containerOpacity = container->planeOpacity;
+			if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
+				container->planeOpacity = containerOpacity;
+				container->planeOpacity = containerOpacity;
+			}
 		}
 	}
 
