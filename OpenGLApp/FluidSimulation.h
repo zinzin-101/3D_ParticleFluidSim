@@ -22,6 +22,7 @@ private:
 	std::vector<float> densities;
 	std::vector<float> nearDensities;
 	std::vector<glm::vec3> predictedPositions;
+	std::vector<glm::vec3> deltas;
 
 	float accumulatedDeltaTime;
 
@@ -40,9 +41,6 @@ private:
 	float viscosityKernelLaplacian(float radius, float distance);
 
 	DensityPair calculateDensity(unsigned int particleIndex);
-	glm::vec3 calculatePressureForce(unsigned int particleIndex);
-	float calculateSharedPressure(float density1, float density2);
-	float calculateSharedNearPressure(float nearDensity1, float nearDensity2);
 	glm::vec3 calculateViscosityForce(unsigned int particleIndex);
 	void updateDensities();
 
@@ -52,7 +50,7 @@ private:
 	void handleBoundaries();
 
 	void updateParticleDensities(float dt);
-	void applyPressureForce(float dt);
+	void doubleDensityRelaxation(float dt);
 	void applyViscosityForce(float dt);
 	void updateParticlePositions(float dt);
 

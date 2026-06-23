@@ -44,7 +44,7 @@ vec3 CalcDirLight(vec3 lightDirection, vec3 normal, vec3 viewDirection) {
 
 vec3 GetColorFromSpeed(float speed){
     float minSpeed = 0.0;
-    float maxSpeed = 5.0;
+    float maxSpeed = 20.0;
     float x = clamp((speed - minSpeed) / (maxSpeed - minSpeed), 0.0, 1.0);
     x = mix(0.12, 1.0, x);
 

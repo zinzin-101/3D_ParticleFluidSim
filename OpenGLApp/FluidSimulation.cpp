@@ -38,6 +38,7 @@ void FluidSimulation::clearParticles() {
     densities.clear();
     nearDensities.clear();
     predictedPositions.clear();
+    deltas.clear();
 }
 
 void FluidSimulation::initSimulation() {
@@ -113,6 +114,7 @@ void FluidSimulation::initSimulation() {
     densities.resize(positions.size());
     nearDensities.resize(positions.size());
     predictedPositions.resize(positions.size());
+    deltas.resize(positions.size());
 }
 
 float FluidSimulation::smoothingKernelPow2(float radius, float distance) {
@@ -183,64 +185,15 @@ FluidSimulation::DensityPair FluidSimulation::calculateDensity(unsigned int part
     return DensityPair(density, nearDensity);
 }
 
-glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
-    glm::vec3 pressureForce = glm::vec3(0.0f);
-
-    spatialHashGrid.query(predictedPositions[particleIndex], smoothingRadius);
-    for (int query = 0; query < spatialHashGrid.getQuerySize(); query++) {
-        unsigned int i = (unsigned int)spatialHashGrid.getQueryId(query);
-        if (i == particleIndex) continue;
-        float distance = glm::distance(predictedPositions[particleIndex], predictedPositions[i]);
-        glm::vec3 dir = glm::vec3(0.0f);
-        if (distance > 1e-6f) {
-            dir = (predictedPositions[i] - predictedPositions[particleIndex]) / distance;
-        }
-        else {
-            continue;
-            //dir.x = (2.0f * randFloat()) - 1.0f;
-            //dir.y = (2.0f * randFloat()) - 1.0f;
-            //dir.z = (2.0f * randFloat()) - 1.0f;
-            //dir = glm::normalize(dir);
-        }
-        //float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
-        float gradient = smoothingKernelSpikyDerivative(smoothingRadius, distance);
-        float density = densities[i];
-        float sharedPressure = calculateSharedPressure(density, densities[particleIndex]);
-
-        float nearGradient = smoothingKernelPow3Derivative(smoothingRadius, distance);
-        float nearDensity = nearDensities[i];
-        float sharedNearPressure = calculateSharedNearPressure(nearDensity, nearDensities[particleIndex]);
-        if (density > 0.0f) {
-            pressureForce += sharedPressure * particleMass * gradient * dir / density;
-            pressureForce += sharedNearPressure * particleMass * nearGradient * dir / density;
-
-        }
-    }
-
-    return pressureForce;
-}
-
-float FluidSimulation::calculateSharedPressure(float density1, float density2) {
-    float p1 = densityToPressure(density1);
-    float p2 = densityToPressure(density2);
-    return (p1 + p2) / 2.0f;
-}
-
-float FluidSimulation::calculateSharedNearPressure(float nearDensity1, float nearDensity2) {
-    float p1 = nearDensity1 * nearPressureMultiplier;
-    float p2 = nearDensity2 * nearPressureMultiplier;
-    return (p1 + p2) / 2.0f;
-}
-
 glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
     glm::vec3 viscosityForce = glm::vec3(0.0f);
-    glm::vec3 position = predictedPositions[particleIndex];
+    glm::vec3 position = positions[particleIndex];
 
     spatialHashGrid.query(position, smoothingRadius);
     for (int query = 0; query < spatialHashGrid.getQuerySize(); query++) {
         unsigned int i = (unsigned int)spatialHashGrid.getQueryId(query);
         if (i == particleIndex) continue;
-        float distance = glm::distance(position, predictedPositions[i]);
+        float distance = glm::distance(position, positions[i]);
         if (distance <= 0.0f) continue;
         float influence = viscosityKernelLaplacian(smoothingRadius, distance);
         glm::vec3 relativeVelocity = (velocities[i] - velocities[particleIndex]);
@@ -288,7 +241,8 @@ void FluidSimulation::handleBoundaries() {
 			container.ResolveCollision(particle, particleRadius);
 		}*/
 
-		container.resolveCollision(positions[i], velocities[i], particleRadius);
+        //container.resolveCollision(positions[i], velocities[i], particleRadius);
+        container.resolveCollision(predictedPositions[i], velocities[i], particleRadius, true);
 	}
 }
 
@@ -304,17 +258,47 @@ void FluidSimulation::updateParticleDensities(float dt) {
     }
 }
 
-void FluidSimulation::applyPressureForce(float dt) {
-    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-        glm::vec3 pressureForce = calculatePressureForce(i);
-        if (densities[i] > 0.0f) {
-            glm::vec3 pressureAcceleration = pressureForce / densities[i];
-            velocities[i] += pressureAcceleration * dt;
-            //particles[i].velocity = -pressureAcceleration * dt;
-            predictedPositions[i] = positions[i] + velocities[i] * dt;
-        }
+//void FluidSimulation::applyPressureForce(float dt) {
+//    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+//        glm::vec3 pressureForce = calculatePressureForce(i);
+//        if (densities[i] > 0.0f) {
+//            glm::vec3 pressureAcceleration = pressureForce / densities[i];
+//            velocities[i] += pressureAcceleration * dt;
+//            //particles[i].velocity = -pressureAcceleration * dt;
+//            predictedPositions[i] = positions[i] + velocities[i] * dt;
+//        }
+//
+//        //velocities[i] += pressureForce * dt;
+//    }
+//}
 
-        //velocities[i] += pressureForce * dt;
+void FluidSimulation::doubleDensityRelaxation(float dt) {
+    deltas.assign(deltas.size(), glm::vec3(0.0f));
+
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+        float pressure = pressureMultiplier * (densities[i] - targetDensity);
+        float nearPressure = nearPressureMultiplier * nearDensities[i];
+
+        spatialHashGrid.query(predictedPositions[i], smoothingRadius);
+        for (int query = 0; query < spatialHashGrid.getQuerySize(); query++) {
+            unsigned int j = (unsigned int)spatialHashGrid.getQueryId(query);
+            if (i == j) continue;
+
+            glm::vec3 rij = predictedPositions[j] - predictedPositions[i];
+            float r = glm::length(rij);
+            if (r <= 1e-6f || r >= smoothingRadius) continue;
+
+            glm::vec3 dir = glm::normalize(rij);
+            float q = 1.0f - (r / smoothingRadius);
+            glm::vec3 D = dt * dt * (pressure * q + nearPressure * q * q) * dir;
+            deltas[i] -= 0.5f * D;
+            deltas[j] += 0.5f * D;
+        }
+    }
+
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++)
+    {
+        predictedPositions[i] += deltas[i];
     }
 }
 
@@ -328,8 +312,10 @@ void FluidSimulation::applyViscosityForce(float dt) {
 void FluidSimulation::updateParticlePositions(float dt) {
     for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         // update position
-        positions[i] += velocities[i] * dt;
-        velocities[i] *= DEFAULT_VELOCITY_DAMPING;
+        //positions[i] += velocities[i] * dt;
+        //velocities[i] *= DEFAULT_VELOCITY_DAMPING;
+        velocities[i] = (predictedPositions[i] - positions[i]) / dt;
+        positions[i] = predictedPositions[i];
 
         // resolve container collision
         container.resolveCollision(positions[i], velocities[i], particleRadius);
@@ -358,41 +344,46 @@ void FluidSimulation::update(float dt) {
     }
 
     for (unsigned int i = 0; i < n; i++) {
-        applyGravity(subStepDeltaTime);
-        spatialHashGrid.createHashGrid(predictedPositions);
-        updateParticleDensities(subStepDeltaTime);
-        applyPressureForce(subStepDeltaTime);
+        spatialHashGrid.createHashGrid(positions);
         applyViscosityForce(subStepDeltaTime);
+        applyGravity(subStepDeltaTime);
+
+        for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
+            spatialHashGrid.createHashGrid(predictedPositions);
+            updateParticleDensities(subStepDeltaTime);
+            doubleDensityRelaxation(subStepDeltaTime);
+            handleBoundaries();
+        }
         updateParticlePositions(subStepDeltaTime);
     }
 
 
-    //float avgspeed = 0.0f;
-    //float maxspeed = 0.0f;
-    //float avgdensity = 0.0f;
-    //float maxdensity = 0.0f;
-    //float mindensity = 999999999.0f;
-    //for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-    //    glm::vec3 vel = velocities[i];
-    //    float density = densities[i];
+    float avgspeed = 0.0f;
+    float maxspeed = 0.0f;
+    float avgdensity = 0.0f;
+    float maxdensity = 0.0f;
+    float mindensity = 999999999.0f;
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+        glm::vec3 vel = velocities[i];
+        float density = densities[i];
 
-    //    float speed = glm::length(vel);
-    //    avgspeed += speed;
-    //    maxspeed = (std::max)(maxspeed, speed);
+        float speed = glm::length(vel);
+        avgspeed += speed;
+        maxspeed = (std::max)(maxspeed, speed);
 
-    //    avgdensity += density;
-    //    maxdensity = (std::max)(maxdensity, density);
-    //    mindensity = (std::min)(mindensity, density);
-    //}
+        avgdensity += density;
+        maxdensity = (std::max)(maxdensity, density);
+        mindensity = (std::min)(mindensity, density);
+    }
 
-    //avgdensity /= (float)velocities.size();
-    //std::cout << "avg density" << avgdensity << std::endl;
-    //std::cout << "max density" << maxdensity << std::endl;
-    //std::cout << "max density" << mindensity << std::endl;
+    avgdensity /= (float)velocities.size();
+    std::cout << "avg density" << avgdensity << std::endl;
+    std::cout << "max density" << maxdensity << std::endl;
+    std::cout << "min density" << mindensity << std::endl;
 
-    //avgspeed /= (float)velocities.size();
-    //std::cout << "avg speed" << avgspeed << std::endl;
-    //std::cout << "max speed" << maxspeed << std::endl;
+    avgspeed /= (float)velocities.size();
+    std::cout << "avg speed" << avgspeed << std::endl;
+    std::cout << "max speed" << maxspeed << std::endl;
 }
 
 void FluidSimulation::reset() {

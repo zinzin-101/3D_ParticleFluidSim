@@ -52,7 +52,7 @@ bool FluidContainer::isInside(const glm::vec3& position, float radius) {
 	return true;
 }
 
-void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius) {
+void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius, bool ignoreVelocity) {
 	glm::vec3 pos = position;
 	glm::vec3 vel = velocity;
 
@@ -63,15 +63,20 @@ void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, 
 			glm::vec3 closestPoint = getClosestPointOnPlane(pos, planes[i]);
 			pos = closestPoint - normal * radius;
 
-			float normalSpeed = glm::dot(normal, vel);
-			if (normalSpeed > 0.0f) {
-				vel -= 1.0f * normal * normalSpeed;
+			if (!ignoreVelocity) {
+				float normalSpeed = glm::dot(normal, vel);
+				if (normalSpeed > 0.0f) {
+					vel -= 1.0f * normal * normalSpeed;
+				}
 			}
 		}
 	}
 
 	position = pos;
-	velocity = vel;
+
+	if (!ignoreVelocity) {
+		velocity = vel;
+	}
 }
 
 void FluidContainer::translates(glm::vec3 translation) {
