@@ -63,7 +63,7 @@ void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, 
 
 			float normalSpeed = glm::dot(normal, vel);
 			if (normalSpeed > 0.0f) {
-				vel -= 1.5f * normal * normalSpeed;
+				vel -= 1.0f * normal * normalSpeed;
 			}
 		}
 	}

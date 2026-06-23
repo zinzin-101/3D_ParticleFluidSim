@@ -8,7 +8,7 @@ using namespace SphereRendererConfig;
 
 FluidRenderer::FluidRenderer(): 
     renderScale(DEFAULT_RENDER_SCALE),
-    showContainer(false),
+    showContainer(true),
     drawContainerAsOutline(true)
 {
     camera.farPlane = DEFAULT_RENDER_DISTANCE;

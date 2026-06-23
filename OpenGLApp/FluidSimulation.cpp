@@ -276,6 +276,8 @@ void FluidSimulation::applyGravity(float dt) {
 		//particle.position += particle.velocity * dt;
 
         predictedPositions[i] = positions[i] + velocities[i] * dt;
+
+        container.resolveCollision(predictedPositions[i], velocities[i], particleRadius);
 	}
 }
 
@@ -308,6 +310,7 @@ void FluidSimulation::applyPressureForce(float dt) {
             glm::vec3 pressureAcceleration = pressureForce / densities[i];
             velocities[i] += pressureAcceleration * dt;
             //particles[i].velocity = -pressureAcceleration * dt;
+            predictedPositions[i] = positions[i] + velocities[i] * dt;
         }
 
         //velocities[i] += pressureForce * dt;
@@ -318,7 +321,6 @@ void FluidSimulation::applyViscosityForce(float dt) {
     for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
         glm::vec3 viscosityForce = calculateViscosityForce(i);
         velocities[i] += viscosityForce * dt;
-
     }
 }
 
