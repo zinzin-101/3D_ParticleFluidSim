@@ -9,7 +9,7 @@ namespace FluidSimulationConfig {
 	constexpr float DEFAULT_RENDER_DISTANCE = 100.0f;
 	constexpr float DEFAULT_PARTICLE_RADIUS = 0.3f;
 
-	constexpr float DEFAULT_VELOCITY_DAMPING = 0.98f;
+	constexpr float DEFAULT_VELOCITY_DAMPING = 0.985f;
 
 	const glm::vec3 DEFAULT_CUBE_CONTAINER_ORIGIN = glm::vec3(0.0f, 0.0f, 0.0f);
 	constexpr float DEFAULT_CUBE_CONTAINER_SIDE_LENGTH = 8.0f;
@@ -22,11 +22,13 @@ namespace FluidSimulationConfig {
 
 	constexpr float DEFAULT_TARGET_DENSITY = 1.0f;
 	constexpr float DEFAULT_TARGET_NEAR_DENSITY = 0.0f;
-	constexpr float DEFAULT_PRESSURE_MULTIPLIER = 1000.0f;
-	constexpr float DEFAULT_NEAR_PRESSURE_MULTIPLIER = 5.0f;
+	constexpr float DEFAULT_PRESSURE_MULTIPLIER = 250.0f;
+	constexpr float DEFAULT_NEAR_PRESSURE_MULTIPLIER = 50.0f;
 
 	constexpr float DEFAULT_VISCOSITY = 0.005f;
 
-	constexpr int SIMULATION_STEPS = 3;
-	constexpr int MAX_SIMULATION_STEPS = 5;
+	constexpr unsigned int SIMULATION_STEPS = 3;
+	constexpr unsigned int MAX_SIMULATION_STEPS = 5;
+
+	constexpr float PREDICTION_TIME = 1.0f / 120.0f;
 }

@@ -35,6 +35,8 @@ private:
 	float smoothingKernelPow2Derivative(float radius, float distance);
 	float smoothingKernelPow3(float radius, float distance);
 	float smoothingKernelPow3Derivative(float radius, float distance);
+	float smoothingKernelPoly6(float radius, float distance);
+	float smoothingKernelSpikyDerivative(float radius, float distance);
 	float viscosityKernelLaplacian(float radius, float distance);
 
 	DensityPair calculateDensity(unsigned int particleIndex);

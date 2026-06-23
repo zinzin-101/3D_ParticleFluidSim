@@ -128,19 +128,34 @@ float FluidSimulation::smoothingKernelPow2Derivative(float radius, float distanc
     return scale * v;
 }
 
-// SpikyPow3 — used for near density (steeper, short-range)
 float FluidSimulation::smoothingKernelPow3(float radius, float distance) {
     if (distance >= radius) return 0.0f;
     float v = radius - distance;
-    float volume = glm::pi<float>() * std::pow(radius, 5.0f) / 10.0f;
-    return (v * v * v) / volume;
+    //float volume = glm::pi<float>() * std::pow(radius, 5.0f) / 10.0f;
+    //return (v * v * v) / volume;
+    float scale = 10.0f / (glm::pi<float>() * pow(radius, 5.0f));
+    return scale * v * v * v;
 }
 
 float FluidSimulation::smoothingKernelPow3Derivative(float radius, float distance) {
     if (distance >= radius) return 0.0f;
     float v = radius - distance;
-    float scale = -30.0f / (glm::pi<float>() * std::pow(radius, 5.0f));
+    //float scale = -30.0f / (glm::pi<float>() * std::pow(radius, 5.0f));
+    //return scale * v * v;
+    float scale = -30.0f / (glm::pi<float>() * pow(radius, 5.0f));
     return scale * v * v;
+}
+
+float FluidSimulation::smoothingKernelPoly6(float radius, float distance) {
+    if (distance >= radius) return 0.0f;
+    float a = radius * radius - distance * distance;
+    return 315.0f / (64.0f * glm::pi<float>() * std::pow(radius, 9.0f)) * a * a * a;
+}
+
+float FluidSimulation::smoothingKernelSpikyDerivative(float radius, float distance) {
+    if (distance >= radius) return 0.0f;
+    float v = radius - distance;
+    return -45.0f / (glm::pi<float>() * std::pow(radius, 6.0f)) * v * v;
 }
 
 float FluidSimulation::viscosityKernelLaplacian(float radius, float distance) {
@@ -159,7 +174,8 @@ FluidSimulation::DensityPair FluidSimulation::calculateDensity(unsigned int part
         if (i == particleIndex) continue;
 
         float distance = glm::distance(predictedPositions[particleIndex], predictedPositions[i]);
-        density += particleMass * smoothingKernelPow2(smoothingRadius, distance);
+        //density += particleMass * smoothingKernelPow2(smoothingRadius, distance);
+        density += particleMass * smoothingKernelPoly6(smoothingRadius, distance);
         nearDensity += particleMass * smoothingKernelPow3(smoothingRadius, distance);
     }
 
@@ -175,28 +191,28 @@ glm::vec3 FluidSimulation::calculatePressureForce(unsigned int particleIndex) {
         if (i == particleIndex) continue;
         float distance = glm::distance(predictedPositions[particleIndex], predictedPositions[i]);
         glm::vec3 dir = glm::vec3(0.0f);
-        if (distance != 0.0f) {
+        if (distance > 1e-6f) {
             dir = (predictedPositions[i] - predictedPositions[particleIndex]) / distance;
         }
         else {
-            /*dir.x = (2.0f * randFloat()) - 1.0f;
-            dir.y = (2.0f * randFloat()) - 1.0f;
-            dir.z = (2.0f * randFloat()) - 1.0f;
-            dir = glm::normalize(dir);*/
             continue;
+            //dir.x = (2.0f * randFloat()) - 1.0f;
+            //dir.y = (2.0f * randFloat()) - 1.0f;
+            //dir.z = (2.0f * randFloat()) - 1.0f;
+            //dir = glm::normalize(dir);
         }
-        float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
+        //float gradient = smoothingKernelPow2Derivative(smoothingRadius, distance);
+        float gradient = smoothingKernelSpikyDerivative(smoothingRadius, distance);
         float density = densities[i];
         float sharedPressure = calculateSharedPressure(density, densities[particleIndex]);
-        if (density > 0.0f) {
-            pressureForce += sharedPressure * particleMass * gradient * dir / density;
-        }
 
         float nearGradient = smoothingKernelPow3Derivative(smoothingRadius, distance);
         float nearDensity = nearDensities[i];
         float sharedNearPressure = calculateSharedNearPressure(nearDensity, nearDensities[particleIndex]);
-        if (nearDensity > 0.0f) {
-            pressureForce += sharedNearPressure * particleMass * nearGradient * dir / nearDensity;
+        if (density > 0.0f) {
+            pressureForce += sharedPressure * particleMass * gradient * dir / density;
+            pressureForce += sharedNearPressure * particleMass * nearGradient * dir / density;
+
         }
     }
 
@@ -293,6 +309,8 @@ void FluidSimulation::applyPressureForce(float dt) {
             velocities[i] += pressureAcceleration * dt;
             //particles[i].velocity = -pressureAcceleration * dt;
         }
+
+        //velocities[i] += pressureForce * dt;
     }
 }
 
@@ -326,17 +344,17 @@ void FluidSimulation::update(float dt) {
     accumulatedDeltaTime = (std::min)(accumulatedDeltaTime, FIXED_DT * (float)SIMULATION_STEPS);
     if (accumulatedDeltaTime < FIXED_DT) return;
 
-    int iterations = (int)(accumulatedDeltaTime / FIXED_DT);
+    unsigned int iterations = (unsigned int)(accumulatedDeltaTime / FIXED_DT);
     accumulatedDeltaTime -= FIXED_DT * (float)iterations;
 
     float subStepDeltaTime = FIXED_DT / SIMULATION_STEPS;
 
-    int n = iterations * SIMULATION_STEPS;
+    unsigned int n = iterations * SIMULATION_STEPS;
     if (n > MAX_SIMULATION_STEPS) {
         n = MAX_SIMULATION_STEPS;
     }
 
-    for (int i = 0; i < n; i++) {
+    for (unsigned int i = 0; i < n; i++) {
         applyGravity(subStepDeltaTime);
         spatialHashGrid.createHashGrid(predictedPositions);
         updateParticleDensities(subStepDeltaTime);
@@ -345,29 +363,33 @@ void FluidSimulation::update(float dt) {
         updateParticlePositions(subStepDeltaTime);
     }
 
+
     float avgspeed = 0.0f;
     float maxspeed = 0.0f;
-    for (auto& vel : velocities) {
-        float speed = glm::length(vel);
-        avgspeed += speed;
-        maxspeed = (std::max)(maxspeed, speed);
-    }
-    avgspeed /= (float)velocities.size();
-    std::cout << "avg speed" << avgspeed << std::endl;
-    std::cout << "max speed" << maxspeed << std::endl;
-
     float avgdensity = 0.0f;
     float maxdensity = 0.0f;
     float mindensity = 999999999.0f;
-    for (auto& density : densities) {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+        glm::vec3 vel = velocities[i];
+        float density = densities[i];
+
+        float speed = glm::length(vel);
+        avgspeed += speed;
+        maxspeed = (std::max)(maxspeed, speed);
+
         avgdensity += density;
         maxdensity = (std::max)(maxdensity, density);
         mindensity = (std::min)(mindensity, density);
     }
+
     avgdensity /= (float)velocities.size();
     std::cout << "avg density" << avgdensity << std::endl;
     std::cout << "max density" << maxdensity << std::endl;
     std::cout << "max density" << mindensity << std::endl;
+
+    avgspeed /= (float)velocities.size();
+    std::cout << "avg speed" << avgspeed << std::endl;
+    std::cout << "max speed" << maxspeed << std::endl;
 
 	//applyGravity(dt);
 
