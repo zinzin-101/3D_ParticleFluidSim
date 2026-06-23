@@ -366,43 +366,32 @@ void FluidSimulation::update(float dt) {
     }
 
 
-    float avgspeed = 0.0f;
-    float maxspeed = 0.0f;
-    float avgdensity = 0.0f;
-    float maxdensity = 0.0f;
-    float mindensity = 999999999.0f;
-    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-        glm::vec3 vel = velocities[i];
-        float density = densities[i];
+    //float avgspeed = 0.0f;
+    //float maxspeed = 0.0f;
+    //float avgdensity = 0.0f;
+    //float maxdensity = 0.0f;
+    //float mindensity = 999999999.0f;
+    //for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+    //    glm::vec3 vel = velocities[i];
+    //    float density = densities[i];
 
-        float speed = glm::length(vel);
-        avgspeed += speed;
-        maxspeed = (std::max)(maxspeed, speed);
+    //    float speed = glm::length(vel);
+    //    avgspeed += speed;
+    //    maxspeed = (std::max)(maxspeed, speed);
 
-        avgdensity += density;
-        maxdensity = (std::max)(maxdensity, density);
-        mindensity = (std::min)(mindensity, density);
-    }
+    //    avgdensity += density;
+    //    maxdensity = (std::max)(maxdensity, density);
+    //    mindensity = (std::min)(mindensity, density);
+    //}
 
-    avgdensity /= (float)velocities.size();
-    std::cout << "avg density" << avgdensity << std::endl;
-    std::cout << "max density" << maxdensity << std::endl;
-    std::cout << "max density" << mindensity << std::endl;
+    //avgdensity /= (float)velocities.size();
+    //std::cout << "avg density" << avgdensity << std::endl;
+    //std::cout << "max density" << maxdensity << std::endl;
+    //std::cout << "max density" << mindensity << std::endl;
 
-    avgspeed /= (float)velocities.size();
-    std::cout << "avg speed" << avgspeed << std::endl;
-    std::cout << "max speed" << maxspeed << std::endl;
-
-	//applyGravity(dt);
-
-    //updateDensities();
-
-	//handleBoundaries();
-
-	//glm::vec3 pos = particles.at(0).position;
-	//glm::vec3 vel = particles.at(0).velocity;
-	//std::cout << "pos: " << pos.x << " " << pos.y << " " << pos.z << std::endl;
-	//std::cout << "vel: " << vel.x << " " << vel.y << " " << vel.z << std::endl;
+    //avgspeed /= (float)velocities.size();
+    //std::cout << "avg speed" << avgspeed << std::endl;
+    //std::cout << "max speed" << maxspeed << std::endl;
 }
 
 void FluidSimulation::reset() {
