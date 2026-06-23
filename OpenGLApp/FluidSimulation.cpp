@@ -1,5 +1,6 @@
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
+#include "FluidEngine.h"
 #include "Utility.h"
 #include <iostream>
 
@@ -42,7 +43,6 @@ void FluidSimulation::clearParticles() {
 }
 
 void FluidSimulation::initSimulation() {
-
     glm::vec3 origin = container.getCurrentPosition();
     unsigned int currentNumOfParticles = 0;
     float increment = particleSpacing;
@@ -226,7 +226,8 @@ float FluidSimulation::densityToPressure(float density) {
 
 void FluidSimulation::applyGravity(float dt) {
     for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-		velocities[i] += gravitationalForce * dt;
+        velocities[i] += gravitationalForce * dt;
+        //velocities[i] += accumulatedImpulses[i];
 		//particle.position += particle.velocity * dt;
 
         predictedPositions[i] = positions[i] + velocities[i] * dt;
@@ -242,7 +243,7 @@ void FluidSimulation::handleBoundaries() {
 		}*/
 
         //container.resolveCollision(positions[i], velocities[i], particleRadius);
-        container.resolveCollision(predictedPositions[i], velocities[i], particleRadius, true);
+        container.resolveCollision(predictedPositions[i], velocities[i], particleRadius);
 	}
 }
 
@@ -358,32 +359,32 @@ void FluidSimulation::update(float dt) {
     }
 
 
-    float avgspeed = 0.0f;
-    float maxspeed = 0.0f;
-    float avgdensity = 0.0f;
-    float maxdensity = 0.0f;
-    float mindensity = 999999999.0f;
-    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-        glm::vec3 vel = velocities[i];
-        float density = densities[i];
+    //float avgspeed = 0.0f;
+    //float maxspeed = 0.0f;
+    //float avgdensity = 0.0f;
+    //float maxdensity = 0.0f;
+    //float mindensity = 999999999.0f;
+    //for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+    //    glm::vec3 vel = velocities[i];
+    //    float density = densities[i];
 
-        float speed = glm::length(vel);
-        avgspeed += speed;
-        maxspeed = (std::max)(maxspeed, speed);
+    //    float speed = glm::length(vel);
+    //    avgspeed += speed;
+    //    maxspeed = (std::max)(maxspeed, speed);
 
-        avgdensity += density;
-        maxdensity = (std::max)(maxdensity, density);
-        mindensity = (std::min)(mindensity, density);
-    }
+    //    avgdensity += density;
+    //    maxdensity = (std::max)(maxdensity, density);
+    //    mindensity = (std::min)(mindensity, density);
+    //}
 
-    avgdensity /= (float)velocities.size();
-    std::cout << "avg density" << avgdensity << std::endl;
-    std::cout << "max density" << maxdensity << std::endl;
-    std::cout << "min density" << mindensity << std::endl;
+    //avgdensity /= (float)velocities.size();
+    //std::cout << "avg density" << avgdensity << std::endl;
+    //std::cout << "max density" << maxdensity << std::endl;
+    //std::cout << "min density" << mindensity << std::endl;
 
-    avgspeed /= (float)velocities.size();
-    std::cout << "avg speed" << avgspeed << std::endl;
-    std::cout << "max speed" << maxspeed << std::endl;
+    //avgspeed /= (float)velocities.size();
+    //std::cout << "avg speed" << avgspeed << std::endl;
+    //std::cout << "max speed" << maxspeed << std::endl;
 }
 
 void FluidSimulation::reset() {
@@ -391,6 +392,22 @@ void FluidSimulation::reset() {
 	initSimulation();
     spatialHashGrid.reset(smoothingRadius, (int)positions.size());
     pause = true;
+}
+
+void FluidSimulation::resolveCollisionWithContainerTransform() {
+    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+        glm::vec3 oldPos = positions[i];
+
+        container.resolveCollision(positions[i], velocities[i], particleRadius, true);
+
+        glm::vec3 displacement = positions[i] - oldPos;
+        float push = glm::length(displacement);
+
+        if (push > 0.0f) {
+            positions[i] += -glm::normalize(gravitationalForce) * push * densities[i] * UPFLOW_MULTIPLIER;
+            velocities[i] += -glm::normalize(gravitationalForce) * push * densities[i] * UPFLOW_MULTIPLIER / FIXED_DT;
+        }
+    }
 }
 
 FluidContainer* FluidSimulation::getContainer() {

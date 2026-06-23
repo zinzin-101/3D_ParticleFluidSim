@@ -77,6 +77,8 @@ public:
 
 	void reset();
 
+	void resolveCollisionWithContainerTransform();
+
 	FluidContainer* getContainer();
 
 	const std::vector<glm::vec3>& getPositions() const;

@@ -24,7 +24,7 @@ public:
 
 	FluidContainer(FluidSimulation* simulation);
 	bool isInside(const glm::vec3& position, float radius);
-	void resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius, bool ignoreVelocity = false);
+	void resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius, bool ignoreVelocity = false, glm::vec3 wallVelocity = glm::vec3(0.0f));
 	void translates(glm::vec3 translation);
 	void scales(glm::vec3 scaling);
 	void rotates(float degrees, glm::vec3 axis);

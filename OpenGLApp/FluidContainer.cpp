@@ -52,7 +52,7 @@ bool FluidContainer::isInside(const glm::vec3& position, float radius) {
 	return true;
 }
 
-void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius, bool ignoreVelocity) {
+void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius, bool ignoreVelocity, glm::vec3 wallVelocity) {
 	glm::vec3 pos = position;
 	glm::vec3 vel = velocity;
 
@@ -67,6 +67,13 @@ void FluidContainer::resolveCollision(glm::vec3& position, glm::vec3& velocity, 
 				float normalSpeed = glm::dot(normal, vel);
 				if (normalSpeed > 0.0f) {
 					vel -= 1.0f * normal * normalSpeed;
+				}
+			}
+			else {
+				float wallNormalSpeed = glm::dot(normal, wallVelocity);
+				float particleNormalSpeed = glm::dot(normal, vel);
+				if (wallNormalSpeed < particleNormalSpeed) {
+					vel += normal * (wallNormalSpeed - particleNormalSpeed);
 				}
 			}
 		}
@@ -121,6 +128,8 @@ void FluidContainer::scales(glm::vec3 scaling) {
 
 		currentScale.z += scaling.z;
 	}
+
+	simulation->resolveCollisionWithContainerTransform();
 }
 
 void FluidContainer::rotates(float degrees, glm::vec3 axis) {

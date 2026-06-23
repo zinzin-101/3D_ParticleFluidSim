@@ -31,4 +31,6 @@ namespace FluidSimulationConfig {
 	constexpr unsigned int MAX_SIMULATION_STEPS = 5;
 
 	constexpr float PREDICTION_TIME = 1.0f / 120.0f;
+
+	constexpr float UPFLOW_MULTIPLIER = 0.1f;
 }
