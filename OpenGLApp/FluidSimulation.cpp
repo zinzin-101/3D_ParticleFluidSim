@@ -9,6 +9,7 @@ FluidSimulation::DensityPair::DensityPair() : density(0.0f), nearDensity(0.0f) {
 FluidSimulation::DensityPair::DensityPair(float density, float nearDensity) : density(density), nearDensity(nearDensity) {}
 
 FluidSimulation::FluidSimulation(): 
+    container(this),
     spatialHashGrid(DEFAULT_SMOOTHING_RADIUS, DEFAULT_NUMBER_OF_PARTICLES),
     accumulatedDeltaTime(0.0f),
 	numOfParticles(DEFAULT_NUMBER_OF_PARTICLES),

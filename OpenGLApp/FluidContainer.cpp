@@ -1,4 +1,5 @@
 #include "FluidContainer.h"
+#include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
 #include "PlaneRendererConfig.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -6,7 +7,8 @@
 using namespace FluidSimulationConfig;
 using namespace PlaneRendererConfig;
 
-FluidContainer::FluidContainer(): planeOpacity(DEFAULT_PLANE_OPACITY) {
+FluidContainer::FluidContainer(FluidSimulation* simulation): planeOpacity(DEFAULT_PLANE_OPACITY) {
+	this->simulation = simulation;
 	reset();
 }
 
@@ -82,7 +84,7 @@ void FluidContainer::translates(glm::vec3 translation) {
 }
 
 void FluidContainer::scales(glm::vec3 scaling) {
-	if (std::abs(scaling.x) > 0.01f && scaling.x + currentScale.x > 0.1f) {
+	if (std::abs(scaling.x) > 0.01f && scaling.x + currentScale.x > 2.0f * simulation->particleRadius) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.x;
 			glm::vec3 normal(planes[i].x, planes[i].y, planes[i].z);
@@ -93,7 +95,7 @@ void FluidContainer::scales(glm::vec3 scaling) {
 		currentScale.x += scaling.x;
 	}
 
-	if (std::abs(scaling.y) > 0.01f && scaling.y + currentScale.y > 0.1f) {
+	if (std::abs(scaling.y) > 0.01f && scaling.y + currentScale.y > 2.0f * simulation->particleRadius) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.y;
 			glm::vec3 normal(planes[2 + i].x, planes[2 + i].y, planes[2 + i].z);
@@ -104,7 +106,7 @@ void FluidContainer::scales(glm::vec3 scaling) {
 		currentScale.y += scaling.y;
 	}
 
-	if (std::abs(scaling.z) > 0.01f && scaling.z + currentScale.z > 0.1f) {
+	if (std::abs(scaling.z) > 0.01f && scaling.z + currentScale.z > 2.0f * simulation->particleRadius) {
 		for (int i = 0; i < 2; i++) {
 			float moveDist = scaling.z;
 			glm::vec3 normal(planes[4 + i].x, planes[4 + i].y, planes[4 + i].z);

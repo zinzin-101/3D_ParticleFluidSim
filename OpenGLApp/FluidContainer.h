@@ -3,8 +3,12 @@
 #include "Particle.h"
 #include "PlaneRenderer.h"
 
+class FluidSimulation;
+
 class FluidContainer {
 private:
+	FluidSimulation* simulation;
+
 	glm::vec4 planes[6];
 	glm::vec3 currentRotation;
 	glm::vec3 currentScale;
@@ -18,7 +22,7 @@ private:
 public:
 	float planeOpacity;
 
-	FluidContainer();
+	FluidContainer(FluidSimulation* simulation);
 	bool isInside(const glm::vec3& position, float radius);
 	void resolveCollision(glm::vec3& position, glm::vec3& velocity, float radius);
 	void translates(glm::vec3 translation);
