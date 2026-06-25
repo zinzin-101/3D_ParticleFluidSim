@@ -15,7 +15,11 @@ public:
     unsigned int ID;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    ComputeShader(const char* computePath)
+    ComputeShader() : ID(0) {}
+    ComputeShader(const char* computePath) {
+        CreateShader(computePath);
+    }
+    void CreateShader(const char* computePath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string computeCode;
@@ -55,6 +59,11 @@ public:
         checkCompileErrors(ID, "PROGRAM");
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(compute);
+    }
+    ~ComputeShader() {
+        if (ID != 0) {
+            glDeleteProgram(ID);
+        }
     }
     // activate the shader
     // ------------------------------------------------------------------------
