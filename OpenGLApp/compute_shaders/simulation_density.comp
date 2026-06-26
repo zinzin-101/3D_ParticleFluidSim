@@ -1,0 +1,90 @@
+#version 430 core
+
+layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedPositions[]; };
+layout(std430, binding = 3) buffer Densities { float densities[]; };
+layout(std430, binding = 4) buffer NearDensities { float nearDensities[]; };
+layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
+layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
+uniform uint tableSize;
+uniform float spacing;
+uniform uint numberOfParticles;
+
+uniform float smoothingRadius;
+uniform float particleMass;
+
+vec3 getPredictedPositionVec3(uint id) {
+    uint base = id * 3;
+    return vec3(predictedPositions[base], predictedPositions[base+1], predictedPositions[base+2]);
+}
+
+void setPredictedPosVec3(uint id, vec3 val) {
+    uint base = id * 3;
+    predictedPositions[base]   = val.x;
+    predictedPositions[base+1] = val.y;
+    predictedPositions[base+2] = val.z;
+}
+
+
+int floatToIntCoord(float val) {
+    return int(floor(val / spacing));
+}
+
+uint coordToHash(ivec3 coord) {
+    int h = (coord.x * 92837111) ^ (coord.y * 689287499) ^ (coord.z * 283923481);
+    return uint(h & 0x7FFFFFFF) % tableSize;
+}
+
+float densityKernel(float radius, float dist) {
+    if (dist >= radius) return 0.0;
+    float a = radius * radius - dist * dist;
+    return 315.0f / (64.0f * 3.14159265359 * pow(radius, 9.0)) * a * a * a;
+}
+
+float nearDensityKernel(float radius, float dist) {
+    if (dist >= radius) return 0.0f;
+    float v = radius - dist;
+    return -45.0f / (3.14159265359 * pow(radius, 6.0)) * v * v;
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= numberOfParticles) return;
+
+    vec3 pos = getPredictedPositionVec3(id);
+
+    float density = 0.0;
+    float nearDensity = 0.0;
+
+    int startX = floatToIntCoord(pos.x - smoothingRadius);
+    int startY = floatToIntCoord(pos.y - smoothingRadius);
+    int startZ = floatToIntCoord(pos.z - smoothingRadius);
+    int endX   = floatToIntCoord(pos.x + smoothingRadius);
+    int endY   = floatToIntCoord(pos.y + smoothingRadius);
+    int endZ   = floatToIntCoord(pos.z + smoothingRadius);
+
+    for (int x = startX; x <= endX; x++) {
+        for (int y = startY; y <= endY; y++) {
+            for (int z = startZ; z <= endZ; z++) {
+                uint hash = coordToHash(ivec3(x, y, z));
+                uint start = cellStart[hash];
+                uint end   = cellEnd[hash];
+
+                if (start == 0xFFFFFFFFu) continue;
+
+                for (uint i = start; i < end; i++) {
+                    if (i == id) continue;
+
+                    float dist = distance(getPredictedPositionVec3(id), getPredictedPositionVec3(i));
+                    density += particleMass * densityKernel(smoothingRadius, dist);
+                    nearDensity += particleMass * nearDensityKernel(smoothingRadius, dist);
+                    
+                }
+            }
+        }
+    }
+
+    densities[id] = density;
+    nearDensities[id] = nearDensity;
+}
