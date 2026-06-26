@@ -34,7 +34,7 @@ void setVelocityVec3(uint id, vec3 val) {
     velocities[base+2] = val.z;
 }
 
-vec3 resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
+void resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
     vec3 updatedPos = pos;
     vec3 updatedVel = vel;
 

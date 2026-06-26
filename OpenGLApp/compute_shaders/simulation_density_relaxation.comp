@@ -6,6 +6,7 @@ layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedP
 layout(std430, binding = 3) buffer Densities { float densities[]; };
 layout(std430, binding = 4) buffer NearDensities { float nearDensities[]; };
 layout(std430, binding = 5) buffer Deltas { float deltas[]; };
+layout(std430, binding = 7) buffer GridParticleValues { uint gridParticleValues[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
@@ -61,9 +62,10 @@ void main() {
                 if (start == 0xFFFFFFFFu) continue;
 
                 for (uint i = start; i < end; i++) {
-                    if (i == id) continue;
+                    uint other = gridParticleValues[i];
+                    if (other == id) continue;
 
-                    vec3 rij = getPredictedPositionVec3(i) - getPredictedPositionVec3(id);
+                    vec3 rij = getPredictedPositionVec3(other) - getPredictedPositionVec3(id);
                     float r = length(rij);
                     if (r <= 1e-6 || r >= smoothingRadius) continue;
 
@@ -75,9 +77,9 @@ void main() {
                     deltas[3 * id + 1] -= 0.5f * D.y;
                     deltas[3 * id + 2] -= 0.5f * D.z;
 
-                    deltas[3 * i] += 0.5f * D.x;
-                    deltas[3 * i + 1] += 0.5f * D.y;
-                    deltas[3 * i + 2] += 0.5f * D.z;
+                    //deltas[3 * other] += 0.5f * D.x;
+                    //deltas[3 * other + 1] += 0.5f * D.y;
+                    //deltas[3 * other + 2] += 0.5f * D.z;
                 }
             }
         }

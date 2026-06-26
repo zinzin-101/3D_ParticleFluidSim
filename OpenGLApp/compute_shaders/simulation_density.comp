@@ -6,6 +6,7 @@ layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedP
 layout(std430, binding = 3) buffer Densities { float densities[]; };
 layout(std430, binding = 4) buffer NearDensities { float nearDensities[]; };
 layout(std430, binding = 5) buffer Deltas { float deltas[]; };
+layout(std430, binding = 7) buffer GridParticleValues { uint gridParticleValues[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
@@ -38,7 +39,7 @@ float densityKernel(float radius, float dist) {
 
 float nearDensityKernel(float radius, float dist) {
     if (dist >= radius) return 0.0f;
-    float v = radius - distance;
+    float v = radius - dist;
     float scale = 10.0f / (3.14159265359 * pow(radius, 5.0));
     return scale * v * v * v;
 }
@@ -69,9 +70,10 @@ void main() {
                 if (start == 0xFFFFFFFFu) continue;
 
                 for (uint i = start; i < end; i++) {
-                    if (i == id) continue;
+                    uint other = gridParticleValues[i];
+                    if (other == id) continue;
 
-                    float dist = distance(getPredictedPositionVec3(id), getPredictedPositionVec3(i));
+                    float dist = distance(getPredictedPositionVec3(id), getPredictedPositionVec3(other));
                     density += particleMass * densityKernel(smoothingRadius, dist);
                     nearDensity += particleMass * nearDensityKernel(smoothingRadius, dist);
                     

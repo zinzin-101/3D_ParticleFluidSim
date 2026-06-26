@@ -50,13 +50,13 @@ public:
         compute = glCreateShader(GL_COMPUTE_SHADER);
         glShaderSource(compute, 1, &cShaderCode, NULL);
         glCompileShader(compute);
-        checkCompileErrors(compute, "COMPUTE");
+        checkCompileErrors(compute, "COMPUTE", computePath);
 
         // shader Program
         ID = glCreateProgram();
         glAttachShader(ID, compute);
         glLinkProgram(ID);
-        checkCompileErrors(ID, "PROGRAM");
+        checkCompileErrors(ID, "PROGRAM", computePath);
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(compute);
     }
@@ -154,7 +154,7 @@ public:
 private:
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
-    void checkCompileErrors(GLuint shader, std::string type)
+    void checkCompileErrors(GLuint shader, std::string type, const char* computePath)
     {
         GLint success;
         GLchar infoLog[1024];
@@ -164,6 +164,7 @@ private:
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+                std::cout << computePath << "\n";
                 std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }
@@ -173,6 +174,7 @@ private:
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+                std::cout << computePath << "\n";
                 std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }

@@ -10,7 +10,7 @@ layout(std430, binding = 7) buffer GridParticleValues { uint gridParticleValues[
 uniform uint tableSize;
 uniform float spacing;
 uniform uint numberOfParticles;
-uniform int usePredictedPositions;
+uniform bool usePredictedPositions;
 
 int floatToIntCoord(float val) { return int(floor(val / spacing)); }
 uint coordToHash(ivec3 coord) {
