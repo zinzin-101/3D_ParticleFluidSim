@@ -5,8 +5,9 @@ layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
 layout(std430, binding = 1) buffer ParticleVelocities { float velocities[]; };
 layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedPositions[]; };
-layout(std430, binding = 5) buffer GridCellStart { uint cellStart[]; };
-layout(std430, binding = 6) buffer GridCellEntries { uint cellEntries[]; };
+layout(std430, binding = 3) buffer Densities { float densities[]; };
+layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
+layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
 uniform uint tableSize;
 uniform float spacing;
@@ -28,4 +29,126 @@ vec3 getPositionVec3(uint id) {
 vec3 getVelocityVec3(uint id) {
     uint base = id * 3;
     return vec3(velocities[base], velocities[base+1], velocities[base+2]);
+}
+
+void setPredictedPosVec3(uint id, vec3 val) {
+    uint base = id * 3;
+    predictedPositions[base]   = val.x;
+    predictedPositions[base+1] = val.y;
+    predictedPositions[base+2] = val.z;
+}
+
+void setVelocityVec3(uint id, vec3 val) {
+    uint base = id * 3;
+    velocities[base]   = val.x;
+    velocities[base+1] = val.y;
+    velocities[base+2] = val.z;
+}
+
+int floatToIntCoord(float val) {
+    return int(floor(val / spacing));
+}
+
+uint coordToHash(ivec3 coord) {
+    int h = (coord.x * 92837111) ^ (coord.y * 689287499) ^ (coord.z * 283923481);
+    return uint(h & 0x7FFFFFFF) % tableSize;
+}
+
+float viscosityKernelLaplacian(float radius, float distance) {
+    if (distance >= radius) return 0.0;
+    float scale = 45.0f / (3.14159265359 * pow(radius, 6.0));
+    return scale * (radius - distance);
+}
+
+vec3 resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
+    vec3 updatedPos = pos;
+    vec3 updatedVel = vel;
+
+    for (int i = 0; i < 6; i++) {
+        vec4 plane = planes[i];
+        vec3 normal = plane.xyz;
+        
+        float h = dot(updatedPos, normal) + plane.w;
+        if (h + particleRadius >= 0.0) {
+            vec3 closestPoint = updatedPos - h * normal;
+            updatedPos = closestPoint - normal * particleRadius;
+
+            if (!ignoreVelocity) {
+                float normalSpeed = dot(normal, updatedVel);
+                if (normalSpeed > 0.0) {
+                    updatedVel -= normal * normalSpeed;
+                }
+            }   
+        }
+    }
+
+    pos = updatedPos;
+
+    if (!ignoreVelocity) {
+        vel = updatedVel;
+    }
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= numberOfParticles) return;
+
+    vec3 pos = getPositionVec3(id);
+    vec3 vel = getVelocityVec3(id);
+
+    // viscosity
+    vec3 viscosityForce = vec3(0.0);
+    int startX = floatToIntCoord(pos.x - smoothingRadius);
+    int startY = floatToIntCoord(pos.y - smoothingRadius);
+    int startZ = floatToIntCoord(pos.z - smoothingRadius);
+    int endX   = floatToIntCoord(pos.x + smoothingRadius);
+    int endY   = floatToIntCoord(pos.y + smoothingRadius);
+    int endZ   = floatToIntCoord(pos.z + smoothingRadius);
+
+    for (int x = startX; x <= endX; x++) {
+        for (int y = startY; y <= endY; y++) {
+            for (int z = startZ; z <= endZ; z++) {
+                uint hash = coordToHash(ivec3(x, y, z));
+                uint start = cellStart[hash];
+                uint end   = cellEnd[hash];
+
+                if (start == 0xFFFFFFFFu) continue;
+
+                for (uint i = start; i < end; i++) {
+                    if (i == id) continue;
+
+                    vec3 otherPos = getPositionVec3(i);
+                    vec3 otherVel = getVelocityVec3(i);
+                    
+                    float dist = distance(pos, otherPos);
+                    if (dist <= 0.0) continue;
+
+                    float influence = viscosityKernelLaplacian(smoothingRadius, dist);
+                    vec3 relVel = vel - otherVel;
+
+                    float denom = densities[i];
+                    if (denom > 0.0){
+                        viscosityForce += particleMass * (relVel / denom) * influence;
+                    }
+                    
+                }
+            }
+        }
+    }
+
+    viscosityForce *= viscosityMultiplier;
+    vel += viscosityForce * dt;
+
+    // gravity
+    vel += gravity * dt;
+
+    // update predicted position
+    vec3 predictedPos = pos + vel * dt;
+
+    // resolving collision for predicted position
+    resolveCollision(predictedPos, vel, false);
+
+    // write to buffer
+    setPredictedPosVec3(id, predictedPos);
+    setVelocityVec3(id, vel);
 }
