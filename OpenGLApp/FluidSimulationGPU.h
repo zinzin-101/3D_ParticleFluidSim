@@ -6,13 +6,15 @@ class FluidSimulationGPU : public FluidSimulation {
 protected:
 	ComputeShader applyForcesShader;
 	ComputeShader densityRelaxationShader;
+	ComputeShader updatePositionsShader;
 	ComputeShader spatialHashGridCountShader;
 	ComputeShader spatialHashGridScanShader;
 	ComputeShader spatialHashGridSortShader;
 
 	GLuint ssboPositions;
 	GLuint ssboVelocities;
-	GLuint ssboDensities; // vec2: density for x and nearDensity for y
+	GLuint ssboDensities;
+	GLuint ssboNearDensities;
 	GLuint ssboPredictedPositions;
 	GLuint ssboDeltas;
 	GLuint ssboCellStart;
@@ -21,10 +23,15 @@ protected:
 
 	template<class T>
 	void initShaderBuffer(GLuint& ssbo, std::vector<T>* data, unsigned int size);
+	
 	void bindShaderBuffers();
+	void dispatchShader(ComputeShader& shader, unsigned int n);
 
 	virtual void initSimulation() override;
 	virtual void updateSimulation(unsigned int n, float dt) override;
+	void updateData();
+
+	void createSpatialHashGrid(bool usePredictedPositions);
 
 public:
 	FluidSimulationGPU();
