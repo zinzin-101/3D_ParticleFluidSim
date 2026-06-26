@@ -64,14 +64,20 @@ void main() {
                     if (i == id) continue;
 
                     vec3 rij = getPredictedPositionVec3(i) - getPredictedPositionVec3(id);
-                    float r = (rij);
+                    float r = length(rij);
                     if (r <= 1e-6 || r >= smoothingRadius) continue;
 
                     vec3 dir = normalize(rij);
                     float q = 1.0 - (r / smoothingRadius);
                     vec3 D = dt * dt * (pressure * q + nearPressure * q * q) * dir;
-                    deltas[i] -= 0.5f * D;
-                    deltas[j] += 0.5f * D;
+
+                    deltas[3 * id] -= 0.5f * D.x;
+                    deltas[3 * id + 1] -= 0.5f * D.y;
+                    deltas[3 * id + 2] -= 0.5f * D.z;
+
+                    deltas[3 * i] += 0.5f * D.x;
+                    deltas[3 * i + 1] += 0.5f * D.y;
+                    deltas[3 * i + 2] += 0.5f * D.z;
                 }
             }
         }

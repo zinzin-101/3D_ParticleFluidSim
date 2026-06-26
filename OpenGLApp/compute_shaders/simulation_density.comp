@@ -38,8 +38,9 @@ float densityKernel(float radius, float dist) {
 
 float nearDensityKernel(float radius, float dist) {
     if (dist >= radius) return 0.0f;
-    float v = radius - dist;
-    return -45.0f / (3.14159265359 * pow(radius, 6.0)) * v * v;
+    float v = radius - distance;
+    float scale = 10.0f / (3.14159265359 * pow(radius, 5.0));
+    return scale * v * v * v;
 }
 
 void main() {

@@ -152,7 +152,7 @@ float FluidSimulation::smoothingKernelPow3(float radius, float distance) {
     float v = radius - distance;
     //float volume = glm::pi<float>() * std::pow(radius, 5.0f) / 10.0f;
     //return (v * v * v) / volume;
-    float scale = 10.0f / (glm::pi<float>() * pow(radius, 5.0f));
+    float scale = 10.0f / (glm::pi<float>() * std::pow(radius, 5.0f));
     return scale * v * v * v;
 }
 
@@ -161,7 +161,7 @@ float FluidSimulation::smoothingKernelPow3Derivative(float radius, float distanc
     float v = radius - distance;
     //float scale = -30.0f / (glm::pi<float>() * std::pow(radius, 5.0f));
     //return scale * v * v;
-    float scale = -30.0f / (glm::pi<float>() * pow(radius, 5.0f));
+    float scale = -30.0f / (glm::pi<float>() * std::pow(radius, 5.0f));
     return scale * v * v;
 }
 

@@ -309,6 +309,7 @@ void FluidSimulationGPU::computeDensities(float dt) {
 	float zero = 0.0f;
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDeltas);
 	glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32F, GL_RED, GL_FLOAT, &zero);
+	glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 	densityShader.use();
@@ -337,7 +338,7 @@ void FluidSimulationGPU::updateDeltas() {
 	updateDeltasShader.use();
 	updateDeltasShader.setUInt("numberOfParticles", numOfParticles);
 	updateDeltasShader.setFloat("particleRadius", particleRadius);
-	glUniform4fv(glGetUniformLocation(updatePositionsShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
+	glUniform4fv(glGetUniformLocation(updateDeltasShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
 	dispatchCurrentShader(numOfParticles);
 }
 

@@ -3,7 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "FluidSimulation.h"
+//#include "FluidSimulation.h"
+#include "FluidSimulationGPU.h"
 #include "FluidRenderer.h"
 #include "GUIHandler.h"
 #include "InputHandler.h"
@@ -13,7 +14,7 @@ struct GLFWWindow;
 class FluidEngine {
 private:
 	GLFWwindow* window;
-	FluidSimulation simulation;
+	FluidSimulationGPU simulation;
 	FluidRenderer renderer;
 	GUIHandler gui;
 	InputHandler input;
