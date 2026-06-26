@@ -5,8 +5,6 @@ using namespace PlaneRendererConfig;
 
 PlaneRenderer::PlaneRenderer(): planeVAO(0), planeVBO(0), planeEBO(0), hasInit(false) {}
 
-PlaneRenderer::~PlaneRenderer() {}
-
 void PlaneRenderer::init() {
     planeShader.CreateShader("shaders/PlaneShader.vert", "shaders/PlaneShader.frag");
 

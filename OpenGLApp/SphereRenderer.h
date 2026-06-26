@@ -20,7 +20,6 @@ public:
 	std::vector<glm::vec4> instanceData;
 
 	SphereRenderer();
-	~SphereRenderer();
 	void init();
 	void draw(Camera* camera, glm::mat4 model);
 	void drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount);

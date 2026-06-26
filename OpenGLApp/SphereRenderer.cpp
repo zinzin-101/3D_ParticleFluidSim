@@ -6,8 +6,6 @@ using namespace SphereRendererConfig;
 
 SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), instanceVBO(0) {}
 
-SphereRenderer::~SphereRenderer() {}
-
 void SphereRenderer::init() {
     instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
     simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
