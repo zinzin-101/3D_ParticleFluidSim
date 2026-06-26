@@ -1,0 +1,30 @@
+#version 430 core
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer UnsortedPos { float unsortedPositions[]; };
+layout(std430, binding = 1) buffer UnsortedVel { float unsortedVelocities[]; };
+layout(std430, binding = 3) buffer SortedPos { float sortedPositions[]; };
+layout(std430, binding = 4) buffer SortedVel { float sortedVelocities[]; };
+layout(std430, binding = 6) buffer SortedIds { uint gridParticleValues[]; };
+
+uniform uint numberOfParticles;
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= numberOfParticles) return;
+
+    uint originalId = gridParticleValues[id];
+
+    uint targetBase = id * 3;
+    uint sourceBase = originalId * 3;
+
+    // reorder positions
+    sortedPositions[targetBase + 0] = unsortedPositions[sourceBase + 0];
+    sortedPositions[targetBase + 1] = unsortedPositions[sourceBase + 1];
+    sortedPositions[targetBase + 2] = unsortedPositions[sourceBase + 2];
+
+    // reorder velocities
+    sortedVelocities[targetBase + 0] = unsortedVelocities[sourceBase + 0];
+    sortedVelocities[targetBase + 1] = unsortedVelocities[sourceBase + 1];
+    sortedVelocities[targetBase + 2] = unsortedVelocities[sourceBase + 2];
+}

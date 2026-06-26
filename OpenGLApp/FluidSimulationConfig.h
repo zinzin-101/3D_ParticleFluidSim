@@ -35,4 +35,6 @@ namespace FluidSimulationConfig {
 	constexpr float UPFLOW_MULTIPLIER = 0.1f;
 
 	constexpr unsigned int COMPUTE_SHADER_WORK_GROUP_SIZE = 256;
+	constexpr unsigned int COMPUTE_SHADER_BLOCK_SIZE = 256;
+	constexpr unsigned int RADIX_SORT_BUCKET_COUNT = 16;
 }

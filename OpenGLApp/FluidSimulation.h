@@ -76,7 +76,7 @@ public:
 	void init();
 	void update(float dt);
 
-	void reset();
+	virtual void reset();
 
 	void resolveCollisionWithContainerTransform();
 

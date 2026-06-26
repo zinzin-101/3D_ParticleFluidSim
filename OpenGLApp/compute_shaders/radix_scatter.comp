@@ -1,0 +1,53 @@
+#version 430 core
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 6)  buffer SrcKeys    { uint srcKeys[];    };
+layout(std430, binding = 7)  buffer SrcValues  { uint srcValues[];  };
+layout(std430, binding = 12) buffer Histograms  { uint histograms[]; };
+layout(std430, binding = 13) buffer DestKeys   { uint destKeys[];   };
+layout(std430, binding = 14) buffer DestValues { uint destValues[]; };
+
+uniform uint numberOfParticles;
+uniform uint shift;
+
+shared uint sDigits[256];
+
+#define INVALID_DIGIT 0xFFu
+
+void main() {
+    uint localId  = gl_LocalInvocationID.x;
+    uint globalId = gl_GlobalInvocationID.x;
+    uint groupId  = gl_WorkGroupID.x;
+
+    uint key   = 0u;
+    uint value = 0u;
+    uint digit = INVALID_DIGIT;
+
+    if (globalId < numberOfParticles) {
+        key   = srcKeys[globalId];
+        value = srcValues[globalId];
+        digit = (key >> shift) & 0xFu;
+    }
+
+    sDigits[localId] = digit;
+
+    memoryBarrierShared();
+    barrier();
+
+    uint localRank = 0u;
+    if (globalId < numberOfParticles) {
+        for (uint t = 0u; t < localId; t++) {
+            if (sDigits[t] == digit) {
+                localRank++;
+            }
+        }
+    }
+    
+    if (globalId < numberOfParticles) {
+        uint globalBase     = histograms[groupId * 16u + digit];
+        uint destIndex      = globalBase + localRank;
+
+        destKeys[destIndex]   = key;
+        destValues[destIndex] = value;
+    }
+}

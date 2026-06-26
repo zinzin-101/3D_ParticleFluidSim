@@ -1,0 +1,34 @@
+#version 430 core
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
+layout(std430, binding = 2) buffer ParticlePredPositions { float predictedPositions[]; };
+
+layout(std430, binding = 5) buffer GridParticleKeys   { uint gridParticleKeys[]; };
+layout(std430, binding = 6) buffer GridParticleValues { uint gridParticleValues[]; };
+
+uniform uint tableSize;
+uniform float spacing;
+uniform uint numberOfParticles;
+uniform int usePredictedPositions;
+
+int floatToIntCoord(float val) { return int(floor(val / spacing)); }
+uint coordToHash(ivec3 coord) {
+    int h = (coord.x * 92837111) ^ (coord.y * 689287499) ^ (coord.z * 283923481);
+    return uint(h & 0x7FFFFFFF) % tableSize;
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= numberOfParticles) return;
+
+    uint base = id * 3;
+    vec3 pos = (usePredictedPositions) ? 
+    vec3(predictedPositions[base], predictedPositions[base+1], predictedPositions[base+2]) :
+    vec3(positions[base], positions[base+1], positions[base+2]);
+
+    uint hash = coordToHash(ivec3(floatToIntCoord(pos.x), floatToIntCoord(pos.y), floatToIntCoord(pos.z)));
+
+    gridParticleKeys[id] = hash;
+    gridParticleValues[id] = id; // track original id
+}

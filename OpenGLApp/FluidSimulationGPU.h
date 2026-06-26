@@ -7,9 +7,9 @@ protected:
 	ComputeShader applyForcesShader;
 	ComputeShader densityRelaxationShader;
 	ComputeShader updatePositionsShader;
-	ComputeShader spatialHashGridCountShader;
-	ComputeShader spatialHashGridScanShader;
-	ComputeShader spatialHashGridSortShader;
+	ComputeShader spatialHashGridKeysShader;
+	ComputeShader spatialHashGridReorderShader;
+	ComputeShader spatialHashGridBoundsShader;
 
 	GLuint ssboPositions;
 	GLuint ssboVelocities;
@@ -17,9 +17,23 @@ protected:
 	GLuint ssboNearDensities;
 	GLuint ssboPredictedPositions;
 	GLuint ssboDeltas;
+
+	// parallel spatial hash grid construction
+	GLuint ssboGridParticleKeys;
+	GLuint ssboGridParticleValues;
 	GLuint ssboCellStart;
-	GLuint ssboCellEntries;
-	GLuint ssboCellLocalCounters;
+	GLuint ssboCellEnd;
+	GLuint ssboSortedPositions;
+	GLuint ssboSortedVelocities;
+
+	// gpu radix sort
+	ComputeShader radixCountShader;
+	ComputeShader radixScanShader;
+	ComputeShader radixScatterShader;
+
+	GLuint ssboRadixTempKeys;
+	GLuint ssboRadixTempValues;
+	GLuint ssboRadixHistograms; // for block counts
 
 	template<class T>
 	void initShaderBuffer(GLuint& ssbo, std::vector<T>* data, unsigned int size);
@@ -32,6 +46,8 @@ protected:
 	void updateData();
 
 	void createSpatialHashGrid(unsigned int numberOfParticles, unsigned int tableSize, bool usePredictedPositions);
+	void runGPURadixSort(unsigned int numberOfParticles);
+
 	void applyForces(unsigned int numberOfParticles, float dt);
 	void computeDensities(unsigned int numberOfParticles, float dt);
 	void updatePositions(unsigned int numberOfParticles, float dt);
@@ -39,6 +55,8 @@ protected:
 public:
 	FluidSimulationGPU();
 	~FluidSimulationGPU();
+
+	virtual void reset() override;
 };
 
 template<class T>
