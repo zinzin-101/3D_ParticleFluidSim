@@ -37,4 +37,5 @@ public:
 	glm::vec3 getCurrentRotation() const;
 
 	glm::vec4* getPlanesData();
+	PlaneRenderer* getPlaneRenderer();
 };

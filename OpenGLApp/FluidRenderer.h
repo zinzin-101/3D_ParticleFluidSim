@@ -21,6 +21,7 @@ public:
 	void init();
 	void update();
 	void render(FluidSimulation* simulation, bool useInstancing = true);
+	void cleanup(FluidSimulation* simulation);
 
 	void setRenderDistance(float distance);
 

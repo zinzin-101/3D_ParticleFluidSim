@@ -269,3 +269,7 @@ glm::vec3 FluidContainer::getCurrentRotation() const {
 glm::vec4* FluidContainer::getPlanesData() {
 	return planes;
 }
+
+PlaneRenderer* FluidContainer::getPlaneRenderer() {
+	return &planeVisualizer;
+}

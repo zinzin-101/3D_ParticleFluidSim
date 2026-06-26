@@ -83,6 +83,7 @@ void FluidEngine::render() {
 }
 
 void FluidEngine::cleanup() {
+	renderer.cleanup(&simulation);
 	gui.cleanup();
 	glfwDestroyWindow(window);
 	glfwTerminate();

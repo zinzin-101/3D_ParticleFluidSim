@@ -20,4 +20,5 @@ public:
 	PlaneRenderer();
 	~PlaneRenderer();
 	void draw(Camera* camera, float opacity, glm::mat4 model, bool drawAsOutline = false);
+	void clean();
 };

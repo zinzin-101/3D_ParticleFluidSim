@@ -24,4 +24,5 @@ public:
 	void init();
 	void draw(Camera* camera, glm::mat4 model);
 	void drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount);
+	void clean();
 };

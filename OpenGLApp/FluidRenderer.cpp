@@ -52,6 +52,11 @@ void FluidRenderer::render(FluidSimulation* simulation, bool useInstancing) {
     }
 }
 
+void FluidRenderer::cleanup(FluidSimulation* simulation) {
+    sphereRenderer.clean();
+    simulation->getContainer()->getPlaneRenderer()->clean();
+}
+
 void FluidRenderer::setRenderDistance(float distance) {
     camera.farPlane = distance;
 }

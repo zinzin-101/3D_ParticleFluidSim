@@ -79,7 +79,7 @@ void FluidSimulationGPU::initSimulation() {
 		spatialHashGridSortShader.CreateShader("compute_shaders/spatial_hash_grid_sort.comp");
 	}
 
-	unsigned int numberOfParticles = positions.size();
+	unsigned int numberOfParticles = (unsigned int)positions.size();
 	unsigned int tableSize = 2 * numberOfParticles;
 
 	// simulation buffers
@@ -126,7 +126,7 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 }
 
 void FluidSimulationGPU::updateData() {
-	unsigned int numberOfParticles = positions.size();
+	unsigned int numberOfParticles = (unsigned int)positions.size();
 
 	glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 

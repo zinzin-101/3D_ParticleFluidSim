@@ -6,19 +6,7 @@ using namespace SphereRendererConfig;
 
 SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), instanceVBO(0) {}
 
-SphereRenderer::~SphereRenderer() {
-    if (sphereVAO != 0) {
-        glDeleteVertexArrays(1, &sphereVAO);
-    }
-
-    if (sphereVBO != 0) {
-        glDeleteBuffers(1, &sphereVBO);
-    }
-
-    if (sphereEBO != 0) {
-        glDeleteBuffers(1, &sphereEBO);
-    }
-}
+SphereRenderer::~SphereRenderer() {}
 
 void SphereRenderer::init() {
     instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
@@ -157,4 +145,18 @@ void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScal
     glBindVertexArray(sphereVAO);
     glDrawElementsInstanced(GL_TRIANGLES, SPHERE_INDICES_COUNT * 6, GL_UNSIGNED_INT, 0, instanceCount);
     glBindVertexArray(0);
+}
+
+void SphereRenderer::clean() {
+    if (sphereVAO != 0) {
+        glDeleteVertexArrays(1, &sphereVAO);
+    }
+
+    if (sphereVBO != 0) {
+        glDeleteBuffers(1, &sphereVBO);
+    }
+
+    if (sphereEBO != 0) {
+        glDeleteBuffers(1, &sphereEBO);
+    }
 }

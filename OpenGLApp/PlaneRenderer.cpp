@@ -5,19 +5,7 @@ using namespace PlaneRendererConfig;
 
 PlaneRenderer::PlaneRenderer(): planeVAO(0), planeVBO(0), planeEBO(0), hasInit(false) {}
 
-PlaneRenderer::~PlaneRenderer() {
-    if (planeVAO != 0) {
-        glDeleteVertexArrays(1, &planeVAO);
-    }
-
-    if (planeVBO != 0) {
-        glDeleteBuffers(1, &planeVBO);
-    }
-
-    if (planeEBO != 0) {
-        glDeleteBuffers(1, &planeEBO);
-    }
-}
+PlaneRenderer::~PlaneRenderer() {}
 
 void PlaneRenderer::init() {
     planeShader.CreateShader("shaders/PlaneShader.vert", "shaders/PlaneShader.frag");
@@ -73,4 +61,18 @@ void PlaneRenderer::draw(Camera* camera, float opacity, glm::mat4 model, bool dr
     glBindVertexArray(planeVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+void PlaneRenderer::clean() {
+    if (planeVAO != 0) {
+        glDeleteVertexArrays(1, &planeVAO);
+    }
+
+    if (planeVBO != 0) {
+        glDeleteBuffers(1, &planeVBO);
+    }
+
+    if (planeEBO != 0) {
+        glDeleteBuffers(1, &planeEBO);
+    }
 }
