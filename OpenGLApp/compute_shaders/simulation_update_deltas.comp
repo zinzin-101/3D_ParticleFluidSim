@@ -2,21 +2,15 @@
 
 layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
 layout(std430, binding = 1) buffer ParticleVelocities { float velocities[]; };
 layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedPositions[]; };
+layout(std430, binding = 5) buffer Deltas { float deltas[]; };
 
-uniform float dt;
 uniform uint numberOfParticles;
 uniform float particleRadius;
 uniform vec4 planes[6];
 
-vec3 getPositionVec3(uint id) {
-    uint base = id * 3;
-    return vec3(positions[base], positions[base+1], positions[base+2]);
-}
-
-vec3 getPredictedPositionVec3(uint id) {
+vec3 getPredictedPosVec3(uint id) {
     uint base = id * 3;
     return vec3(predictedPositions[base], predictedPositions[base+1], predictedPositions[base+2]);
 }
@@ -26,7 +20,6 @@ vec3 getVelocityVec3(uint id) {
     return vec3(velocities[base], velocities[base+1], velocities[base+2]);
 }
 
-
 void setPredictedPosVec3(uint id, vec3 val) {
     uint base = id * 3;
     predictedPositions[base]   = val.x;
@@ -34,11 +27,11 @@ void setPredictedPosVec3(uint id, vec3 val) {
     predictedPositions[base+2] = val.z;
 }
 
-void setPosVec3(uint id, vec3 val) {
+void setVelocityVec3(uint id, vec3 val) {
     uint base = id * 3;
-    positions[base]   = val.x;
-    positions[base+1] = val.y;
-    positions[base+2] = val.z;
+    velocities[base]   = val.x;
+    velocities[base+1] = val.y;
+    velocities[base+2] = val.z;
 }
 
 vec3 resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
@@ -74,13 +67,13 @@ void main(){
     uint id = gl_GlobalInvocationID.x;
     if (id >= numberOfParticles) return;
 
+    vec3 delta = vec3(deltas[3 * id], deltas[3 * id + 1], deltas[3 * id + 2]);
+    vec3 pos = getPredictedPosVec3(id);
     vec3 vel = getVelocityVec3(id);
-    vec3 predictedPos = getPredictedPositionVec3(id);
-    vec3 pos = getPositionVec3(id);
-    vel = (predictedPos - pos) / dt;
-    pos = predictedPos;
+
+    pos += delta;
     resolveCollision(pos, vel, false);
 
-    setPosVec3(id, pos);
+    setPredictedPosVec3(id, pos);
     setVelocityVec3(id, vel);
 }
