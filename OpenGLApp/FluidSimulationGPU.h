@@ -5,7 +5,9 @@
 class FluidSimulationGPU : public FluidSimulation {
 protected:
 	ComputeShader applyForcesShader;
+	ComputeShader densityShader;
 	ComputeShader densityRelaxationShader;
+	ComputeShader updateDeltasShader;
 	ComputeShader updatePositionsShader;
 	ComputeShader spatialHashGridKeysShader;
 	ComputeShader spatialHashGridReorderShader;
@@ -45,12 +47,13 @@ protected:
 	virtual void updateSimulation(unsigned int n, float dt) override;
 	void updateData();
 
-	void createSpatialHashGrid(unsigned int numberOfParticles, unsigned int tableSize, bool usePredictedPositions);
+	void createSpatialHashGrid(unsigned int tableSize, bool usePredictedPositions);
 	void runGPURadixSort(unsigned int numberOfParticles);
 
-	void applyForces(unsigned int numberOfParticles, float dt);
-	void computeDensities(unsigned int numberOfParticles, float dt);
-	void updatePositions(unsigned int numberOfParticles, float dt);
+	void applyForces(float dt);
+	void computeDensities(float dt);
+	void updateDeltas();
+	void updatePositions(float dt);
 
 public:
 	FluidSimulationGPU();

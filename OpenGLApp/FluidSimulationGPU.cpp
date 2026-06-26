@@ -96,8 +96,16 @@ void FluidSimulationGPU::initSimulation() {
 		applyForcesShader.CreateShader("compute_shaders/simulation_apply_forces.comp");
 	}
 
+	if (densityShader.ID == 0) {
+		densityShader.CreateShader("compute_shaders/simulation_density.comp");
+	}
+
 	if (densityRelaxationShader.ID == 0) {
 		densityRelaxationShader.CreateShader("compute_shaders/simulation_density_relaxation.comp");
+	}
+
+	if (updateDeltasShader.ID == 0) {
+		updateDeltasShader.CreateShader("compute_shaders/simulation_update_deltas.comp");
 	}
 
 	if (updatePositionsShader.ID == 0) {
@@ -184,7 +192,15 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 
 	bindShaderBuffers();
 	for (unsigned int i = 0; i < n; i++) {
-		createSpatialHashGrid(numOfParticles, tableSize, false);
+		createSpatialHashGrid(tableSize, false);
+		applyForces(numOfParticles);
+
+		for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
+			createSpatialHashGrid(tableSize, true);
+			computeDensities(dt);
+			updateDeltas();
+		}
+		updatePositions(dt);
 	}
 
 	updateData();
@@ -202,7 +218,7 @@ void FluidSimulationGPU::updateData() {
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void FluidSimulationGPU::createSpatialHashGrid(unsigned int numberOfParticles, unsigned int tableSize, bool usePredictedPositions) {
+void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool usePredictedPositions) {
 	GLuint clearFlag = 0xFFFFFFFF;
 	glClearNamedBufferSubData(ssboCellStart, GL_R32UI, 0, tableSize * sizeof(unsigned int), GL_RED_INTEGER, GL_UNSIGNED_INT, &clearFlag);
 	glClearNamedBufferSubData(ssboCellEnd, GL_R32UI, 0, tableSize * sizeof(unsigned int), GL_RED_INTEGER, GL_UNSIGNED_INT, &clearFlag);
@@ -210,17 +226,17 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int numberOfParticles, u
 	spatialHashGridKeysShader.use();
 	spatialHashGridKeysShader.setUInt("tableSize", tableSize);
 	spatialHashGridKeysShader.setFloat("spacing", smoothingRadius);
-	spatialHashGridKeysShader.setUInt("numberOfParticles", numberOfParticles);
+	spatialHashGridKeysShader.setUInt("numberOfParticles", numOfParticles);
 	spatialHashGridKeysShader.setInt("usePredictedPositions", usePredictedPositions ? 1 : 0);
-	dispatchCurrentShader(numberOfParticles);
+	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	runGPURadixSort(numberOfParticles);
+	runGPURadixSort(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	spatialHashGridReorderShader.use();
-	spatialHashGridReorderShader.setUInt("numberOfParticles", numberOfParticles);
-	dispatchCurrentShader(numberOfParticles);
+	spatialHashGridReorderShader.setUInt("numberOfParticles", numOfParticles);
+	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	// ping pong
@@ -228,8 +244,8 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int numberOfParticles, u
 	std::swap(ssboVelocities, ssboSortedVelocities);
 
 	spatialHashGridBoundsShader.use();
-	spatialHashGridBoundsShader.setUInt("numberOfParticles", numberOfParticles);
-	dispatchCurrentShader(numberOfParticles);
+	spatialHashGridBoundsShader.setUInt("numberOfParticles", numOfParticles);
+	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -273,38 +289,63 @@ void FluidSimulationGPU::runGPURadixSort(unsigned int numberOfParticles) {
 	}
 }
 
-void FluidSimulationGPU::applyForces(unsigned int numberOfParticles, float dt) {
+void FluidSimulationGPU::applyForces(float dt) {
 	applyForcesShader.use();
+	applyForcesShader.setUInt("tableSize", 2 * numOfParticles);
+	applyForcesShader.setFloat("spacing", smoothingRadius);
+	applyForcesShader.setUInt("numberOfParticles", numOfParticles);
 	applyForcesShader.setFloat("dt", dt);
-	applyForcesShader.setFloat("ViscosityMultiplier", viscosityMultiplier);
+	applyForcesShader.setFloat("viscosityMultiplier", viscosityMultiplier);
 	applyForcesShader.setFloat("smoothingRadius", smoothingRadius);
 	applyForcesShader.setFloat("particleMass", particleMass);
 	glUniform3fv(glGetUniformLocation(applyForcesShader.ID, "gravity"), 1, &gravitationalForce[0]);
 	glUniform4fv(glGetUniformLocation(applyForcesShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
 	applyForcesShader.setFloat("particleRadius", particleRadius);
 
-	dispatchCurrentShader(numberOfParticles);
+	dispatchCurrentShader(numOfParticles);
 }
 
-void FluidSimulationGPU::computeDensities(unsigned int numberOfParticles, float dt) {
+void FluidSimulationGPU::computeDensities(float dt) {
+	float zero = 0.0f;
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDeltas);
+	glClearBufferData(GL_SHADER_STORAGE_BUFFER, GL_R32F, GL_RED, GL_FLOAT, &zero);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	densityShader.use();
+	densityShader.setUInt("numberOfParticles", numOfParticles);
+	densityShader.setFloat("spacing", smoothingRadius);
+	densityShader.setFloat("smoothingRadius", smoothingRadius);
+	densityShader.setUInt("tableSize", 2 * numOfParticles);
+	densityShader.setFloat("particleMass", particleMass);
+	dispatchCurrentShader(numOfParticles);
+
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
 	densityRelaxationShader.use();
-	densityRelaxationShader.setFloat("dt", dt);
+	densityRelaxationShader.setUInt("tableSize", 2 * numOfParticles);
+	densityRelaxationShader.setFloat("spacing", smoothingRadius);
+	densityRelaxationShader.setUInt("numberOfParticles", numOfParticles);
 	densityRelaxationShader.setFloat("smoothingRadius", smoothingRadius);
-	densityRelaxationShader.setFloat("particleMass", particleMass);
+	densityRelaxationShader.setFloat("dt", dt);
 	densityRelaxationShader.setFloat("targetDensity", targetDensity);
 	densityRelaxationShader.setFloat("pressureMultiplier", pressureMultiplier);
 	densityRelaxationShader.setFloat("nearPressureMultiplier", nearPressureMultiplier);
-	glUniform4fv(glGetUniformLocation(densityRelaxationShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
-	densityRelaxationShader.setFloat("particleRadius", particleRadius);
-
-	dispatchCurrentShader(numberOfParticles);
+	dispatchCurrentShader(numOfParticles);
 }
 
-void FluidSimulationGPU::updatePositions(unsigned int numberOfParticles, float dt) {
-	updatePositionsShader.use();
-	updatePositionsShader.setFloat("dt", dt);
+void FluidSimulationGPU::updateDeltas() {
+	updateDeltasShader.use();
+	updateDeltasShader.setUInt("numberOfParticles", numOfParticles);
+	updateDeltasShader.setFloat("particleRadius", particleRadius);
 	glUniform4fv(glGetUniformLocation(updatePositionsShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
-	updatePositionsShader.setFloat("u_ParticleRadius", particleRadius);
+	dispatchCurrentShader(numOfParticles);
+}
 
-	dispatchCurrentShader(numberOfParticles);
+void FluidSimulationGPU::updatePositions(float dt) {
+	updatePositionsShader.use();
+	updatePositionsShader.setUInt("numberOfParticles", numOfParticles);
+	updatePositionsShader.setFloat("dt", dt);
+	updatePositionsShader.setFloat("particleRadius", particleRadius);
+	glUniform4fv(glGetUniformLocation(updatePositionsShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
+	dispatchCurrentShader(numOfParticles);
 }

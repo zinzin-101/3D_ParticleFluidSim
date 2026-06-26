@@ -124,7 +124,7 @@ void main() {
                     if (dist <= 0.0) continue;
 
                     float influence = viscosityKernelLaplacian(smoothingRadius, dist);
-                    vec3 relVel = vel - otherVel;
+                    vec3 relVel = otherVel - vel;
 
                     float denom = densities[i];
                     if (denom > 0.0){

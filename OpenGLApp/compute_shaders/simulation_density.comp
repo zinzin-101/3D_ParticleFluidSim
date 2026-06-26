@@ -5,8 +5,10 @@ layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedPositions[]; };
 layout(std430, binding = 3) buffer Densities { float densities[]; };
 layout(std430, binding = 4) buffer NearDensities { float nearDensities[]; };
+layout(std430, binding = 5) buffer Deltas { float deltas[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
+
 uniform uint tableSize;
 uniform float spacing;
 uniform uint numberOfParticles;
@@ -18,14 +20,6 @@ vec3 getPredictedPositionVec3(uint id) {
     uint base = id * 3;
     return vec3(predictedPositions[base], predictedPositions[base+1], predictedPositions[base+2]);
 }
-
-void setPredictedPosVec3(uint id, vec3 val) {
-    uint base = id * 3;
-    predictedPositions[base]   = val.x;
-    predictedPositions[base+1] = val.y;
-    predictedPositions[base+2] = val.z;
-}
-
 
 int floatToIntCoord(float val) {
     return int(floor(val / spacing));
