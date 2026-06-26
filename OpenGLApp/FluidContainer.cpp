@@ -265,3 +265,7 @@ glm::vec3 FluidContainer::getCurrentScale() const {
 glm::vec3 FluidContainer::getCurrentRotation() const {
 	return currentRotation;
 }
+
+glm::vec4* FluidContainer::getPlanesData() {
+	return planes;
+}

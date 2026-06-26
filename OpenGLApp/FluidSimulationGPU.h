@@ -25,13 +25,16 @@ protected:
 	void initShaderBuffer(GLuint& ssbo, std::vector<T>* data, unsigned int size);
 	
 	void bindShaderBuffers();
-	void dispatchShader(ComputeShader& shader, unsigned int n);
+	void dispatchCurrentShader(unsigned int n);
 
 	virtual void initSimulation() override;
 	virtual void updateSimulation(unsigned int n, float dt) override;
 	void updateData();
 
-	void createSpatialHashGrid(bool usePredictedPositions);
+	void createSpatialHashGrid(unsigned int numberOfParticles, unsigned int tableSize, bool usePredictedPositions);
+	void applyForces(unsigned int numberOfParticles, float dt);
+	void computeDensities(unsigned int numberOfParticles, float dt);
+	void updatePositions(unsigned int numberOfParticles, float dt);
 
 public:
 	FluidSimulationGPU();
