@@ -50,7 +50,14 @@ void FluidSimulationGPU::initShaderBuffer(GLuint& ssbo, std::vector<T>* data, un
 	T* inputData = data == nullptr ? nullptr : data->data();
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(T), inputData, GL_DYNAMIC_DRAW);
+
+	if (inputData != nullptr) {
+		glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(T), inputData, GL_DYNAMIC_DRAW);
+	}
+	else {
+		std::vector<T> defaultValues(size);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, size * sizeof(T), defaultValues.data(), GL_DYNAMIC_DRAW);
+	}
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
