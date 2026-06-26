@@ -117,6 +117,22 @@ void FluidSimulation::initSimulation() {
     deltas.resize(positions.size());
 }
 
+void FluidSimulation::updateSimulation(unsigned int n, float dt) {
+    for (unsigned int i = 0; i < n; i++) {
+        spatialHashGrid.createHashGrid(positions);
+        applyViscosityForce(dt);
+        applyGravity(dt);
+
+        for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
+            spatialHashGrid.createHashGrid(predictedPositions);
+            updateParticleDensities(dt);
+            doubleDensityRelaxation(dt);
+            handleBoundaries();
+        }
+        updateParticlePositions(dt);
+    }
+}
+
 float FluidSimulation::smoothingKernelPow2(float radius, float distance) {
     if (distance >= radius) return 0.0f;
     float v = radius - distance;
@@ -344,20 +360,7 @@ void FluidSimulation::update(float dt) {
         n = MAX_SIMULATION_STEPS;
     }
 
-    for (unsigned int i = 0; i < n; i++) {
-        spatialHashGrid.createHashGrid(positions);
-        applyViscosityForce(subStepDeltaTime);
-        applyGravity(subStepDeltaTime);
-
-        for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
-            spatialHashGrid.createHashGrid(predictedPositions);
-            updateParticleDensities(subStepDeltaTime);
-            doubleDensityRelaxation(subStepDeltaTime);
-            handleBoundaries();
-        }
-        updateParticlePositions(subStepDeltaTime);
-    }
-
+    updateSimulation(n, subStepDeltaTime);
 
     //float avgspeed = 0.0f;
     //float maxspeed = 0.0f;

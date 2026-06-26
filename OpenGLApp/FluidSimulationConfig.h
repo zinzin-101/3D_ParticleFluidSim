@@ -33,4 +33,6 @@ namespace FluidSimulationConfig {
 	constexpr float PREDICTION_TIME = 1.0f / 120.0f;
 
 	constexpr float UPFLOW_MULTIPLIER = 0.1f;
+
+	constexpr unsigned int COMPUTE_SHADER_WORK_GROUP_SIZE = 16;
 }

@@ -7,7 +7,7 @@
 #include <vector>
 
 class FluidSimulation {
-private:
+protected:
 	struct DensityPair {
 		float density;
 		float nearDensity;
@@ -29,7 +29,8 @@ private:
 	unsigned int addParticle(glm::vec3 position, glm::vec3 velocity = glm::vec3(0.0f));
 	void clearParticles();
 
-	void initSimulation();
+	virtual void initSimulation();
+	virtual void updateSimulation(unsigned int n, float dt);
 
 	// kernel functions
 	float smoothingKernelPow2(float radius, float distance);
