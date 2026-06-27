@@ -6,7 +6,6 @@ layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedP
 layout(std430, binding = 3) buffer Densities { float densities[]; };
 layout(std430, binding = 4) buffer NearDensities { float nearDensities[]; };
 layout(std430, binding = 5) buffer Deltas { float deltas[]; };
-layout(std430, binding = 7) buffer GridParticleValues { uint gridParticleValues[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
@@ -62,7 +61,7 @@ void main() {
                 if (start == 0xFFFFFFFFu) continue;
 
                 for (uint i = start; i < end; i++) {
-                    uint other = gridParticleValues[i];
+                    uint other = i;
                     if (other == id) continue;
 
                     vec3 rij = getPredictedPositionVec3(other) - getPredictedPositionVec3(id);
@@ -71,15 +70,18 @@ void main() {
 
                     vec3 dir = normalize(rij);
                     float q = 1.0 - (r / smoothingRadius);
-                    vec3 D = dt * dt * (pressure * q + nearPressure * q * q) * dir;
 
-                    deltas[3 * id] -= 0.5f * D.x;
-                    deltas[3 * id + 1] -= 0.5f * D.y;
-                    deltas[3 * id + 2] -= 0.5f * D.z;
+                    float otherDensity = densities[other];
+                    float otherNearDensity = nearDensities[other];
+                    float otherPressure = pressureMultiplier * (otherDensity - targetDensity);
+                    float otherNearPressure = nearPressureMultiplier * otherNearDensity;
 
-                    //deltas[3 * other] += 0.5f * D.x;
-                    //deltas[3 * other + 1] += 0.5f * D.y;
-                    //deltas[3 * other + 2] += 0.5f * D.z;
+                    vec3 D_self = dt * dt * (pressure * q + nearPressure * q * q) * dir;
+                    vec3 D_other = dt * dt * (otherPressure * q + otherNearPressure * q * q) * dir;
+
+                    deltas[3 * id] -= 0.5f * (D_self.x + D_other.x);
+                    deltas[3 * id + 1] -= 0.5f * (D_self.y + D_other.y);
+                    deltas[3 * id + 2] -= 0.5f * (D_self.z + D_other.z);
                 }
             }
         }

@@ -6,7 +6,6 @@ layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
 layout(std430, binding = 1) buffer ParticleVelocities { float velocities[]; };
 layout(std430, binding = 2) buffer ParticlePredictedPositions { float predictedPositions[]; };
 layout(std430, binding = 3) buffer Densities { float densities[]; };
-layout(std430, binding = 7) buffer GridParticleValues { uint gridParticleValues[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
@@ -116,7 +115,7 @@ void main() {
                 if (start == 0xFFFFFFFFu) continue;
 
                 for (uint i = start; i < end; i++) {
-                    uint other = gridParticleValues[i];
+                    uint other = i;
                     if (other == id) continue;
 
                     vec3 otherPos = getPositionVec3(other);
@@ -124,6 +123,7 @@ void main() {
                     
                     float dist = distance(pos, otherPos);
                     if (dist <= 0.0) continue;
+                    if (dist >= smoothingRadius) continue;
 
                     float influence = viscosityKernelLaplacian(smoothingRadius, dist);
                     vec3 relVel = otherVel - vel;

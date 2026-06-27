@@ -66,6 +66,10 @@ FluidSimulationGPU::~FluidSimulationGPU() {
 		glDeleteBuffers(1, &ssboSortedPositions);
 	}
 
+	if (ssboSortedPredictedPositions != 0) {
+		glDeleteBuffers(1, &ssboSortedPredictedPositions);
+	}
+
 	if (ssboSortedVelocities != 0) {
 		glDeleteBuffers(1, &ssboSortedVelocities);
 	}
@@ -153,6 +157,7 @@ void FluidSimulationGPU::initSimulation() {
 	initShaderBuffer<unsigned int>(ssboCellEnd, nullptr, tableSize);
 
 	initShaderBuffer<glm::vec3>(ssboSortedPositions, &positions, numOfParticles);
+	initShaderBuffer<glm::vec3>(ssboSortedPredictedPositions, &positions, numOfParticles);
 	initShaderBuffer<glm::vec3>(ssboSortedVelocities, &velocities, numOfParticles);
 
 	// radix sort buffers
@@ -178,6 +183,7 @@ void FluidSimulationGPU::bindShaderBuffers() {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssboRadixHistograms);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 13, ssboRadixTempKeys);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 14, ssboRadixTempValues);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 15, ssboSortedPredictedPositions);
 }
 
 void FluidSimulationGPU::dispatchCurrentShader(unsigned int n) {
@@ -239,8 +245,20 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool useP
 	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	glCopyNamedBufferSubData(ssboSortedPositions, ssboPositions, 0, 0, numOfParticles * sizeof(float) * 4);
-	glCopyNamedBufferSubData(ssboSortedVelocities, ssboVelocities, 0, 0, numOfParticles * sizeof(float) * 4);
+	std::swap(ssboPositions, ssboSortedPositions);
+	std::swap(ssboVelocities, ssboSortedVelocities);
+	std::swap(ssboPredictedPositions, ssboSortedPredictedPositions);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboPositions);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboVelocities);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboPredictedPositions);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssboSortedPositions);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssboSortedVelocities);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssboSortedPredictedPositions);
+
+	glCopyNamedBufferSubData(ssboSortedPositions, ssboPositions, 0, 0, numOfParticles * sizeof(float) * 3);
+	glCopyNamedBufferSubData(ssboSortedVelocities, ssboVelocities, 0, 0, numOfParticles * sizeof(float) * 3);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	spatialHashGridBoundsShader.use();
@@ -318,11 +336,7 @@ void FluidSimulationGPU::computeDensities(float dt) {
 	densityShader.setUInt("tableSize", 2 * numOfParticles);
 	densityShader.setFloat("particleMass", particleMass);
 	dispatchCurrentShader(numOfParticles);
-
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-	float zero = 0.0f;
-	glClearNamedBufferData(ssboDeltas, GL_R32F, GL_RED, GL_FLOAT, &zero);
 
 	densityRelaxationShader.use();
 	densityRelaxationShader.setUInt("tableSize", 2 * numOfParticles);
@@ -334,6 +348,7 @@ void FluidSimulationGPU::computeDensities(float dt) {
 	densityRelaxationShader.setFloat("pressureMultiplier", pressureMultiplier);
 	densityRelaxationShader.setFloat("nearPressureMultiplier", nearPressureMultiplier);
 	dispatchCurrentShader(numOfParticles);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void FluidSimulationGPU::updateDeltas() {
@@ -342,6 +357,7 @@ void FluidSimulationGPU::updateDeltas() {
 	updateDeltasShader.setFloat("particleRadius", particleRadius);
 	glUniform4fv(glGetUniformLocation(updateDeltasShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
 	dispatchCurrentShader(numOfParticles);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void FluidSimulationGPU::updatePositions(float dt) {

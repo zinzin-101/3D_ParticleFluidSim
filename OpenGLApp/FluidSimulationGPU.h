@@ -26,6 +26,7 @@ protected:
 	GLuint ssboCellStart;
 	GLuint ssboCellEnd;
 	GLuint ssboSortedPositions;
+	GLuint ssboSortedPredictedPositions;
 	GLuint ssboSortedVelocities;
 
 	// gpu radix sort
