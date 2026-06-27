@@ -204,7 +204,7 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 		for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
 			createSpatialHashGrid(tableSize, true);
 			computeDensities(dt);
-			updateDeltas();
+			//updateDeltas();
 		}
 		updatePositions(dt);
 	}
@@ -258,6 +258,8 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool useP
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssboSortedVelocities);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 15, ssboSortedPredictedPositions);
 
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, ssboGridParticleKeys);
+
 	spatialHashGridBoundsShader.use();
 	spatialHashGridBoundsShader.setUInt("numberOfParticles", numOfParticles);
 	dispatchCurrentShader(numOfParticles);
@@ -273,6 +275,9 @@ void FluidSimulationGPU::runGPURadixSort(unsigned int numberOfParticles) {
 	GLuint currentDstValues = ssboRadixTempValues;
 
 	for (unsigned int shift = 0; shift < 32; shift += 4) {
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 16, currentSrcKeys);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, currentSrcValues);
+
 		radixCountShader.use();
 		radixCountShader.setUInt("numberOfParticles", numberOfParticles);
 		radixCountShader.setUInt("shift", shift);
@@ -290,8 +295,8 @@ void FluidSimulationGPU::runGPURadixSort(unsigned int numberOfParticles) {
 		radixScatterShader.setUInt("numberOfParticles", numberOfParticles);
 		radixScatterShader.setUInt("shift", shift);
 
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, currentSrcKeys);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, currentSrcValues);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 16, currentSrcKeys);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, currentSrcValues);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 13, currentDstKeys);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 14, currentDstValues);
 
@@ -334,6 +339,8 @@ void FluidSimulationGPU::computeDensities(float dt) {
 	densityShader.setFloat("particleMass", particleMass);
 	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	return;
 
 	densityRelaxationShader.use();
 	densityRelaxationShader.setUInt("tableSize", 2 * numOfParticles);

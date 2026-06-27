@@ -1,11 +1,11 @@
 #version 430 core
 layout(local_size_x = 256) in;
 
-layout(std430, binding = 6)  buffer SrcKeys    { uint srcKeys[];    };
-layout(std430, binding = 7)  buffer SrcValues  { uint srcValues[];  };
-layout(std430, binding = 12) buffer Histograms  { uint histograms[]; };
-layout(std430, binding = 13) buffer DestKeys   { uint destKeys[];   };
+layout(std430, binding = 12) buffer Histograms { uint histograms[]; };
+layout(std430, binding = 13) buffer DestKeys { uint destKeys[];   };
 layout(std430, binding = 14) buffer DestValues { uint destValues[]; };
+layout(std430, binding = 16)  buffer SrcKeys { uint srcKeys[]; };
+layout(std430, binding = 17)  buffer SrcValues { uint srcValues[]; };
 
 uniform uint numberOfParticles;
 uniform uint shift;
