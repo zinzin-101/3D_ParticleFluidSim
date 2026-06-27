@@ -14,8 +14,8 @@ struct GLFWWindow;
 class FluidEngine {
 private:
 	GLFWwindow* window;
-	//FluidSimulation simulation;
-	FluidSimulationGPU simulation;
+	FluidSimulation simulation;
+	//FluidSimulationGPU simulation;
 	FluidRenderer renderer;
 	GUIHandler gui;
 	InputHandler input;

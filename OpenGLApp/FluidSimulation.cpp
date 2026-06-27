@@ -127,7 +127,7 @@ void FluidSimulation::updateSimulation(unsigned int n, float dt) {
             spatialHashGrid.createHashGrid(predictedPositions);
             updateParticleDensities(dt);
             doubleDensityRelaxation(dt);
-            handleBoundaries();
+            //handleBoundaries();
         }
         updateParticlePositions(dt);
     }
@@ -248,7 +248,7 @@ void FluidSimulation::applyGravity(float dt) {
 
         predictedPositions[i] = positions[i] + velocities[i] * dt;
 
-        container.resolveCollision(predictedPositions[i], velocities[i], particleRadius);
+        //container.resolveCollision(predictedPositions[i], velocities[i], particleRadius);
 	}
 }
 
