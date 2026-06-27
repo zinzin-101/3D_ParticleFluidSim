@@ -204,7 +204,7 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 		for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
 			createSpatialHashGrid(tableSize, true);
 			computeDensities(dt);
-			//updateDeltas();
+			updateDeltas();
 		}
 		updatePositions(dt);
 	}
@@ -220,6 +220,12 @@ void FluidSimulationGPU::updateData() {
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboVelocities);
 	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), velocities.data());
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDensities);
+	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(float), densities.data());
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDeltas);
+	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), deltas.data());
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
@@ -340,9 +346,10 @@ void FluidSimulationGPU::computeDensities(float dt) {
 	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	return;
-
 	densityRelaxationShader.use();
+	GLuint zero = 0;
+	glClearNamedBufferSubData(ssboDeltas, GL_R32F, 0, numOfParticles * 3 * sizeof(float), GL_RED, GL_FLOAT, &zero);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	densityRelaxationShader.setUInt("tableSize", 2 * numOfParticles);
 	densityRelaxationShader.setFloat("spacing", smoothingRadius);
 	densityRelaxationShader.setUInt("numberOfParticles", numOfParticles);
