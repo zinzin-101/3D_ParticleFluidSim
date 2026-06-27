@@ -5,7 +5,7 @@ layout(std430, binding = 0)  buffer UnsortedPos { float unsortedPositions[]; };
 layout(std430, binding = 1)  buffer UnsortedVel { float unsortedVelocities[]; };
 layout(std430, binding = 2)  buffer UnsortedPredPos { float unsortedPredictedPositions[]; };
 
-layout(std430, binding = 7)  buffer SortedIds { uint  gridParticleValues[];         };
+layout(std430, binding = 7)  buffer SortedIds { uint  gridParticleValues[]; };
 
 layout(std430, binding = 10) buffer SortedPos { float sortedPositions[]; };
 layout(std430, binding = 11) buffer SortedVel { float sortedVelocities[]; };
@@ -19,7 +19,7 @@ void main() {
 
     uint originalId = gridParticleValues[id];
 
-    uint targetBase = id         * 3;
+    uint targetBase = id * 3;
     uint sourceBase = originalId * 3;
 
     sortedPositions[targetBase + 0] = unsortedPositions[sourceBase + 0];

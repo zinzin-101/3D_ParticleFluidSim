@@ -29,6 +29,6 @@ void main() {
 
     uint hash = coordToHash(ivec3(floatToIntCoord(pos.x), floatToIntCoord(pos.y), floatToIntCoord(pos.z)));
 
-    gridParticleKeys[id]   = hash;
+    gridParticleKeys[id] = hash;
     gridParticleValues[id] = id;
 }
