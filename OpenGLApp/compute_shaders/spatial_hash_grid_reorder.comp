@@ -1,15 +1,15 @@
 #version 430 core
 layout(local_size_x = 256) in;
 
-layout(std430, binding = 0) buffer UnsortedPos { float unsortedPositions[]; };
-layout(std430, binding = 1) buffer UnsortedVel { float unsortedVelocities[]; };
-layout(std430, binding = 2) buffer UnsortedPredPos { float unsortedPredictedPositions[]; };
+layout(std430, binding = 0)  buffer UnsortedPos { float unsortedPositions[]; };
+layout(std430, binding = 1)  buffer UnsortedVel { float unsortedVelocities[]; };
+layout(std430, binding = 2)  buffer UnsortedPredPos { float unsortedPredictedPositions[]; };
 
-layout(std430, binding = 7) buffer SortedIds { uint gridParticleValues[]; };
+layout(std430, binding = 7)  buffer SortedIds { uint  gridParticleValues[];         };
 
 layout(std430, binding = 10) buffer SortedPos { float sortedPositions[]; };
 layout(std430, binding = 11) buffer SortedVel { float sortedVelocities[]; };
-layout(std430, binding = 12) buffer SortedPredPos { float sortedPredictedPositions[]; };
+layout(std430, binding = 15) buffer SortedPredPos { float sortedPredictedPositions[]; };
 
 uniform uint numberOfParticles;
 
@@ -19,20 +19,17 @@ void main() {
 
     uint originalId = gridParticleValues[id];
 
-    uint targetBase = id * 3;
+    uint targetBase = id         * 3;
     uint sourceBase = originalId * 3;
 
-    // Sort Positions
     sortedPositions[targetBase + 0] = unsortedPositions[sourceBase + 0];
     sortedPositions[targetBase + 1] = unsortedPositions[sourceBase + 1];
     sortedPositions[targetBase + 2] = unsortedPositions[sourceBase + 2];
 
-    // Sort Velocities
     sortedVelocities[targetBase + 0] = unsortedVelocities[sourceBase + 0];
     sortedVelocities[targetBase + 1] = unsortedVelocities[sourceBase + 1];
     sortedVelocities[targetBase + 2] = unsortedVelocities[sourceBase + 2];
 
-    // Sort Predicted Positions
     sortedPredictedPositions[targetBase + 0] = unsortedPredictedPositions[sourceBase + 0];
     sortedPredictedPositions[targetBase + 1] = unsortedPredictedPositions[sourceBase + 1];
     sortedPredictedPositions[targetBase + 2] = unsortedPredictedPositions[sourceBase + 2];

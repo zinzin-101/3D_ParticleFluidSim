@@ -3,7 +3,7 @@
 
 using namespace FluidSimulationConfig;
 
-FluidSimulationGPU::FluidSimulationGPU():
+FluidSimulationGPU::FluidSimulationGPU() :
 	ssboPositions(0),
 	ssboVelocities(0),
 	ssboDensities(0),
@@ -15,6 +15,7 @@ FluidSimulationGPU::FluidSimulationGPU():
 	ssboCellStart(0),
 	ssboCellEnd(0),
 	ssboSortedPositions(0),
+	ssboSortedPredictedPositions(0),
 	ssboSortedVelocities(0),
 	ssboRadixTempKeys(0),
 	ssboRadixTempValues(0),
@@ -22,7 +23,7 @@ FluidSimulationGPU::FluidSimulationGPU():
 {}
 
 FluidSimulationGPU::~FluidSimulationGPU() {
-	if (ssboPositions != 0){
+	if (ssboPositions != 0) {
 		glDeleteBuffers(1, &ssboPositions);
 	}
 
@@ -255,11 +256,7 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool useP
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssboSortedPositions);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssboSortedVelocities);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 12, ssboSortedPredictedPositions);
-
-	glCopyNamedBufferSubData(ssboSortedPositions, ssboPositions, 0, 0, numOfParticles * sizeof(float) * 3);
-	glCopyNamedBufferSubData(ssboSortedVelocities, ssboVelocities, 0, 0, numOfParticles * sizeof(float) * 3);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 15, ssboSortedPredictedPositions);
 
 	spatialHashGridBoundsShader.use();
 	spatialHashGridBoundsShader.setUInt("numberOfParticles", numOfParticles);
