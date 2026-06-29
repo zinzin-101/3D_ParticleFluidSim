@@ -45,6 +45,7 @@ public:
 	void setEnableCursor(bool value);
 	void setVSyncOn(bool value);
 
+	GLFWwindow* getWindow();
 	InputHandler* getInputHandler();
 	GUIHandler* getGUIHandler();
 	FluidSimulation* getSimulation();

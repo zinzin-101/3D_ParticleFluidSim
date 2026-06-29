@@ -1,4 +1,8 @@
 #include "GUIHandler.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "FluidEngine.h"
 #include "FluidEngineConfig.h"
 #include "FluidSimulation.h"
@@ -7,12 +11,12 @@
 using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
 
-void GUIHandler::init(GLFWwindow* window, FluidEngine* engine) {
+void GUIHandler::init(FluidEngine* engine) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplGlfw_InitForOpenGL(engine->getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 440");
 
 	this->engine = engine;

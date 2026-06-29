@@ -93,7 +93,7 @@ void FluidEngine::init() {
 	initWindow();
 	input.init(window);
 	initGL();
-	gui.init(window, this);
+	gui.init(this);
 
 	simulation.init();
 	renderer.init();
@@ -138,6 +138,10 @@ void FluidEngine::setEnableCursor(bool value) {
 void FluidEngine::setVSyncOn(bool value) {
 	isVSyncOn = value;
 	glfwSwapInterval(isVSyncOn ? 1 : 0);
+}
+
+GLFWwindow* FluidEngine::getWindow() {
+	return window;
 }
 
 InputHandler* FluidEngine::getInputHandler() {
