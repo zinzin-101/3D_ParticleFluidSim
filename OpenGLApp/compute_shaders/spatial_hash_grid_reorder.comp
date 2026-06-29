@@ -19,6 +19,8 @@ void main() {
 
     uint originalId = gridParticleValues[id];
 
+    if (originalId >= numberOfParticles) return;
+
     uint targetBase = id * 3;
     uint sourceBase = originalId * 3;
 

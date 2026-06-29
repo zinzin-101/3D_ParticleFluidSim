@@ -27,7 +27,10 @@ void main() {
         ? vec3(predictedPositions[base], predictedPositions[base+1], predictedPositions[base+2])
         : vec3(positions[base], positions[base+1], positions[base+2]);
 
-    uint hash = coordToHash(ivec3(floatToIntCoord(pos.x), floatToIntCoord(pos.y), floatToIntCoord(pos.z)));
+    uint hash = 0u;
+    if (!any(isnan(pos)) && !any(isinf(pos))) {
+        hash = coordToHash(ivec3(floatToIntCoord(pos.x), floatToIntCoord(pos.y), floatToIntCoord(pos.z)));
+    }
 
     gridParticleKeys[id] = hash;
     gridParticleValues[id] = id;

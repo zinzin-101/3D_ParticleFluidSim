@@ -19,6 +19,8 @@ uniform float pressureMultiplier;
 uniform float nearPressureMultiplier;
 
 void atomicAddFloat(uint index, float value) {
+    if (isnan(value) || isinf(value)) return;
+
     uint expected;
     uint desired;
     do {
@@ -72,6 +74,8 @@ void main() {
                 uint end   = cellEnd[hash];
 
                 if (start == 0xFFFFFFFFu) continue;
+                if (end > numberOfParticles) continue;
+                if (start > end) continue;   
 
                 for (uint ni = start; ni < end; ni++) {
                     uint j = ni;
@@ -85,6 +89,8 @@ void main() {
                     float q   = 1.0 - (r / smoothingRadius);
 
                     vec3 D = dt * dt * (pressure * q + nearPressure * q * q) * dir;
+
+                    if (any(isnan(D)) || any(isinf(D))) continue; 
 
                     delta -= 0.5 * D;
 

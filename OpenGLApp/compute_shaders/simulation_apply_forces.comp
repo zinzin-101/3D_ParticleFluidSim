@@ -61,31 +61,17 @@ float viscosityKernelLaplacian(float radius, float distance) {
 }
 
 void resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
-    vec3 updatedPos = pos;
-    vec3 updatedVel = vel;
-
     for (int i = 0; i < 6; i++) {
-        vec4 plane = planes[i];
-        vec3 normal = plane.xyz;
-        
-        float h = dot(updatedPos, normal) + plane.w;
+        vec3 normal = planes[i].xyz;
+        float h = dot(pos, normal) + planes[i].w;
         if (h + particleRadius >= 0.0) {
-            vec3 closestPoint = updatedPos - h * normal;
-            updatedPos = closestPoint - normal * particleRadius;
-
+            pos = pos - h * normal - normal * particleRadius;
             if (!ignoreVelocity) {
-                float normalSpeed = dot(normal, updatedVel);
-                if (normalSpeed > 0.0) {
-                    updatedVel -= normal * normalSpeed;
-                }
-            }   
+                float normalSpeed = dot(normal, vel);
+                if (normalSpeed > 0.0)
+                    vel -= normal * normalSpeed;
+            }
         }
-    }
-
-    pos = updatedPos;
-
-    if (!ignoreVelocity) {
-        vel = updatedVel;
     }
 }
 
@@ -113,6 +99,8 @@ void main() {
                 uint end   = cellEnd[hash];
 
                 if (start == 0xFFFFFFFFu) continue;
+                if (end > numberOfParticles) continue;
+                if (start > end) continue;   
 
                 for (uint i = start; i < end; i++) {
                     uint other = i;
@@ -143,12 +131,14 @@ void main() {
 
     // gravity
     vel += gravity * dt;
+    if (any(isnan(vel)) || any(isinf(vel))) vel = vec3(0.0);
 
     // update predicted position
     vec3 predictedPos = pos + vel * dt;
 
     // resolving collision for predicted position
-    resolveCollision(predictedPos, vel, false);
+    resolveCollision(predictedPos, vel, true);
+
 
     // write to buffer
     setPredictedPosVec3(id, predictedPos);

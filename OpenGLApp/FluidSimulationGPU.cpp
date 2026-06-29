@@ -269,6 +269,7 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool useP
 
 	spatialHashGridBoundsShader.use();
 	spatialHashGridBoundsShader.setUInt("numberOfParticles", numOfParticles);
+	spatialHashGridBoundsShader.setUInt("tableSize", tableSize);
 	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }

@@ -6,6 +6,7 @@ layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
 
 uniform uint numberOfParticles;
+uniform uint tableSize;
 
 void main() {
     uint id = gl_GlobalInvocationID.x;
@@ -13,6 +14,8 @@ void main() {
 
     uint currentCell = gridParticleKeys[id];
     
+    if (currentCell >= tableSize) return;
+
     if (id == 0) {
         cellStart[currentCell] = 0;
     } else {

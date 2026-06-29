@@ -66,6 +66,8 @@ void main() {
                 uint end   = cellEnd[hash];
 
                 if (start == 0xFFFFFFFFu) continue;
+                if (end > numberOfParticles) continue;
+                if (start > end) continue;   
 
                 for (uint i = start; i < end; i++) {
                     uint other = i;

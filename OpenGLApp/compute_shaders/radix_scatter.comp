@@ -44,10 +44,12 @@ void main() {
     }
     
     if (globalId < numberOfParticles) {
-        uint globalBase     = histograms[groupId * 16u + digit];
-        uint destIndex      = globalBase + localRank;
+        uint globalBase = histograms[groupId * 16u + digit];
+        uint destIndex = globalBase + localRank;
 
-        destKeys[destIndex]   = key;
-        destValues[destIndex] = value;
+        if (destIndex < numberOfParticles) {
+            destKeys[destIndex] = key;
+            destValues[destIndex] = value;
+        }
     }
 }
