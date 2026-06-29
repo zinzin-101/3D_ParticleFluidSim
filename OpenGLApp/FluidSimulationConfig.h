@@ -12,13 +12,13 @@ namespace FluidSimulationConfig {
 	constexpr float DEFAULT_VELOCITY_DAMPING = 0.985f;
 
 	const glm::vec3 DEFAULT_CUBE_CONTAINER_ORIGIN = glm::vec3(0.0f, 0.0f, 0.0f);
-	constexpr float DEFAULT_CUBE_CONTAINER_SIDE_LENGTH = 8.0f;
+	constexpr float DEFAULT_CUBE_CONTAINER_SIDE_LENGTH = 25.0f;
 
 	constexpr float DEFAULT_PARTICLE_MASS = 1.0f;
 	constexpr float DEFAULT_SMOOTHING_RADIUS = 1.0f;
 
-	constexpr unsigned int DEFAULT_NUMBER_OF_PARTICLES = 1000;
-	constexpr float DEFAULT_PARTICLE_SPACING = 0.6f;
+	constexpr unsigned int DEFAULT_NUMBER_OF_PARTICLES = 10000;
+	constexpr float DEFAULT_PARTICLE_SPACING = 0.8f;
 
 	constexpr float DEFAULT_TARGET_DENSITY = 1.0f;
 	constexpr float DEFAULT_PRESSURE_MULTIPLIER = 500.0f;

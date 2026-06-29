@@ -101,7 +101,7 @@ void main() {
         }
     }
 
-    atomicAddFloat(3 * id,     delta.x);
+    atomicAddFloat(3 * id, delta.x);
     atomicAddFloat(3 * id + 1, delta.y);
     atomicAddFloat(3 * id + 2, delta.z);
 }

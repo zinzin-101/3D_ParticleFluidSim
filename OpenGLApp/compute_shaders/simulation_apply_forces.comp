@@ -40,7 +40,7 @@ void setPredictedPosVec3(uint id, vec3 val) {
 
 void setVelocityVec3(uint id, vec3 val) {
     uint base = id * 3;
-    velocities[base]   = val.x;
+    velocities[base] = val.x;
     velocities[base+1] = val.y;
     velocities[base+2] = val.z;
 }

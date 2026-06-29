@@ -226,7 +226,7 @@ void FluidSimulationGPU::updateData() {
 	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(float), densities.data());
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDeltas);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), deltas.data());
+	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(unsigned int) * 3, deltas.data());
 
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
@@ -379,4 +379,5 @@ void FluidSimulationGPU::updatePositions(float dt) {
 	updatePositionsShader.setFloat("particleRadius", particleRadius);
 	glUniform4fv(glGetUniformLocation(updatePositionsShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
 	dispatchCurrentShader(numOfParticles);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
