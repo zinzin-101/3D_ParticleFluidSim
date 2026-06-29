@@ -206,6 +206,7 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 			computeDensities(dt);
 			updateDeltas();
 		}
+
 		updatePositions(dt);
 	}
 
