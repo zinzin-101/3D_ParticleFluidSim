@@ -17,6 +17,8 @@ FluidSimulationGPU::FluidSimulationGPU() :
 	ssboSortedPositions(0),
 	ssboSortedPredictedPositions(0),
 	ssboSortedVelocities(0),
+	ssboSortedDensities(0),
+	ssboSortedNearDensities(0),
 	ssboRadixTempKeys(0),
 	ssboRadixTempValues(0),
 	ssboRadixHistograms(0)
@@ -73,6 +75,14 @@ FluidSimulationGPU::~FluidSimulationGPU() {
 
 	if (ssboSortedVelocities != 0) {
 		glDeleteBuffers(1, &ssboSortedVelocities);
+	}
+
+	if (ssboSortedDensities != 0) {
+		glDeleteBuffers(1, &ssboSortedDensities);
+	}
+
+	if (ssboSortedNearDensities != 0) {
+		glDeleteBuffers(1, &ssboSortedNearDensities);
 	}
 
 	if (ssboRadixTempKeys != 0) {
@@ -160,6 +170,8 @@ void FluidSimulationGPU::initSimulation() {
 	initShaderBuffer<glm::vec3>(ssboSortedPositions, &positions, numOfParticles);
 	initShaderBuffer<glm::vec3>(ssboSortedPredictedPositions, &positions, numOfParticles);
 	initShaderBuffer<glm::vec3>(ssboSortedVelocities, &velocities, numOfParticles);
+	initShaderBuffer<float>(ssboSortedDensities, nullptr, numOfParticles);
+	initShaderBuffer<float>(ssboSortedNearDensities, nullptr, numOfParticles);
 
 	// radix sort buffers
 	initShaderBuffer<unsigned int>(ssboRadixTempKeys, nullptr, numOfParticles);
@@ -257,14 +269,20 @@ void FluidSimulationGPU::createSpatialHashGrid(unsigned int tableSize, bool useP
 	std::swap(ssboPositions, ssboSortedPositions);
 	std::swap(ssboVelocities, ssboSortedVelocities);
 	std::swap(ssboPredictedPositions, ssboSortedPredictedPositions);
+	std::swap(ssboDensities, ssboSortedDensities);
+	std::swap(ssboNearDensities, ssboSortedNearDensities);
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssboPositions);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssboVelocities);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssboPredictedPositions);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssboDensities);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssboNearDensities);
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, ssboSortedPositions);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, ssboSortedVelocities);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 15, ssboSortedPredictedPositions);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 18, ssboSortedDensities);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 19, ssboSortedNearDensities);
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, ssboGridParticleKeys);
 

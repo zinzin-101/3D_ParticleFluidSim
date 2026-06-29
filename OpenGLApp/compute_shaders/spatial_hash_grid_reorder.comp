@@ -5,11 +5,17 @@ layout(std430, binding = 0)  buffer UnsortedPos { float unsortedPositions[]; };
 layout(std430, binding = 1)  buffer UnsortedVel { float unsortedVelocities[]; };
 layout(std430, binding = 2)  buffer UnsortedPredPos { float unsortedPredictedPositions[]; };
 
+layout(std430, binding = 3)  buffer UnsortedDensities { float unsortedDensities[]; };
+layout(std430, binding = 4)  buffer UnsortedNearDensities { float unsortedNearDensities[]; };
+
 layout(std430, binding = 7)  buffer SortedIds { uint  gridParticleValues[]; };
 
 layout(std430, binding = 10) buffer SortedPos { float sortedPositions[]; };
 layout(std430, binding = 11) buffer SortedVel { float sortedVelocities[]; };
 layout(std430, binding = 15) buffer SortedPredPos { float sortedPredictedPositions[]; };
+
+layout(std430, binding = 18) buffer SortedDensities { float sortedDensities[]; };
+layout(std430, binding = 19) buffer SortedNearDensities { float sortedNearDensities[]; };
 
 uniform uint numberOfParticles;
 
@@ -35,4 +41,7 @@ void main() {
     sortedPredictedPositions[targetBase + 0] = unsortedPredictedPositions[sourceBase + 0];
     sortedPredictedPositions[targetBase + 1] = unsortedPredictedPositions[sourceBase + 1];
     sortedPredictedPositions[targetBase + 2] = unsortedPredictedPositions[sourceBase + 2];
+
+    sortedDensities[id] = unsortedDensities[originalId];
+    sortedNearDensities[id] = unsortedNearDensities[originalId];
 }

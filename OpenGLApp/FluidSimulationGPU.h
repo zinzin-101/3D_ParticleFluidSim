@@ -28,6 +28,8 @@ protected:
 	GLuint ssboSortedPositions;
 	GLuint ssboSortedPredictedPositions;
 	GLuint ssboSortedVelocities;
+	GLuint ssboSortedDensities;
+	GLuint ssboSortedNearDensities;
 
 	// gpu radix sort
 	ComputeShader radixCountShader;
