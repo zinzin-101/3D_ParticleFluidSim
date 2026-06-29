@@ -147,7 +147,7 @@ void FluidSimulationGPU::initSimulation() {
 	initShaderBuffer<glm::vec3>(ssboPositions, &positions, numOfParticles);
 	initShaderBuffer<glm::vec3>(ssboVelocities, &velocities, numOfParticles);
 	initShaderBuffer<glm::vec3>(ssboPredictedPositions, &positions, numOfParticles);
-	initShaderBuffer<glm::vec3>(ssboDeltas, nullptr, numOfParticles);
+	initShaderBuffer<unsigned int>(ssboDeltas, nullptr, numOfParticles * 3);
 	initShaderBuffer<float>(ssboDensities, nullptr, numOfParticles);
 	initShaderBuffer<float>(ssboNearDensities, nullptr, numOfParticles);
 
@@ -209,6 +209,7 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 		updatePositions(dt);
 	}
 
+	bindShaderBuffers();
 	updateData();
 }
 
@@ -348,7 +349,7 @@ void FluidSimulationGPU::computeDensities(float dt) {
 
 	densityRelaxationShader.use();
 	GLuint zero = 0;
-	glClearNamedBufferSubData(ssboDeltas, GL_R32F, 0, numOfParticles * 3 * sizeof(float), GL_RED, GL_FLOAT, &zero);
+	glClearNamedBufferSubData(ssboDeltas, GL_R32UI, 0, numOfParticles * 3 * sizeof(unsigned int), GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	densityRelaxationShader.setUInt("tableSize", 2 * numOfParticles);
 	densityRelaxationShader.setFloat("spacing", smoothingRadius);
