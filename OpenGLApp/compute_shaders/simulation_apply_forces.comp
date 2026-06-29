@@ -137,7 +137,7 @@ void main() {
     vec3 predictedPos = pos + vel * dt;
 
     // resolving collision for predicted position
-    resolveCollision(predictedPos, vel, true);
+    //resolveCollision(predictedPos, vel, false);
 
 
     // write to buffer
