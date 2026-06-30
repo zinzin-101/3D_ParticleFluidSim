@@ -22,7 +22,7 @@ void main() {
     barrier();
 
     if (globalId < numberOfParticles) {
-        uint key   = keys[globalId];
+        uint key = keys[globalId];
         uint digit = (key >> shift) & 0xFu;
         atomicAdd(localHistogram[digit], 1u);
     }

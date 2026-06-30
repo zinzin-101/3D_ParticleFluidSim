@@ -24,7 +24,7 @@ void main() {
     uint digit = INVALID_DIGIT;
 
     if (globalId < numberOfParticles) {
-        key   = srcKeys[globalId];
+        key = srcKeys[globalId];
         value = srcValues[globalId];
         digit = (key >> shift) & 0xFu;
     }

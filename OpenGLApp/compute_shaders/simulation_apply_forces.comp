@@ -87,16 +87,16 @@ void main() {
     int startX = floatToIntCoord(pos.x - smoothingRadius);
     int startY = floatToIntCoord(pos.y - smoothingRadius);
     int startZ = floatToIntCoord(pos.z - smoothingRadius);
-    int endX   = floatToIntCoord(pos.x + smoothingRadius);
-    int endY   = floatToIntCoord(pos.y + smoothingRadius);
-    int endZ   = floatToIntCoord(pos.z + smoothingRadius);
+    int endX = floatToIntCoord(pos.x + smoothingRadius);
+    int endY = floatToIntCoord(pos.y + smoothingRadius);
+    int endZ = floatToIntCoord(pos.z + smoothingRadius);
 
     for (int x = startX; x <= endX; x++) {
         for (int y = startY; y <= endY; y++) {
             for (int z = startZ; z <= endZ; z++) {
                 uint hash = coordToHash(ivec3(x, y, z));
                 uint start = cellStart[hash];
-                uint end   = cellEnd[hash];
+                uint end = cellEnd[hash];
 
                 if (start == 0xFFFFFFFFu) continue;
                 if (end > numberOfParticles) continue;
