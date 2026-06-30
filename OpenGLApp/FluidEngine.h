@@ -29,6 +29,8 @@ private:
 	
 	void initWindow();
 	void initGL();
+
+	void init();
 	void update();
 	void render();
 	void cleanup();
@@ -38,7 +40,6 @@ public:
 
 	FluidEngine();
 	~FluidEngine();
-	void init();
 	void run();
 
 	void toggleFullScreen();

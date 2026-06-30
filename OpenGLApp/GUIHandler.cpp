@@ -11,6 +11,8 @@
 using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
 
+GUIHandler::GUIHandler(): engine(nullptr) {}
+
 void GUIHandler::init(FluidEngine* engine) {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();

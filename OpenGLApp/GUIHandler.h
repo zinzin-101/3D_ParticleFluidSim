@@ -11,6 +11,7 @@ private:
 	FluidEngine* engine;
 
 public:
+	GUIHandler();
 	void init(FluidEngine* engine);
 	void update();
 	void render();
