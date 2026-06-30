@@ -23,7 +23,7 @@ FluidSimulation::FluidSimulation():
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
     nearPressureMultiplier(DEFAULT_NEAR_PRESSURE_MULTIPLIER),
-    viscosityMultiplier(DEFAULT_VISCOSITY)
+    viscosityCoefficient(DEFAULT_VISCOSITY)
 { }
 
 unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity) {
@@ -220,7 +220,7 @@ glm::vec3 FluidSimulation::calculateViscosityForce(unsigned int particleIndex) {
         }
     }
 
-    return viscosityForce * viscosityMultiplier;
+    return viscosityForce * viscosityCoefficient;
 }
 
 void FluidSimulation::updateDensities() {
@@ -362,38 +362,38 @@ void FluidSimulation::update(float dt) {
 
     updateSimulation(n, subStepDeltaTime);
 
-    float avgspeed = 0.0f;
-    float maxspeed = 0.0f;
-    float avgdensity = 0.0f;
-    float maxdensity = 0.0f;
-    float mindensity = 999999999.0f;
-    glm::vec3 avgdelta(0.0f);
-    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-        glm::vec3 vel = velocities[i];
-        float density = densities[i];
+    //float avgspeed = 0.0f;
+    //float maxspeed = 0.0f;
+    //float avgdensity = 0.0f;
+    //float maxdensity = 0.0f;
+    //float mindensity = 999999999.0f;
+    //glm::vec3 avgdelta(0.0f);
+    //for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
+    //    glm::vec3 vel = velocities[i];
+    //    float density = densities[i];
 
-        float speed = glm::length(vel);
-        avgspeed += speed;
-        maxspeed = (std::max)(maxspeed, speed);
+    //    float speed = glm::length(vel);
+    //    avgspeed += speed;
+    //    maxspeed = (std::max)(maxspeed, speed);
 
-        avgdensity += density;
-        maxdensity = (std::max)(maxdensity, density);
-        mindensity = (std::min)(mindensity, density);
+    //    avgdensity += density;
+    //    maxdensity = (std::max)(maxdensity, density);
+    //    mindensity = (std::min)(mindensity, density);
 
-        avgdelta += deltas[i];
-    }
+    //    avgdelta += deltas[i];
+    //}
 
-    avgdensity /= (float)velocities.size();
-    std::cout << "avg density: " << avgdensity << std::endl;
-    std::cout << "max density: " << maxdensity << std::endl;
-    std::cout << "min density: " << mindensity << std::endl;
+    //avgdensity /= (float)velocities.size();
+    //std::cout << "avg density: " << avgdensity << std::endl;
+    //std::cout << "max density: " << maxdensity << std::endl;
+    //std::cout << "min density: " << mindensity << std::endl;
 
-    avgspeed /= (float)velocities.size();
-    std::cout << "avg speed: " << avgspeed << std::endl;
-    std::cout << "max speed: " << maxspeed << std::endl;
+    //avgspeed /= (float)velocities.size();
+    //std::cout << "avg speed: " << avgspeed << std::endl;
+    //std::cout << "max speed: " << maxspeed << std::endl;
 
-    avgdelta /= (float)deltas.size();
-    std::cout << "avg delta: " << avgdelta.x << " " << avgdelta.y << " " << avgdelta.z << std::endl;
+    //avgdelta /= (float)deltas.size();
+    //std::cout << "avg delta: " << avgdelta.x << " " << avgdelta.y << " " << avgdelta.z << std::endl;
 }
 
 void FluidSimulation::reset() {

@@ -70,7 +70,7 @@ public:
 	float pressureMultiplier;
 	float nearPressureMultiplier;
 
-	float viscosityMultiplier;
+	float viscosityCoefficient;
 
 	FluidSimulation();
 	void init();

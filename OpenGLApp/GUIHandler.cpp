@@ -99,14 +99,14 @@ void GUIHandler::update() {
 		nearPressureMultiplier = simulation->nearPressureMultiplier;
 	}
 
-	static float viscosityMultiplier = simulation->viscosityMultiplier;
-	if (ImGui::SliderFloat("Viscosity", &viscosityMultiplier, 0.0f, 5.0f, "%.3f")) {
-		simulation->viscosityMultiplier = viscosityMultiplier;
+	static float viscosityCoefficient = simulation->viscosityCoefficient;
+	if (ImGui::SliderFloat("Viscosity", &viscosityCoefficient, 0.0f, 1.0f, "%.3f")) {
+		simulation->viscosityCoefficient = viscosityCoefficient;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Reset##v")) {
-		simulation->viscosityMultiplier = DEFAULT_VISCOSITY;
-		viscosityMultiplier = simulation->viscosityMultiplier;
+		simulation->viscosityCoefficient = DEFAULT_VISCOSITY;
+		viscosityCoefficient = simulation->viscosityCoefficient;
 	}
 
 	static float mass = simulation->particleMass;

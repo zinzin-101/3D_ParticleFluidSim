@@ -355,7 +355,7 @@ void FluidSimulationGPU::applyForces(float dt) {
 	applyForcesShader.setFloat("spacing", smoothingRadius);
 	applyForcesShader.setUInt("numberOfParticles", numOfParticles);
 	applyForcesShader.setFloat("dt", dt);
-	applyForcesShader.setFloat("viscosityMultiplier", viscosityMultiplier);
+	applyForcesShader.setFloat("viscosityCoefficient", viscosityCoefficient);
 	applyForcesShader.setFloat("smoothingRadius", smoothingRadius);
 	applyForcesShader.setFloat("particleMass", particleMass);
 	glUniform3fv(glGetUniformLocation(applyForcesShader.ID, "gravity"), 1, &gravitationalForce[0]);

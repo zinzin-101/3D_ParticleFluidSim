@@ -14,7 +14,7 @@ uniform float spacing;
 uniform uint numberOfParticles;
 
 uniform float dt;
-uniform float viscosityMultiplier;
+uniform float viscosityCoefficient;
 uniform float smoothingRadius;
 uniform float particleMass;
 uniform vec3 gravity;
@@ -60,6 +60,12 @@ float viscosityKernelLaplacian(float radius, float distance) {
     return scale * (radius - distance);
 }
 
+float densityKernel(float radius, float dist) { // for XSPH artificial viscosity
+    if (dist >= radius) return 0.0;
+    float a = radius * radius - dist * dist;
+    return 315.0f / (64.0f * 3.14159265359 * pow(radius, 9.0)) * a * a * a;
+}
+
 void resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
     for (int i = 0; i < 6; i++) {
         vec3 normal = planes[i].xyz;
@@ -83,7 +89,9 @@ void main() {
     vec3 vel = getVelocityVec3(id);
 
     // viscosity
-    vec3 viscosityForce = vec3(0.0);
+    vec3 weightedVelSum = vec3(0.0);
+    float weightSum = 0.0;
+
     int startX = floatToIntCoord(pos.x - smoothingRadius);
     int startY = floatToIntCoord(pos.y - smoothingRadius);
     int startZ = floatToIntCoord(pos.z - smoothingRadius);
@@ -113,28 +121,32 @@ void main() {
                     if (dist <= 0.0) continue;
                     if (dist >= smoothingRadius) continue;
 
-                    float influence = viscosityKernelLaplacian(smoothingRadius, dist);
-                    vec3 relVel = otherVel - vel;
-
                     float denom = densities[other];
-                    if (denom > 0.0){
-                        viscosityForce += particleMass * (relVel / denom) * influence;
-                    }
+                    if (denom <= 0.0) continue;
                     
+                    float w = particleMass * densityKernel(smoothingRadius, dist) / denom;
+                    weightedVelSum += otherVel * w;
+                    weightSum += w;
                 }
             }
         }
     }
 
-    viscosityForce *= viscosityMultiplier;
-    vel += viscosityForce * dt;
-
     // gravity
     vel += gravity * dt;
     if (any(isnan(vel)) || any(isinf(vel))) vel = vec3(0.0);
 
+    // XSPH viscosity [0, 1]
+    vec3 viscosityVel = vel;
+    if (weightSum > 0.0) {
+        vec3 avgNeighborVel = weightedVelSum / weightSum;
+        float epsilon = clamp(viscosityCoefficient, 0.0, 1.0) * clamp(weightSum / 2.0, 0.0, 1.0);
+        viscosityVel = mix(vel, avgNeighborVel, epsilon);
+    }
+
+
     // update predicted position
-    vec3 predictedPos = pos + vel * dt;
+    vec3 predictedPos = pos + viscosityVel * dt;
 
     // resolving collision for predicted position
     //resolveCollision(predictedPos, vel, false);
