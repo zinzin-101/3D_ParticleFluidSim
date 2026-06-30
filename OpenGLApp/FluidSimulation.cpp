@@ -190,7 +190,7 @@ FluidSimulation::DensityPair FluidSimulation::calculateDensity(unsigned int part
     spatialHashGrid.query(predictedPositions[particleIndex], smoothingRadius);
     for (int query = 0; query < spatialHashGrid.getQuerySize(); query++) {
         unsigned int i = (unsigned int)spatialHashGrid.getQueryId(query);
-        if (i == particleIndex) continue;
+        //if (i == particleIndex) continue;
 
         float distance = glm::distance(predictedPositions[particleIndex], predictedPositions[i]);
         //density += particleMass * smoothingKernelPow2(smoothingRadius, distance);
@@ -401,22 +401,6 @@ void FluidSimulation::reset() {
 	initSimulation();
     spatialHashGrid.reset(smoothingRadius, (int)positions.size());
     pause = true;
-}
-
-void FluidSimulation::resolveCollisionWithContainerTransform() {
-    for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
-        glm::vec3 oldPos = positions[i];
-
-        container.resolveCollision(positions[i], velocities[i], particleRadius, true);
-
-        glm::vec3 displacement = positions[i] - oldPos;
-        float push = glm::length(displacement);
-
-        if (push > 0.0f) {
-            positions[i] += -glm::normalize(gravitationalForce) * push * densities[i] * UPFLOW_MULTIPLIER;
-            velocities[i] += -glm::normalize(gravitationalForce) * push * densities[i] * UPFLOW_MULTIPLIER / FIXED_DT;
-        }
-    }
 }
 
 FluidContainer* FluidSimulation::getContainer() {

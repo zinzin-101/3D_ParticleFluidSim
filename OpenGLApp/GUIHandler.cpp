@@ -242,7 +242,7 @@ void GUIHandler::update() {
 
 	ImGui::Text("Initial parameters");
 	static int numOfParticles = (int)simulation->numOfParticles;
-	ImGui::SliderInt("Number of particles", &numOfParticles, 0, 1000000);
+	ImGui::SliderInt("Number of particles", &numOfParticles, 0, 100000);
 	ImGui::SameLine();
 	if (ImGui::Button("Reset##np")) {
 		numOfParticles = DEFAULT_NUMBER_OF_PARTICLES;

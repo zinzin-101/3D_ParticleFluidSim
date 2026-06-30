@@ -121,8 +121,6 @@ void FluidContainer::scales(glm::vec3 scaling) {
 
 		currentScale.z += scaling.z;
 	}
-
-	simulation->resolveCollisionWithContainerTransform();
 }
 
 void FluidContainer::rotates(float degrees, glm::vec3 axis) {
