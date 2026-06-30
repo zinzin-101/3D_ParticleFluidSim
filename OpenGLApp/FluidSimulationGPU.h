@@ -30,6 +30,7 @@ protected:
 	GLuint ssboSortedVelocities;
 	GLuint ssboSortedDensities;
 	GLuint ssboSortedNearDensities;
+	GLuint ssboSortedDeltas;
 
 	// gpu radix sort
 	ComputeShader radixCountShader;
