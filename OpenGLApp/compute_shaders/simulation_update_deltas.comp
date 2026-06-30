@@ -68,8 +68,8 @@ void main() {
 
     pos += delta;
 
-    //resolveCollision(pos, vel, true);
+    resolveCollision(pos, vel, false);
 
     setPredictedPosVec3(id, pos);
-    //setVelocityVec3(id, vel);
+    setVelocityVec3(id, vel);
 }

@@ -71,7 +71,7 @@ void main() {
 
                 for (uint i = start; i < end; i++) {
                     uint other = i;
-                    if (other == id) continue;
+                    //if (other == id) continue;
 
                     float dist = distance(getPredictedPositionVec3(id), getPredictedPositionVec3(other));
                     if (dist >= smoothingRadius) continue;
