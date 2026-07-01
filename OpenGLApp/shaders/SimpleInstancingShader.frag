@@ -7,6 +7,7 @@ in float Speed;
 
 uniform vec3 color;
 uniform vec3 camPos;
+uniform uint numOfParticles;
 
 vec3 lightDir = normalize(vec3(2.5f, 2.5f, 2.0f));
 
@@ -44,7 +45,7 @@ vec3 CalcDirLight(vec3 lightDirection, vec3 normal, vec3 viewDirection) {
 
 vec3 GetColorFromSpeed(float speed){
     float minSpeed = 0.0;
-    float maxSpeed = 20.0;
+    float maxSpeed = 25.0 * (numOfParticles / 10000);
     float x = clamp((speed - minSpeed) / (maxSpeed - minSpeed), 0.0, 1.0);
     x = mix(0.12, 1.0, x);
 
