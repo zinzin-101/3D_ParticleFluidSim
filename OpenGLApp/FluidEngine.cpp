@@ -329,7 +329,7 @@ void FluidEngine::processInput(GLFWwindow* window) {
 					container->rotates(mouseOffset.y * FluidSimulationConfig::FIXED_DT, right);
 				}
 				else if (keyCDown) {
-					container->rotates(scrollOffset* FluidSimulationConfig::FIXED_DT, up);
+					container->rotates(scrollOffset * FluidSimulationConfig::FIXED_DT, up);
 				}
 				else {
 					container->rotates(mouseOffset.x * FluidSimulationConfig::FIXED_DT, forward);
@@ -339,44 +339,19 @@ void FluidEngine::processInput(GLFWwindow* window) {
 			}
 			// scale
 			else if (keyFDown) {
-				glm::vec3 currentContainerRotation = container->getCurrentRotation();
-				float angleX = glm::radians(currentContainerRotation.x);
-				float angleY = glm::radians(currentContainerRotation.y);
-				float angleZ = glm::radians(currentContainerRotation.z);
-
-				glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleZ, glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0.0f, 1.0f, 0.0f))
-					* glm::rotate(glm::mat4(1.0f), angleX, glm::vec3(1.0f, 0.0f, 0.0f));
-
-				glm::vec3 localX = glm::vec3(rotationMatrix * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
-				glm::vec3 localY = glm::vec3(rotationMatrix * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
-				glm::vec3 localZ = glm::vec3(rotationMatrix * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
-
-				float signX = (glm::dot(right, localX) >= 0.0f) ? 1.0f : -1.0f;
-				float signY = (glm::dot(up, localY) >= 0.0f) ? 1.0f : -1.0f;
-				float signZ = (glm::dot(forward, localZ) >= 0.0f) ? 1.0f : -1.0f;
-
 				glm::vec3 scaling(0.0f);
 
 				if (keyZDown) {
-					glm::vec3 delta = right * mouseOffset.x;
-					scaling = glm::vec3(glm::dot(localX, delta) * signX, 0.0f, 0.0f);
+					scaling = glm::vec3(mouseOffset.x, 0.0f, 0.0f);
 				}
 				else if (keyXDown) {
-					glm::vec3 delta = -mouseOffset.y * up;
-					scaling = glm::vec3(0.0f, glm::dot(localY, delta) * signY, 0.0f);
+					scaling = glm::vec3(0.0f, -mouseOffset.y, 0.0f);
 				}
 				else if (keyCDown) {
-					glm::vec3 delta = scrollOffset * forward;
-					scaling = glm::vec3(0.0f, 0.0f, glm::dot(localZ, delta) * signZ);
+					scaling = glm::vec3(0.0f, 0.0f, scrollOffset);
 				}
 				else {
-					glm::vec3 totalDelta = (right * mouseOffset.x) + (-mouseOffset.y * up) + (scrollOffset * forward);
-					scaling = glm::vec3(
-						glm::dot(localX, totalDelta) * signX,
-						glm::dot(localY, totalDelta) * signY,
-						glm::dot(localZ, totalDelta) * signZ
-					);
+					scaling = glm::vec3(mouseOffset.x, -mouseOffset.y, scrollOffset);
 				}
 
 				container->scales(scaling * FluidSimulationConfig::FIXED_DT);
