@@ -9,6 +9,7 @@ private:
 	glm::vec2 mousePosition;
 	glm::vec2 lastMousePosition;
 	glm::vec2 mouseOffset;
+	float mouseScrollOffset;
 
 public:
 	std::map<unsigned int, bool> keyDownMap;
@@ -22,6 +23,9 @@ public:
 	bool getMouseDown(unsigned int button);
 	bool getMouse(unsigned int button);
 	void updateMousePosition(glm::vec2 position);
+	void updateMouseScrollOffset(float yoffset);
+	void resetMouseScrollOffset();
 	glm::vec2 getMousePosition() const;
 	glm::vec2 getMouseOffset() const;
+	float getMouseScrollOffset() const;
 };

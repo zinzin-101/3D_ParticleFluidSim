@@ -8,4 +8,5 @@ namespace FluidEngineConfig {
 	constexpr bool DEFAULT_ENABLE_VSYNC = true;
 
 	constexpr float DEFAULT_MOUSE_SENSITIVITY = 0.05f;
+	constexpr float DEFAULT_MOUSE_SCROLL_SENSITIVITY = 100.0f;
 }

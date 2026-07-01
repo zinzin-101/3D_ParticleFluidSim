@@ -1,5 +1,6 @@
 #include "FluidEngine.h"
 #include "FluidEngineConfig.h"
+#include "FluidSimulationConfig.h"
 #include <iostream>
 #include <stdexcept>
 
@@ -7,13 +8,14 @@ using namespace FluidEngineConfig;
 
 FluidEngine* FluidEngine::instance = nullptr;
 
-FluidEngine::FluidEngine(): 
-	window(nullptr), 
-	deltaTime(0.0f), 
-	lastTimeElapsed(0.0f), 
-	screenDimension(), 
-	isVSyncOn(false), 
-	mouseSensitivity(DEFAULT_MOUSE_SENSITIVITY) 
+FluidEngine::FluidEngine() :
+	window(nullptr),
+	deltaTime(0.0f),
+	lastTimeElapsed(0.0f),
+	screenDimension(),
+	isVSyncOn(false),
+	mouseSensitivity(DEFAULT_MOUSE_SENSITIVITY),
+	mouseScrollSensitivity(DEFAULT_MOUSE_SCROLL_SENSITIVITY)
 {
 	if (instance != nullptr) {
 		throw std::runtime_error("Trying to create a new engine instance with already existing instance");
@@ -25,7 +27,6 @@ FluidEngine::FluidEngine():
 
 FluidEngine::~FluidEngine() {
 	cleanup();
-	instance = nullptr;
 }
 
 void FluidEngine::initWindow() {
@@ -58,6 +59,7 @@ void FluidEngine::initWindow() {
 	glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
+	glfwSetScrollCallback(window, mouseScrollCallback);
 
 	glfwMakeContextCurrent(window);
 	isVSyncOn = DEFAULT_ENABLE_VSYNC;
@@ -87,6 +89,8 @@ void FluidEngine::cleanup() {
 	gui.cleanup();
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	instance = nullptr;
 }
 
 void FluidEngine::init() {
@@ -132,7 +136,14 @@ void FluidEngine::toggleFullScreen() {
 }
 
 void FluidEngine::setEnableCursor(bool value) {
-	glfwSetInputMode(window, GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+	switch (value) {
+		case true:
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			break;
+
+		case false:
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
 }
 
 void FluidEngine::setVSyncOn(bool value) {
@@ -197,10 +208,20 @@ void FluidEngine::mouseButtonCallback(GLFWwindow* window, int button, int action
 	processInput(window);
 }
 
+void FluidEngine::mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));
+	if (engine != nullptr) {
+		engine->getInputHandler()->updateMouseScrollOffset((float)yoffset);
+		processInput(window);
+	}
+}
+
 void FluidEngine::processInput(GLFWwindow* window) {
 	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));
 	if (engine != nullptr) {
 		InputHandler& input = *engine->getInputHandler();
+
+		// exit application
 		if (input.getKeyDown(GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, true);
 		}
@@ -210,9 +231,15 @@ void FluidEngine::processInput(GLFWwindow* window) {
 			engine->toggleFullScreen();
 		}
 
+		// toggle pause
+		if (input.getKeyDown(GLFW_KEY_SPACE)) {
+			engine->getSimulation()->pause = !engine->getSimulation()->pause;
+		}
+
 		Camera* camera = engine->getCamera();
 		float dt = engine->getDeltaTime();
 
+		// camera rotation
 		if (input.getMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 			engine->setEnableCursor(false);
 
@@ -228,6 +255,7 @@ void FluidEngine::processInput(GLFWwindow* window) {
 			engine->setEnableCursor(true);
 		}
 
+		// camera movement
 		float moveSpeed = 5.0f;
 		glm::vec3 movement(0.0f);
 		if (input.getKey(GLFW_KEY_W)) {
@@ -257,6 +285,104 @@ void FluidEngine::processInput(GLFWwindow* window) {
 				camera->transform.position += glm::normalize(movement) * moveSpeed * dt;
 			}
 		}
-	}
 
+		// container transformation
+		bool keyTDown = input.getKey(GLFW_KEY_T);
+		bool keyRDown = input.getKey(GLFW_KEY_R);
+		bool keyFDown = input.getKey(GLFW_KEY_F);
+		if ((keyTDown || keyRDown || keyFDown) && !input.getMouse(GLFW_MOUSE_BUTTON_RIGHT)) 
+		{
+			glm::vec3 forward = glm::normalize(camera->getFoward());
+			glm::vec3 right = glm::normalize(camera->getRight());
+			glm::vec3 up = glm::normalize(camera->getUp());
+			glm::vec2 mouseOffset = input.getMouseOffset() * engine->mouseSensitivity * 100.0f;
+			float scrollOffset = input.getMouseScrollOffset() * engine->mouseScrollSensitivity;
+			FluidContainer* container = engine->getSimulation()->getContainer();
+
+			bool keyZDown = input.getKey(GLFW_KEY_Z); // X-axis
+			bool keyXDown = input.getKey(GLFW_KEY_X); // Y-axis
+			bool keyCDown = input.getKey(GLFW_KEY_C); // Z-axis
+
+			// translation
+			if (keyTDown) {
+				glm::vec3 translation(0.0f);
+				if (keyZDown) {
+					translation = right * mouseOffset.x;
+				}
+				else if (keyXDown) {
+					translation = up * -mouseOffset.y;
+				}
+				else if (keyCDown) {
+					translation = forward * scrollOffset;
+				}
+				else {
+					translation = right * mouseOffset.x + up * -mouseOffset.y + forward * scrollOffset;
+				}
+				container->translates(translation * FluidSimulationConfig::FIXED_DT);
+			}
+			// rotation
+			else if (keyRDown) {
+				if (keyZDown) {
+					container->rotates(mouseOffset.x * FluidSimulationConfig::FIXED_DT, forward);
+				}
+				else if (keyXDown) {
+					container->rotates(mouseOffset.y * FluidSimulationConfig::FIXED_DT, right);
+				}
+				else if (keyCDown) {
+					container->rotates(scrollOffset* FluidSimulationConfig::FIXED_DT, up);
+				}
+				else {
+					container->rotates(mouseOffset.x * FluidSimulationConfig::FIXED_DT, forward);
+					container->rotates(mouseOffset.y * FluidSimulationConfig::FIXED_DT, right);
+					container->rotates(scrollOffset * FluidSimulationConfig::FIXED_DT, up);
+				}
+			}
+			// scale
+			else if (keyFDown) {
+				glm::vec3 currentContainerRotation = container->getCurrentRotation();
+				float angleX = glm::radians(currentContainerRotation.x);
+				float angleY = glm::radians(currentContainerRotation.y);
+				float angleZ = glm::radians(currentContainerRotation.z);
+
+				glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleZ, glm::vec3(0.0f, 0.0f, 1.0f))
+					* glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0.0f, 1.0f, 0.0f))
+					* glm::rotate(glm::mat4(1.0f), angleX, glm::vec3(1.0f, 0.0f, 0.0f));
+
+				glm::vec3 localX = glm::vec3(rotationMatrix * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f));
+				glm::vec3 localY = glm::vec3(rotationMatrix * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+				glm::vec3 localZ = glm::vec3(rotationMatrix * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+
+				float signX = (glm::dot(right, localX) >= 0.0f) ? 1.0f : -1.0f;
+				float signY = (glm::dot(up, localY) >= 0.0f) ? 1.0f : -1.0f;
+				float signZ = (glm::dot(forward, localZ) >= 0.0f) ? 1.0f : -1.0f;
+
+				glm::vec3 scaling(0.0f);
+
+				if (keyZDown) {
+					glm::vec3 delta = right * mouseOffset.x;
+					scaling = glm::vec3(glm::dot(localX, delta) * signX, 0.0f, 0.0f);
+				}
+				else if (keyXDown) {
+					glm::vec3 delta = -mouseOffset.y * up;
+					scaling = glm::vec3(0.0f, glm::dot(localY, delta) * signY, 0.0f);
+				}
+				else if (keyCDown) {
+					glm::vec3 delta = scrollOffset * forward;
+					scaling = glm::vec3(0.0f, 0.0f, glm::dot(localZ, delta) * signZ);
+				}
+				else {
+					glm::vec3 totalDelta = (right * mouseOffset.x) + (-mouseOffset.y * up) + (scrollOffset * forward);
+					scaling = glm::vec3(
+						glm::dot(localX, totalDelta) * signX,
+						glm::dot(localY, totalDelta) * signY,
+						glm::dot(localZ, totalDelta) * signZ
+					);
+				}
+
+				container->scales(scaling * FluidSimulationConfig::FIXED_DT);
+			}
+		}
+
+		input.resetMouseScrollOffset();
+	}
 }

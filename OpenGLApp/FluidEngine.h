@@ -37,6 +37,7 @@ private:
 
 public:
 	float mouseSensitivity;
+	float mouseScrollSensitivity;
 
 	FluidEngine();
 	~FluidEngine();
@@ -61,5 +62,6 @@ public:
 	static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
 	static void mouseCallback(GLFWwindow* window, double xposIn, double yposIn);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+	static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 	static void processInput(GLFWwindow* window);
 };

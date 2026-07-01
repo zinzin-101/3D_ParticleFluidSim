@@ -80,10 +80,22 @@ void InputHandler::updateMousePosition(glm::vec2 position) {
 	mousePosition = position;
 }
 
+void InputHandler::updateMouseScrollOffset(float yoffset) {
+	mouseScrollOffset += yoffset;
+}
+
+void InputHandler::resetMouseScrollOffset() {
+	mouseScrollOffset = 0.0f;
+}
+
 glm::vec2 InputHandler::getMousePosition() const {
 	return glm::vec2(mousePosition.x, mousePosition.y);
 }
 
 glm::vec2 InputHandler::getMouseOffset() const {
 	return mouseOffset;
+}
+
+float InputHandler::getMouseScrollOffset() const {
+	return mouseScrollOffset;
 }

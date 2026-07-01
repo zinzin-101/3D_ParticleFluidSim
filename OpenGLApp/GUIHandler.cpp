@@ -161,6 +161,16 @@ void GUIHandler::update() {
 		mouseSensitivity = engine->mouseSensitivity * 100.0f;
 	}
 
+	static float mouseScrollSensitivity = engine->mouseScrollSensitivity;
+	if (ImGui::SliderFloat("Mouse scroll sensitivity", &mouseScrollSensitivity, 0.1f, 25.0f, "%.1f")) {
+		engine->mouseScrollSensitivity = mouseScrollSensitivity;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##mss")) {
+		engine->mouseScrollSensitivity = DEFAULT_MOUSE_SCROLL_SENSITIVITY;
+		mouseScrollSensitivity = engine->mouseScrollSensitivity;
+	}
+
 	static bool resetGravityOnReset = false;
 	static bool resetContainerOnReset = false;
 	if (ImGui::Button("Reset Simulation")) {
