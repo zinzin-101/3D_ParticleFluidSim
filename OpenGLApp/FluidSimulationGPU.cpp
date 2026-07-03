@@ -413,3 +413,11 @@ void FluidSimulationGPU::updatePositions(float dt) {
 GLuint FluidSimulationGPU::getDensitiesSSBO() const  {
 	return ssboDensities;
 }
+
+GLuint FluidSimulationGPU::getCellStartSSBO() const {
+	return ssboCellStart;
+}
+
+GLuint FluidSimulationGPU::getCellEndSSBO() const {
+	return ssboCellEnd;
+}

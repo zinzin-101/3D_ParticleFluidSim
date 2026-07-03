@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "SphereRenderer.h"
 #include "CubeMapRenderer.h"
-//#include "Particle.h"
+#include "FluidRaymarcher.h"
 #include <vector>
 
 class FluidSimulation;
@@ -11,6 +11,7 @@ class FluidRenderer {
 private:
 	Camera camera;
 	SphereRenderer sphereRenderer;
+	FluidRaymarcher raymarcher;
 	CubeMapRenderer cubeMapRenderer;
 
 	void renderBasic(FluidSimulation* simulation);

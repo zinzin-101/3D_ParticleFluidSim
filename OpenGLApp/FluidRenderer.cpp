@@ -19,6 +19,7 @@ FluidRenderer::FluidRenderer() :
 
 void FluidRenderer::init() {
     sphereRenderer.init();
+    raymarcher.init();
     cubeMapRenderer.init("resources/env_map/skybox_2k.hdr");
 }
 
@@ -41,7 +42,7 @@ void FluidRenderer::renderBasic(FluidSimulation* simulation) {
 }
 
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
-
+    raymarcher.render(&camera, simulation->getDensitiesSSBO(), simulation->getCellStartSSBO(), simulation->getCellEndSSBO());
 }
 
 void FluidRenderer::render(FluidSimulation* simulation) {
@@ -68,6 +69,8 @@ void FluidRenderer::render(FluidSimulation* simulation) {
 void FluidRenderer::cleanup(FluidSimulation* simulation) {
     sphereRenderer.clean();
     simulation->getContainer()->getPlaneRenderer()->clean();
+
+    raymarcher.clean();
 
     cubeMapRenderer.clean();
 }

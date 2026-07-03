@@ -1,7 +1,6 @@
 #pragma once
 #include "FluidRenderer.h"
 #include "FluidContainer.h"
-#include "Particle.h"
 #include "SpatialHashGrid.h"
 #include "Camera.h"
 #include <vector>
@@ -82,4 +81,6 @@ public:
 	const std::vector<glm::vec3>& getPositions() const;
 	const std::vector<glm::vec3>& getVelocities() const;
 	virtual GLuint getDensitiesSSBO() const;
+	virtual GLuint getCellStartSSBO() const;
+	virtual GLuint getCellEndSSBO() const;
 };

@@ -148,6 +148,7 @@
     <ClCompile Include="CubeMapRenderer.cpp" />
     <ClCompile Include="FluidContainer.cpp" />
     <ClCompile Include="FluidEngine.cpp" />
+    <ClCompile Include="FluidRaymarcher.cpp" />
     <ClCompile Include="FluidRenderer.cpp" />
     <ClCompile Include="FluidSimulation.cpp" />
     <ClCompile Include="FluidSimulationGPU.cpp" />
@@ -155,7 +156,6 @@
     <ClCompile Include="GUIHandler.cpp" />
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Particle.cpp" />
     <ClCompile Include="PlaneRenderer.cpp" />
     <ClCompile Include="SpatialHashGrid.cpp" />
     <ClCompile Include="SphereRenderer.cpp" />

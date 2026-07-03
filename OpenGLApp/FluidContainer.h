@@ -1,6 +1,5 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "Particle.h"
 #include "PlaneRenderer.h"
 
 class FluidSimulation;

@@ -409,6 +409,14 @@ const std::vector<glm::vec3>& FluidSimulation::getVelocities() const {
     return velocities;
 }
 
-GLuint FluidSimulation::getDensitieSSBO() const {
+GLuint FluidSimulation::getDensitiesSSBO() const {
+    return 0;
+}
+
+GLuint FluidSimulation::getCellStartSSBO() const {
+    return 0;
+}
+
+GLuint FluidSimulation::getCellEndSSBO() const {
     return 0;
 }
