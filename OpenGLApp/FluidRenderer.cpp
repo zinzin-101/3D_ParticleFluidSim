@@ -11,7 +11,8 @@ FluidRenderer::FluidRenderer() :
     renderScale(DEFAULT_RENDER_SCALE),
     showContainer(true),
     drawContainerAsOutline(true),
-    showEnvMap(true)
+    showEnvMap(true),
+    renderingMode(RenderingMode::BASIC)
 {
     camera.farPlane = DEFAULT_RENDER_DISTANCE;
 }
@@ -25,28 +26,33 @@ void FluidRenderer::update() {
     camera.update();
 }
 
-void FluidRenderer::render(FluidSimulation* simulation, bool useInstancing) {
-    const std::vector<glm::vec3>& positions = simulation->getPositions(); 
+void FluidRenderer::renderBasic(FluidSimulation* simulation) {
+    const std::vector<glm::vec3>& positions = simulation->getPositions();
     const std::vector<glm::vec3>& velocities = simulation->getVelocities();
     float radius = simulation->particleRadius;
 
-    if (!useInstancing) {
-        for (const glm::vec3& position : positions) {
-            glm::mat4 model(1.0f);
-            model = glm::translate(model, position * renderScale);
-            model = glm::scale(model, glm::vec3(renderScale * radius));
-            sphereRenderer.draw(&camera, model);
-        }
-
+    unsigned int idx = 0;
+    for (const glm::vec3& position : positions) {
+        sphereRenderer.instanceData[idx] = glm::vec4(position, glm::length(velocities[idx]));
+        idx++;
+        if (idx >= MAX_INSTANCES) break;
     }
-    else {
-        unsigned int idx = 0;
-        for (const glm::vec3& position : positions) {
-            sphereRenderer.instanceData[idx] = glm::vec4(position, glm::length(velocities[idx]));
-            idx++;
-            if (idx >= MAX_INSTANCES) break;
-        }
-        sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
+    sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
+}
+
+void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
+
+}
+
+void FluidRenderer::render(FluidSimulation* simulation) {
+    switch (renderingMode) {
+        case RenderingMode::BASIC:
+            renderBasic(simulation);
+            break;
+
+        case RenderingMode::RAYMARCHING:
+            renderRaymarching(simulation);
+            break;
     }
 
     if (showEnvMap) {

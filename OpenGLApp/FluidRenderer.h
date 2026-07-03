@@ -13,18 +13,28 @@ private:
 	SphereRenderer sphereRenderer;
 	CubeMapRenderer cubeMapRenderer;
 
+	void renderBasic(FluidSimulation* simulation);
+	void renderRaymarching(FluidSimulation* simulation);
+
 public:
+	enum RenderingMode
+	{
+		BASIC,
+		RAYMARCHING
+	};
+
 	float renderScale;
 
 	bool showContainer;
 	bool drawContainerAsOutline;
 
 	bool showEnvMap;
+	RenderingMode renderingMode;
 
 	FluidRenderer();
 	void init();
 	void update();
-	void render(FluidSimulation* simulation, bool useInstancing = true);
+	void render(FluidSimulation* simulation);
 	void cleanup(FluidSimulation* simulation);
 
 	void setRenderDistance(float distance);

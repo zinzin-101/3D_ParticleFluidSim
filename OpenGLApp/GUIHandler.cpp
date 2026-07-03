@@ -261,6 +261,12 @@ void GUIHandler::handleRenderingGUI() {
 		renderDistance = renderer->getCamera()->farPlane;
 	}
 
+	const char* renderingModeTexts[] = { "Basic", "Raymarching" };
+	static int selectedRenderingModeIndex = (int)renderer->renderingMode;
+	if (ImGui::Combo("Rendering mode", &selectedRenderingModeIndex, renderingModeTexts, IM_ARRAYSIZE(renderingModeTexts))) {
+		renderer->renderingMode = (FluidRenderer::RenderingMode)selectedRenderingModeIndex;
+	}
+
 	static bool showContainer = renderer->showContainer;
 	if (ImGui::Checkbox("Show container", &showContainer)) {
 		renderer->showContainer = showContainer;
