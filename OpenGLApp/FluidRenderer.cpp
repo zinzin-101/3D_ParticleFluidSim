@@ -49,13 +49,13 @@ void FluidRenderer::render(FluidSimulation* simulation, bool useInstancing) {
         sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
     }
 
+    if (showEnvMap) {
+        cubeMapRenderer.draw(&camera);
+    }
+
     if (showContainer) {
         FluidContainer* container = simulation->getContainer();
         container->visualize(&camera, renderScale, drawContainerAsOutline);
-    }
-
-    if (showEnvMap) {
-        cubeMapRenderer.draw(&camera);
     }
 }
 

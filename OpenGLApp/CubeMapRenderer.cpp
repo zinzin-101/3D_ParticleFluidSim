@@ -177,9 +177,16 @@ void CubeMapRenderer::draw(Camera* camera) {
         envMapShader.setMat4("model", model);
     }
 
+    glDisable(GL_CULL_FACE);
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_TRUE);
+
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 }
 
 void CubeMapRenderer::clean() {

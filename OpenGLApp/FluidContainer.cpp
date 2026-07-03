@@ -160,8 +160,8 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 void FluidContainer::visualize(Camera* camera, float renderScale, bool drawAsOutline) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(GL_FALSE);
 	glDepthFunc(GL_LESS);
+	glDepthMask(GL_FALSE);
 
 	if (drawAsOutline) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
