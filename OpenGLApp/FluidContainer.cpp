@@ -161,6 +161,7 @@ void FluidContainer::visualize(Camera* camera, float renderScale, bool drawAsOut
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
+	glDepthFunc(GL_LESS);
 
 	if (drawAsOutline) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

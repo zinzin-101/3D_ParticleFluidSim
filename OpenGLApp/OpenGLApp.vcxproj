@@ -145,6 +145,7 @@
     <ClCompile Include="..\includes\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CubeMapRenderer.cpp" />
     <ClCompile Include="FluidContainer.cpp" />
     <ClCompile Include="FluidEngine.cpp" />
     <ClCompile Include="FluidRenderer.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="PlaneRenderer.cpp" />
     <ClCompile Include="SpatialHashGrid.cpp" />
     <ClCompile Include="SphereRenderer.cpp" />
+    <ClCompile Include="stb_image.c" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
@@ -174,6 +176,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraConfig.h" />
     <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="CubeMapRenderer.h" />
     <ClInclude Include="FluidContainer.h" />
     <ClInclude Include="FluidEngine.h" />
     <ClInclude Include="FluidEngineConfig.h" />

@@ -9,12 +9,6 @@ SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), ins
 void SphereRenderer::init() {
     instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
     simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
-
-    sphereVAO = 0;
-    sphereVBO = 0;
-    sphereEBO = 0;
-
-    instanceVBO = 0;
     
     instanceData.resize(MAX_INSTANCES);
 
