@@ -8,67 +8,56 @@ in vec2 TexCoords;
 out vec4 FragColor;
 
 uniform vec3 camPos;
-uniform mat4 invView;
+uniform mat4 invViewProj;
 uniform vec4 planes[6];
 
 uniform float renderScale;
 uniform uint stepCount;
 
-bool isIntersectingPlane(vec3 origin, vec3 dir, vec4 plane, vec3 hitPos){
-    vec3 n = plane.xyz;
-    float d = plane.w;
+bool intersectConvexVolume(vec3 origin, vec3 dir, out vec3 startPos, out vec3 endPos) {
+    float tNear = -1e30;
+    float tFar  =  1e30;
 
-    vec3 p0 = -d * n;
+    for (int i = 0; i < 6; i++) {
+        vec3 n = planes[i].xyz;
+        float d = planes[i].w;
 
-    float denom = dot(dir, n);
-    if (abs(denom) > 0.0001) {
-        
-        float t = dot(p0 - origin, n) / denom;
-        
-        if (t >= 0.0) {
-            hitPos = origin + t * dir;
-            return true;
+        float denom = dot(dir, n);
+        float t = -(dot(n, origin) + d) / denom;
+
+        if (denom < -0.0001) {
+            // ray outside -> inside
+            tNear = max(tNear, t);
+        } else if (denom > 0.0001) {
+            // ray inside -> outside
+            tFar = min(tFar, t);
+        } else {
+            // no hit
+            if (dot(n, origin) + d > 0.0) return false;
         }
     }
 
-    return false;
+    if (tNear > tFar) return false;
+    if (tFar < 0.0) return false;
+    startPos = origin + max(tNear, 0.0) * dir;
+    endPos = origin + tFar * dir;
+    return true;
 }
 
 void main(){
     vec2 uv = (TexCoords - 0.5) * (1.0 / renderScale) + 0.5;
 
-    // converting screen to world
-    vec4 ndcPosNear = vec4(uv * 2.0 - 1.0, -1.0, 1.0);
-    vec4 ndcPosFar  = vec4(uv * 2.0 - 1.0,  1.0, 1.0);
+    vec4 clipFar = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
+    vec4 worldFar = invViewProj * clipFar;
+    worldFar /= worldFar.w;
 
-    vec4 worldPosNear = invView * ndcPosNear;
-    vec4 worldPosFar  = invView * ndcPosFar;
+    vec3 rayOrigin = camPos;
+    vec3 rayDir = normalize(worldFar.xyz - camPos);
 
-    worldPosNear /= worldPosNear.w;
-    worldPosFar  /= worldPosFar.w;
-
-    vec3 rayOrigin = worldPosNear.xyz; 
-    vec3 rayDir = normalize(worldPosFar.xyz - worldPosNear.xyz);
-
-    uint intersectCount = 0;
     vec3 startPos = vec3(0.0);
     vec3 endPos = vec3(0.0);
-    for (uint i = 0; i < 6; i++){
-        if (intersectCount >= 2) break;
-        vec3 temp = vec3(0.0);
-        if (isIntersectingPlane(rayOrigin, rayDir, planes[i], temp)) {
-            if (intersectCount == 0){
-                startPos = temp;
-            }
-            else if (intersectCount == 1){
-                endPos = temp;
-            }
-        }
-    }
-
-    if (intersectCount < 2) {
-        FragColor = vec4(0.0);
-        return;
+    if (!intersectConvexVolume(rayOrigin, rayDir, startPos, endPos)) {
+        discard;
     }
 
     /* ray marching code */

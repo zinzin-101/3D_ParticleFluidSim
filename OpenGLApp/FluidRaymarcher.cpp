@@ -47,9 +47,12 @@ void FluidRaymarcher::render(Camera* camera, float* planesData, float renderScal
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, cellStartSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, cellEndSSBO);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	raymarchingShader.use();
     raymarchingShader.setVec3("camPos", camera->transform.position);
-    raymarchingShader.setMat4("invView", glm::inverse(camera->getViewMatrix()));
+    raymarchingShader.setMat4("invViewProj", glm::inverse(camera->getProjectionMatrix() * camera->getViewMatrix()));
     glUniform4fv(glGetUniformLocation(raymarchingShader.ID, "planes"), 6, planesData);
     raymarchingShader.setFloat("renderScale", renderScale);
     raymarchingShader.setUInt("stepCount", steps);
