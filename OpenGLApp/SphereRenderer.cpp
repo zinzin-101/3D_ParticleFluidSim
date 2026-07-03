@@ -114,7 +114,7 @@ void SphereRenderer::draw(Camera* camera, glm::mat4 model) {
     glBindVertexArray(0);
 }
 
-void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount) {
+void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount, float gravityStrength) {
     if (instanceCount > MAX_INSTANCES) {
         instanceCount = MAX_INSTANCES;
     }
@@ -135,7 +135,7 @@ void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScal
     instancingShader.setVec3("camPos", camera->transform.position);
     instancingShader.setFloat("radius", radius);
     instancingShader.setFloat("renderScale", renderScale);
-    instancingShader.setUInt("numOfParticles", instanceCount);
+    instancingShader.setFloat("gravityStrength", gravityStrength);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

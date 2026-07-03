@@ -130,6 +130,11 @@ void GUIHandler::update() {
 		simulation->gravitationalForce = DEFAULT_GRAVITATIONAL_FORCE;
 		gravity = simulation->gravitationalForce;
 	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reactive")) {
+		simulation->gravitationalForce = DEFAULT_REACTIVE_GRAVITATIONAL_FORCE;
+		gravity = simulation->gravitationalForce;
+	}
 
 	static float renderScale = renderer->renderScale;
 	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {

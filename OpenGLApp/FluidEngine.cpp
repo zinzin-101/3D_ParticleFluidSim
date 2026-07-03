@@ -231,9 +231,15 @@ void FluidEngine::processInput(GLFWwindow* window) {
 			engine->toggleFullScreen();
 		}
 
-		// toggle pause
 		if (input.getKeyDown(GLFW_KEY_SPACE)) {
-			engine->getSimulation()->pause = !engine->getSimulation()->pause;
+			if (input.getKey(GLFW_KEY_LEFT_SHIFT)) {
+				// reset simulation hotkey
+				engine->getSimulation()->reset();
+			}
+			else {
+				// toggle pause
+				engine->getSimulation()->pause = !engine->getSimulation()->pause;
+			}
 		}
 
 		Camera* camera = engine->getCamera();

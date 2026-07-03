@@ -22,6 +22,6 @@ public:
 	SphereRenderer();
 	void init();
 	void draw(Camera* camera, glm::mat4 model);
-	void drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount);
+	void drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount, float gravityStrength = 9.81f);
 	void clean();
 };

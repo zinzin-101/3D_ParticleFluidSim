@@ -43,7 +43,7 @@ void FluidRenderer::render(FluidSimulation* simulation, bool useInstancing) {
             idx++;
             if (idx >= MAX_INSTANCES) break;
         }
-        sphereRenderer.drawInstance(&camera, radius, renderScale, idx);
+        sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
     }
 
     if (showContainer) {
