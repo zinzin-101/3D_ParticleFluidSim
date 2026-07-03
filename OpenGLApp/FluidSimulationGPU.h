@@ -63,6 +63,8 @@ public:
 	FluidSimulationGPU();
 	~FluidSimulationGPU();
 
+	virtual GLuint getDensitiesSSBO() const override;
+
 	virtual void reset() override;
 };
 

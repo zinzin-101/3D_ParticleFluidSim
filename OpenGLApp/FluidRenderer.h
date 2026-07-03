@@ -40,6 +40,4 @@ public:
 	void setRenderDistance(float distance);
 
 	Camera* getCamera();
-
-	static unsigned int loadTexture(char const* path);
 };

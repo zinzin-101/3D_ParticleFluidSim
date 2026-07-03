@@ -367,7 +367,6 @@ void FluidSimulation::update(float dt) {
     //float avgdensity = 0.0f;
     //float maxdensity = 0.0f;
     //float mindensity = 999999999.0f;
-    //glm::vec3 avgdelta(0.0f);
     //for (unsigned int i = 0; i < (unsigned int)positions.size(); i++) {
     //    glm::vec3 vel = velocities[i];
     //    float density = densities[i];
@@ -379,8 +378,6 @@ void FluidSimulation::update(float dt) {
     //    avgdensity += density;
     //    maxdensity = (std::max)(maxdensity, density);
     //    mindensity = (std::min)(mindensity, density);
-
-    //    avgdelta += deltas[i];
     //}
 
     //avgdensity /= (float)velocities.size();
@@ -391,9 +388,6 @@ void FluidSimulation::update(float dt) {
     //avgspeed /= (float)velocities.size();
     //std::cout << "avg speed: " << avgspeed << std::endl;
     //std::cout << "max speed: " << maxspeed << std::endl;
-
-    //avgdelta /= (float)deltas.size();
-    //std::cout << "avg delta: " << avgdelta.x << " " << avgdelta.y << " " << avgdelta.z << std::endl;
 }
 
 void FluidSimulation::reset() {
@@ -413,4 +407,8 @@ const std::vector<glm::vec3>& FluidSimulation::getPositions() const {
 
 const std::vector<glm::vec3>& FluidSimulation::getVelocities() const {
     return velocities;
+}
+
+GLuint FluidSimulation::getDensitieSSBO() const {
+    return 0;
 }
