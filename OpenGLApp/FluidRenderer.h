@@ -18,8 +18,7 @@ private:
 	void renderRaymarching(FluidSimulation* simulation);
 
 public:
-	enum RenderingMode
-	{
+	enum RenderingMode {
 		BASIC,
 		RAYMARCHING
 	};
@@ -41,4 +40,5 @@ public:
 	void setRenderDistance(float distance);
 
 	Camera* getCamera();
+	FluidRaymarcher* getRaymarcher();
 };

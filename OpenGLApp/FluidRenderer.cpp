@@ -42,7 +42,13 @@ void FluidRenderer::renderBasic(FluidSimulation* simulation) {
 }
 
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
-    raymarcher.render(&camera, simulation->getDensitiesSSBO(), simulation->getCellStartSSBO(), simulation->getCellEndSSBO());
+    raymarcher.render(
+        &camera,
+        glm::value_ptr(simulation->getContainer()->getPlanesData()[0]),
+        renderScale, simulation->getDensitiesSSBO(), 
+        simulation->getCellStartSSBO(), 
+        simulation->getCellEndSSBO()
+    );
 }
 
 void FluidRenderer::render(FluidSimulation* simulation) {
@@ -81,4 +87,8 @@ void FluidRenderer::setRenderDistance(float distance) {
 
 Camera* FluidRenderer::getCamera() {
     return &camera;
+}
+
+FluidRaymarcher* FluidRenderer::getRaymarcher() {
+    return &raymarcher;
 }

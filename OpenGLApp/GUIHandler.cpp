@@ -7,6 +7,7 @@
 #include "FluidEngineConfig.h"
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
+#include "FluidRaymarcherConfig.h"
 
 using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
@@ -265,6 +266,18 @@ void GUIHandler::handleRenderingGUI() {
 	static int selectedRenderingModeIndex = (int)renderer->renderingMode;
 	if (ImGui::Combo("Rendering mode", &selectedRenderingModeIndex, renderingModeTexts, IM_ARRAYSIZE(renderingModeTexts))) {
 		renderer->renderingMode = (FluidRenderer::RenderingMode)selectedRenderingModeIndex;
+	}
+
+	if (selectedRenderingModeIndex == FluidRenderer::RenderingMode::RAYMARCHING) {
+		static int raySteps = (int)renderer->getRaymarcher()->steps;
+		if (ImGui::SliderInt("steps", &raySteps, 10, 1000)) {
+			renderer->getRaymarcher()->steps = (unsigned int)raySteps;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##rms")) {
+			renderer->getRaymarcher()->steps = FluidRaymarcherConfig::DEFAULT_STEPS;
+			raySteps = (int)renderer->getRaymarcher()->steps;
+		}
 	}
 
 	static bool showContainer = renderer->showContainer;

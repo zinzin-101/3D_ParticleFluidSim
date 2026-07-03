@@ -1,6 +1,9 @@
 #include "FluidRaymarcher.h"
+#include "FluidRaymarcherConfig.h"
 
-FluidRaymarcher::FluidRaymarcher(): quadVAO(0), quadVBO(0), quadEBO(0) {}
+using namespace FluidRaymarcherConfig;
+
+FluidRaymarcher::FluidRaymarcher(): quadVAO(0), quadVBO(0), quadEBO(0), steps(DEFAULT_STEPS) {}
  
 void FluidRaymarcher::init() {
 	raymarchingShader.CreateShader("shaders/raymarching.vert", "shaders/raymarching.frag");
@@ -39,7 +42,7 @@ void FluidRaymarcher::init() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void FluidRaymarcher::render(Camera* camera, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO) {
+void FluidRaymarcher::render(Camera* camera, float* planesData, float renderScale, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO) {
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, densitiesSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, cellStartSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, cellEndSSBO);
@@ -47,6 +50,9 @@ void FluidRaymarcher::render(Camera* camera, GLuint densitiesSSBO, GLuint cellSt
 	raymarchingShader.use();
     raymarchingShader.setVec3("camPos", camera->transform.position);
     raymarchingShader.setMat4("invView", glm::inverse(camera->getViewMatrix()));
+    glUniform4fv(glGetUniformLocation(raymarchingShader.ID, "planes"), 6, planesData);
+    raymarchingShader.setFloat("renderScale", renderScale);
+    raymarchingShader.setUInt("stepCount", steps);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

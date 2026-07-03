@@ -11,9 +11,12 @@ private:
 
 	Shader raymarchingShader;
 
+
 public:
+	unsigned int steps;
+
 	FluidRaymarcher();
 	void init();
-	void render(Camera* camera, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO);
+	void render(Camera* camera, float* planesData, float renderScale, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO);
 	void clean();
 };
