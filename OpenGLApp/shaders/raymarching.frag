@@ -20,7 +20,7 @@ bool intersectConvexVolume(vec3 origin, vec3 dir, out vec3 startPos, out vec3 en
 
     for (int i = 0; i < 6; i++) {
         vec3 n = planes[i].xyz;
-        float d = planes[i].w;
+        float d = planes[i].w * renderScale;
 
         float denom = dot(dir, n);
         float t = -(dot(n, origin) + d) / denom;
@@ -45,7 +45,7 @@ bool intersectConvexVolume(vec3 origin, vec3 dir, out vec3 startPos, out vec3 en
 }
 
 void main(){
-    vec2 uv = (TexCoords - 0.5) * (1.0 / renderScale) + 0.5;
+    vec2 uv = TexCoords;
 
     vec4 clipFar = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
     vec4 worldFar = invViewProj * clipFar;
@@ -54,11 +54,14 @@ void main(){
     vec3 rayOrigin = camPos;
     vec3 rayDir = normalize(worldFar.xyz - camPos);
 
-    vec3 startPos = vec3(0.0);
-    vec3 endPos = vec3(0.0);
-    if (!intersectConvexVolume(rayOrigin, rayDir, startPos, endPos)) {
+    vec3 startPosScreen = vec3(0.0);
+    vec3 endPosScreen = vec3(0.0);
+    if (!intersectConvexVolume(rayOrigin, rayDir, startPosScreen, endPosScreen)) {
         discard;
     }
+
+    vec3 startPos = startPosScreen / renderScale;
+    vec3 endPos = endPosScreen / renderScale;
 
     /* ray marching code */
     
