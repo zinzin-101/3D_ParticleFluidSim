@@ -24,13 +24,8 @@ void GUIHandler::init(FluidEngine* engine) {
 	this->engine = engine;
 }
 
-void GUIHandler::update() {
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
+void GUIHandler::handleSimulationGUI() {
 	FluidSimulation* simulation = engine->getSimulation();
-	FluidRenderer* renderer = engine->getRenderer();
 	FluidContainer* container = simulation->getContainer();
 
 	ImGui::Begin("Simulation");
@@ -113,7 +108,7 @@ void GUIHandler::update() {
 
 	static float mass = simulation->particleMass;
 	if (ImGui::SliderFloat("Mass", &mass, 0.1f, 10.0f, "%.1f")) {
-		simulation->particleMass= mass;
+		simulation->particleMass = mass;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Reset##m")) {
@@ -134,26 +129,6 @@ void GUIHandler::update() {
 	if (ImGui::Button("Reactive")) {
 		simulation->gravitationalForce = DEFAULT_REACTIVE_GRAVITATIONAL_FORCE;
 		gravity = simulation->gravitationalForce;
-	}
-
-	static float renderScale = renderer->renderScale;
-	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
-		renderer->renderScale = renderScale;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset##rs")) {
-		renderer->renderScale = 1.0f;
-		renderScale = renderer->renderScale;
-	}
-
-	static float renderDistance = renderer->getCamera()->farPlane;
-	if (ImGui::SliderFloat("Render distance", &renderDistance, 5.0f, 1000.0f, "%.1f")) {
-		renderer->setRenderDistance(renderDistance);
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset##rd")) {
-		renderer->setRenderDistance(DEFAULT_RENDER_DISTANCE); 
-		renderDistance = renderer->getCamera()->farPlane;
 	}
 
 	static float mouseSensitivity = engine->mouseSensitivity * 100.0f;
@@ -222,7 +197,7 @@ void GUIHandler::update() {
 		container->scales(glm::vec3(containerScale[0], containerScale[1], containerScale[2]) * dt);
 		containerScale[0] = containerScale[1] = containerScale[2] = 0.0f;
 	}
-		
+
 	static float containerRotation[3] = { 0.0f, 0.0f, 0.0f };
 	if (ImGui::DragFloat3("Rotate", containerRotation, 1.0f, 0.0f, 0.0f)) {
 		if (std::abs(containerRotation[0]) > 0.01f) {
@@ -235,26 +210,6 @@ void GUIHandler::update() {
 			container->rotates(containerRotation[2], glm::vec3(0.0f, 0.0f, 1.0f) * dt);
 		}
 		containerRotation[0] = containerRotation[1] = containerRotation[2] = 0.0f;
-	}
-
-	static bool showContainer = renderer->showContainer;
-	if (ImGui::Checkbox("Show container", &showContainer)) {
-		renderer->showContainer = showContainer;
-	}
-
-	if (showContainer) {
-		static bool drawAsOutline = renderer->drawContainerAsOutline;
-		if (ImGui::Checkbox("Draw as outline", &drawAsOutline)) {
-			renderer->drawContainerAsOutline = drawAsOutline;
-		}
-
-		if (!drawAsOutline) {
-			static float containerOpacity = container->planeOpacity;
-			if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
-				container->planeOpacity = containerOpacity;
-				container->planeOpacity = containerOpacity;
-			}
-		}
 	}
 
 	ImGui::Text("Initial parameters");
@@ -279,6 +234,63 @@ void GUIHandler::update() {
 	}
 
 	ImGui::End();
+}
+
+void GUIHandler::handleRenderingGUI() {
+	FluidRenderer* renderer = engine->getRenderer();
+	FluidContainer* container = engine->getSimulation()->getContainer();
+
+	ImGui::Begin("Render settings");
+	static float renderScale = renderer->renderScale;
+	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
+		renderer->renderScale = renderScale;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##rs")) {
+		renderer->renderScale = 1.0f;
+		renderScale = renderer->renderScale;
+	}
+
+	static float renderDistance = renderer->getCamera()->farPlane;
+	if (ImGui::SliderFloat("Render distance", &renderDistance, 5.0f, 1000.0f, "%.1f")) {
+		renderer->setRenderDistance(renderDistance);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##rd")) {
+		renderer->setRenderDistance(DEFAULT_RENDER_DISTANCE);
+		renderDistance = renderer->getCamera()->farPlane;
+	}
+
+	static bool showContainer = renderer->showContainer;
+	if (ImGui::Checkbox("Show container", &showContainer)) {
+		renderer->showContainer = showContainer;
+	}
+
+	if (showContainer) {
+		static bool drawAsOutline = renderer->drawContainerAsOutline;
+		if (ImGui::Checkbox("Draw as outline", &drawAsOutline)) {
+			renderer->drawContainerAsOutline = drawAsOutline;
+		}
+
+		if (!drawAsOutline) {
+			static float containerOpacity = container->planeOpacity;
+			if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
+				container->planeOpacity = containerOpacity;
+				container->planeOpacity = containerOpacity;
+			}
+		}
+	}
+
+	ImGui::End();
+}
+
+void GUIHandler::update() {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	handleSimulationGUI();
+	handleRenderingGUI();
 }
 
 void GUIHandler::render() {
