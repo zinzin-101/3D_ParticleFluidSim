@@ -410,6 +410,10 @@ void FluidSimulationGPU::updatePositions(float dt) {
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
+GLuint FluidSimulationGPU::getPositionsSSBO() const {
+	return ssboPositions;
+}
+
 GLuint FluidSimulationGPU::getDensitiesSSBO() const  {
 	return ssboDensities;
 }

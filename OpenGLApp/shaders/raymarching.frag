@@ -1,5 +1,6 @@
 #version 450 core
 
+layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
 layout(std430, binding = 3) buffer Densities { float densities[]; };
 layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
 layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
@@ -13,6 +14,10 @@ uniform vec4 planes[6];
 
 uniform float renderScale;
 uniform uint stepCount;
+uniform float densityMultiplier;
+
+uniform float spacing;
+uniform uint tableSize;
 
 bool intersectConvexVolume(vec3 origin, vec3 dir, out vec3 startPos, out vec3 endPos) {
     float tNear = -1e30;
@@ -44,6 +49,20 @@ bool intersectConvexVolume(vec3 origin, vec3 dir, out vec3 startPos, out vec3 en
     return true;
 }
 
+int floatToIntCoord(float val) {
+    return int(floor(val / spacing));
+}
+
+uint coordToHash(ivec3 coord) {
+    int h = (coord.x * 92837111) ^ (coord.y * 689287499) ^ (coord.z * 283923481);
+    return uint(h & 0x7FFFFFFF) % tableSize;
+}
+
+vec3 getPositionVec3(uint id) {
+    uint base = id * 3;
+    return vec3(positions[base], positions[base+1], positions[base+2]);
+}
+
 void main(){
     vec2 uv = TexCoords;
 
@@ -62,8 +81,53 @@ void main(){
 
     vec3 startPos = startPosScreen / renderScale;
     vec3 endPos = endPosScreen / renderScale;
+    vec3 dir = normalize(endPos - startPos);
+    float stepSize = distance(startPos, endPos) / float(stepCount);
 
-    /* ray marching code */
-    
-    FragColor = vec4(rayDir * 0.5 + 0.5, 1.0);
+    vec3 pos = startPos + dir * 0.001;
+    float totalDensity = 0.0;
+    uint totalCount = 0;
+    ivec3 lastCoord = ivec3(0x7FFFFFFF);
+    for (uint i = 0; i < stepCount; i++){
+        ivec3 coord = ivec3(
+            floatToIntCoord(pos.x),
+            floatToIntCoord(pos.y),
+            floatToIntCoord(pos.z)
+        );
+
+        if (coord != lastCoord) {
+            lastCoord = coord;
+            uint hash = coordToHash(coord);
+
+            uint start = cellStart[hash];
+            uint end = cellEnd[hash];
+
+            uint count = end - start;
+
+            for (uint j = start; j < end; j++){
+                vec3 other = getPositionVec3(j);
+                ivec3 otherCoord = ivec3(
+                        floatToIntCoord(other.x),
+                        floatToIntCoord(other.y),
+                        floatToIntCoord(other.z)
+                    );
+
+                if (coord == otherCoord){
+                    totalDensity += densities[j];
+                    totalCount++;
+                }
+            }
+        }
+        pos += dir * stepSize;
+    }
+
+    totalDensity *= densityMultiplier;
+    totalDensity = clamp(totalDensity, 0.0, 1.0);
+
+    //if (totalDensity == 0.0) discard;
+
+    FragColor = vec4(vec3(1.0) * totalDensity, totalDensity); 
+    //FragColor = vec4(1.0, 1.0, 1.0, totalDensity);
+
+    //FragColor = vec4(rayDir * 0.5 + 0.5, 1.0);
 }

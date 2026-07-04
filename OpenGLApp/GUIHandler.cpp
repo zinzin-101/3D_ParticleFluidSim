@@ -278,6 +278,16 @@ void GUIHandler::handleRenderingGUI() {
 			renderer->getRaymarcher()->steps = FluidRaymarcherConfig::DEFAULT_STEPS;
 			raySteps = (int)renderer->getRaymarcher()->steps;
 		}
+
+		static float densityMulitplier = renderer->getRaymarcher()->densityMultiplier;
+		if (ImGui::SliderFloat("Density multiplier", &densityMulitplier, 0.001f, 1.0f, "%.3f")) {
+			renderer->getRaymarcher()->densityMultiplier = densityMulitplier;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##dm")) {
+			renderer->getRaymarcher()->densityMultiplier = FluidRaymarcherConfig::DEFAULT_DENSITY_MULTIPLIER;
+			densityMulitplier = renderer->getRaymarcher()->densityMultiplier;
+		}
 	}
 
 	static bool showContainer = renderer->showContainer;

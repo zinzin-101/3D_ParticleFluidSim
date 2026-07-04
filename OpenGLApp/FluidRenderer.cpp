@@ -43,15 +43,22 @@ void FluidRenderer::renderBasic(FluidSimulation* simulation) {
 
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
     raymarcher.render(
+        simulation,
         &camera,
         glm::value_ptr(simulation->getContainer()->getPlanesData()[0]),
-        renderScale, simulation->getDensitiesSSBO(), 
+        renderScale, 
+        simulation->getPositionsSSBO(),
+        simulation->getDensitiesSSBO(), 
         simulation->getCellStartSSBO(), 
         simulation->getCellEndSSBO()
     );
 }
 
 void FluidRenderer::render(FluidSimulation* simulation) {
+    if (showEnvMap) {
+        cubeMapRenderer.draw(&camera);
+    }
+
     switch (renderingMode) {
         case RenderingMode::BASIC:
             renderBasic(simulation);
@@ -60,10 +67,6 @@ void FluidRenderer::render(FluidSimulation* simulation) {
         case RenderingMode::RAYMARCHING:
             renderRaymarching(simulation);
             break;
-    }
-
-    if (showEnvMap) {
-        cubeMapRenderer.draw(&camera);
     }
 
     if (showContainer) {

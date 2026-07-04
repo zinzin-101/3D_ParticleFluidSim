@@ -1,9 +1,10 @@
 #include "FluidRaymarcher.h"
 #include "FluidRaymarcherConfig.h"
+#include "FluidSimulationGPU.h"
 
 using namespace FluidRaymarcherConfig;
 
-FluidRaymarcher::FluidRaymarcher(): quadVAO(0), quadVBO(0), quadEBO(0), steps(DEFAULT_STEPS) {}
+FluidRaymarcher::FluidRaymarcher(): quadVAO(0), quadVBO(0), quadEBO(0), steps(DEFAULT_STEPS), densityMultiplier(DEFAULT_DENSITY_MULTIPLIER) {}
  
 void FluidRaymarcher::init() {
 	raymarchingShader.CreateShader("shaders/raymarching.vert", "shaders/raymarching.frag");
@@ -42,11 +43,13 @@ void FluidRaymarcher::init() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void FluidRaymarcher::render(Camera* camera, float* planesData, float renderScale, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO) {
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, densitiesSSBO);
+void FluidRaymarcher::render(FluidSimulation* simulation, Camera* camera, float* planesData, float renderScale, GLuint positionsSSBO, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO) {
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, densitiesSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, cellStartSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, cellEndSSBO);
 
+    glDisable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -56,10 +59,16 @@ void FluidRaymarcher::render(Camera* camera, float* planesData, float renderScal
     glUniform4fv(glGetUniformLocation(raymarchingShader.ID, "planes"), 6, planesData);
     raymarchingShader.setFloat("renderScale", renderScale);
     raymarchingShader.setUInt("stepCount", steps);
+    raymarchingShader.setFloat("densityMultiplier", densityMultiplier);
+    raymarchingShader.setFloat("spacing", simulation->smoothingRadius);
+    raymarchingShader.setUInt("tableSize", 2 * simulation->numOfParticles);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void FluidRaymarcher::clean() {

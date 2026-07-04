@@ -80,6 +80,7 @@ public:
 	FluidContainer* getContainer();
 	const std::vector<glm::vec3>& getPositions() const;
 	const std::vector<glm::vec3>& getVelocities() const;
+	virtual GLuint getPositionsSSBO() const;
 	virtual GLuint getDensitiesSSBO() const;
 	virtual GLuint getCellStartSSBO() const;
 	virtual GLuint getCellEndSSBO() const;
