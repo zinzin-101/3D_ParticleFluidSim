@@ -63,6 +63,46 @@ vec3 getPositionVec3(uint id) {
     return vec3(positions[base], positions[base+1], positions[base+2]);
 }
 
+ivec3 positionToCoord(vec3 p) {
+    return ivec3(
+        floatToIntCoord(p.x),
+        floatToIntCoord(p.y),
+        floatToIntCoord(p.z)
+    );
+}
+
+float sampleDensityAt(vec3 pos) {
+    vec3 cellSpacePos = pos / spacing - 0.5;
+    vec3 cellFloor = floor(cellSpacePos);
+    vec3 frac = cellSpacePos - cellFloor;
+
+    float total = 0.0;
+    for (int dx = 0; dx <= 1; dx++) {
+        for (int dy = 0; dy <= 1; dy++) {
+            for (int dz = 0; dz <= 1; dz++) {
+                ivec3 coord = ivec3(cellFloor) + ivec3(dx, dy, dz);
+                uint hash = coordToHash(coord);
+                uint start = cellStart[hash];
+                uint end = cellEnd[hash];
+
+                float cellDensity = 0.0;
+                for (uint j = start; j < end; j++) {
+                    ivec3 particleCoord = positionToCoord(getPositionVec3(j));
+                    if (particleCoord == coord) {
+                        cellDensity += densities[j];
+                    }
+                }
+
+                float wx = (dx == 1) ? frac.x : (1.0 - frac.x);
+                float wy = (dy == 1) ? frac.y : (1.0 - frac.y);
+                float wz = (dz == 1) ? frac.z : (1.0 - frac.z);
+                total += cellDensity * wx * wy * wz;
+            }
+        }
+    }
+    return total;
+}
+
 void main(){
     vec2 uv = TexCoords;
 
@@ -87,37 +127,9 @@ void main(){
     vec3 pos = startPos + dir * 0.001;
     float totalDensity = 0.0;
     uint totalCount = 0;
-    ivec3 lastCoord = ivec3(0x7FFFFFFF);
     for (uint i = 0; i < stepCount; i++){
-        ivec3 coord = ivec3(
-            floatToIntCoord(pos.x),
-            floatToIntCoord(pos.y),
-            floatToIntCoord(pos.z)
-        );
-
-        if (coord != lastCoord) {
-            lastCoord = coord;
-            uint hash = coordToHash(coord);
-
-            uint start = cellStart[hash];
-            uint end = cellEnd[hash];
-
-            uint count = end - start;
-
-            for (uint j = start; j < end; j++){
-                vec3 other = getPositionVec3(j);
-                ivec3 otherCoord = ivec3(
-                        floatToIntCoord(other.x),
-                        floatToIntCoord(other.y),
-                        floatToIntCoord(other.z)
-                    );
-
-                if (coord == otherCoord){
-                    totalDensity += densities[j];
-                    totalCount++;
-                }
-            }
-        }
+        totalDensity += sampleDensityAt(pos);
+        totalCount++;
         pos += dir * stepSize;
     }
 
