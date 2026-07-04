@@ -10,8 +10,8 @@ class GUIHandler {
 private:
 	FluidEngine* engine;
 
-	void handleSimulationGUI();
-	void handleRenderingGUI();
+	void handleSimulationSettingsGUI();
+	void handleSettingsGUI();
 
 public:
 	GUIHandler();

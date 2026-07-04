@@ -25,11 +25,11 @@ void GUIHandler::init(FluidEngine* engine) {
 	this->engine = engine;
 }
 
-void GUIHandler::handleSimulationGUI() {
+void GUIHandler::handleSimulationSettingsGUI() {
 	FluidSimulation* simulation = engine->getSimulation();
 	FluidContainer* container = simulation->getContainer();
 
-	ImGui::Begin("Simulation");
+	ImGui::Begin("Simulation settings");
 	static int fpsIterationCount = 0;
 	static float deltaTime = 0.0f;
 	static float currentAvgFPS = 0.0f;
@@ -132,26 +132,6 @@ void GUIHandler::handleSimulationGUI() {
 		gravity = simulation->gravitationalForce;
 	}
 
-	static float mouseSensitivity = engine->mouseSensitivity * 100.0f;
-	if (ImGui::SliderFloat("Mouse sensitivity", &mouseSensitivity, 0.1f, 25.0f, "%.1f")) {
-		engine->mouseSensitivity = mouseSensitivity / 100.0f;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset##ms")) {
-		engine->mouseSensitivity = DEFAULT_MOUSE_SENSITIVITY;
-		mouseSensitivity = engine->mouseSensitivity * 100.0f;
-	}
-
-	static float mouseScrollSensitivity = engine->mouseScrollSensitivity;
-	if (ImGui::SliderFloat("Mouse scroll sensitivity", &mouseScrollSensitivity, 0.1f, 25.0f, "%.1f")) {
-		engine->mouseScrollSensitivity = mouseScrollSensitivity;
-	}
-	ImGui::SameLine();
-	if (ImGui::Button("Reset##mss")) {
-		engine->mouseScrollSensitivity = DEFAULT_MOUSE_SCROLL_SENSITIVITY;
-		mouseScrollSensitivity = engine->mouseScrollSensitivity;
-	}
-
 	static bool resetGravityOnReset = false;
 	static bool resetContainerOnReset = false;
 	if (ImGui::Button("Reset Simulation")) {
@@ -237,11 +217,11 @@ void GUIHandler::handleSimulationGUI() {
 	ImGui::End();
 }
 
-void GUIHandler::handleRenderingGUI() {
+void GUIHandler::handleSettingsGUI() {
 	FluidRenderer* renderer = engine->getRenderer();
 	FluidContainer* container = engine->getSimulation()->getContainer();
 
-	ImGui::Begin("Render settings");
+	ImGui::Begin("Settings");
 	static float renderScale = renderer->renderScale;
 	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
 		renderer->renderScale = renderScale;
@@ -310,6 +290,26 @@ void GUIHandler::handleRenderingGUI() {
 		}
 	}
 
+	static float mouseSensitivity = engine->mouseSensitivity * 100.0f;
+	if (ImGui::SliderFloat("Mouse sensitivity", &mouseSensitivity, 0.1f, 25.0f, "%.1f")) {
+		engine->mouseSensitivity = mouseSensitivity / 100.0f;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##ms")) {
+		engine->mouseSensitivity = DEFAULT_MOUSE_SENSITIVITY;
+		mouseSensitivity = engine->mouseSensitivity * 100.0f;
+	}
+
+	static float mouseScrollSensitivity = engine->mouseScrollSensitivity;
+	if (ImGui::SliderFloat("Mouse scroll sensitivity", &mouseScrollSensitivity, 0.1f, 1000.0f, "%.1f")) {
+		engine->mouseScrollSensitivity = mouseScrollSensitivity;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##mss")) {
+		engine->mouseScrollSensitivity = DEFAULT_MOUSE_SCROLL_SENSITIVITY;
+		mouseScrollSensitivity = engine->mouseScrollSensitivity;
+	}
+
 	ImGui::End();
 }
 
@@ -318,8 +318,8 @@ void GUIHandler::update() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	handleSimulationGUI();
-	handleRenderingGUI();
+	handleSimulationSettingsGUI();
+	handleSettingsGUI();
 }
 
 void GUIHandler::render() {
