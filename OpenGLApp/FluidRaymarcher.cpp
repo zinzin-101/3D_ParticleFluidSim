@@ -43,7 +43,15 @@ void FluidRaymarcher::init() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void FluidRaymarcher::render(FluidSimulation* simulation, Camera* camera, float* planesData, float renderScale, GLuint positionsSSBO, GLuint densitiesSSBO, GLuint cellStartSSBO, GLuint cellEndSSBO) {
+void FluidRaymarcher::render(
+    FluidSimulation* simulation, 
+    Camera* camera, float* planesData, 
+    float renderScale, 
+    GLuint positionsSSBO, 
+    GLuint densitiesSSBO, 
+    GLuint cellStartSSBO, 
+    GLuint cellEndSSBO
+) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, densitiesSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, cellStartSSBO);
