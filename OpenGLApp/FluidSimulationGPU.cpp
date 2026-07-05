@@ -221,6 +221,8 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 
 		for (unsigned int itr = 0; itr < RELAXATION_ITERATIONS; itr++) {
 			createSpatialHashGrid(tableSize, true);
+
+			// these 2 could be combined into one dispatch
 			computeDensities(dt);
 			updateDeltas();
 		}
