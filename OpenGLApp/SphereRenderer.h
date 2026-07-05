@@ -15,6 +15,7 @@ private:
 
 	Shader instancingShader;
 	Shader simpleShader;
+	Shader instancingSSBOShader;
 
 public:
 	std::vector<glm::vec4> instanceData;
@@ -23,5 +24,14 @@ public:
 	void init();
 	void draw(Camera* camera, glm::mat4 model);
 	void drawInstance(Camera* camera, float radius, float renderScale, unsigned int instanceCount, float gravityStrength = 9.81f);
+	void drawInstance(
+		Camera* camera,
+		float radius,
+		float renderScale,
+		GLuint positionsSSBO, 
+		GLuint velocitySSBO, 
+		unsigned int instanceCount,
+		float gravityStrength = 9.81f
+	);
 	void clean();
 };

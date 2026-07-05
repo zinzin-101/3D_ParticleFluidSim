@@ -9,6 +9,7 @@ SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), ins
 void SphereRenderer::init() {
     instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
     simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
+    instancingSSBOShader.CreateShader("shaders/SSBOInstancingShader.vert", "shaders/SSBOInstancingShader.frag");
     
     instanceData.resize(MAX_INSTANCES);
 
@@ -26,7 +27,6 @@ void SphereRenderer::init() {
             tempVerts.insert(tempVerts.end(), { x, y, z, x, y, z });
         }
     }
-
 
     std::vector<unsigned int> tempIndices;
     for (int i = 0; i < SPHERE_RINGS; i++) {
@@ -120,6 +120,46 @@ void SphereRenderer::drawInstance(Camera* camera, float radius, float renderScal
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     instancingShader.use();
+    //glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+    glm::mat3 normalMatrix = glm::mat3(1.0f);
+    instancingShader.setMat3("normalMatrix", normalMatrix);
+    instancingShader.setMat4("view", camera->getViewMatrix());
+    instancingShader.setMat4("projection", camera->getProjectionMatrix());
+    instancingShader.setVec3("color", DEFAULT_SPHERE_COLOR);
+    instancingShader.setVec3("camPos", camera->transform.position);
+    instancingShader.setFloat("radius", radius);
+    instancingShader.setFloat("renderScale", renderScale);
+    instancingShader.setFloat("gravityStrength", gravityStrength);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glBindVertexArray(sphereVAO);
+    glDrawElementsInstanced(GL_TRIANGLES, SPHERE_INDICES_COUNT * 6, GL_UNSIGNED_INT, 0, instanceCount);
+    glBindVertexArray(0);
+}
+
+void SphereRenderer::drawInstance(
+    Camera* camera,
+    float radius,
+    float renderScale,
+    GLuint positionsSSBO,
+    GLuint velocitySSBO,
+    unsigned int instanceCount,
+    float gravityStrength
+) {
+    if (instanceCount > MAX_INSTANCES) {
+        instanceCount = MAX_INSTANCES;
+    }
+
+    if (instanceCount == 0) return;
+
+    instancingSSBOShader.use();
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, velocitySSBO);
+
     //glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
     glm::mat3 normalMatrix = glm::mat3(1.0f);
     instancingShader.setMat3("normalMatrix", normalMatrix);

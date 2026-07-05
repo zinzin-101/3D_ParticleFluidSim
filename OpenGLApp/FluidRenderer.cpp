@@ -29,16 +29,31 @@ void FluidRenderer::update() {
 
 void FluidRenderer::renderBasic(FluidSimulation* simulation) {
     const std::vector<glm::vec3>& positions = simulation->getPositions();
-    const std::vector<glm::vec3>& velocities = simulation->getVelocities();
+    //const std::vector<glm::vec3>& velocities = simulation->getVelocities();
     float radius = simulation->particleRadius;
 
-    unsigned int idx = 0;
-    for (const glm::vec3& position : positions) {
-        sphereRenderer.instanceData[idx] = glm::vec4(position, glm::length(velocities[idx]));
-        idx++;
-        if (idx >= MAX_INSTANCES) break;
+    //unsigned int idx = 0;
+    //for (const glm::vec3& position : positions) {
+    //    sphereRenderer.instanceData[idx] = glm::vec4(position, glm::length(velocities[idx]));
+    //    idx++;
+    //    if (idx >= MAX_INSTANCES) break;
+    //}
+
+    unsigned int instanceCount = (unsigned int)positions.size();
+    if (instanceCount > MAX_INSTANCES) {
+        instanceCount = MAX_INSTANCES;
     }
-    sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
+    sphereRenderer.drawInstance(
+        &camera, 
+        radius,
+        renderScale,
+        simulation->getPositionsSSBO(),
+        simulation->getVelocitiesSSBO(),
+        instanceCount,
+        glm::length(simulation->gravitationalForce)
+    );
+
+    //sphereRenderer.drawInstance(&camera, radius, renderScale, idx, glm::length(simulation->gravitationalForce));
 }
 
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {

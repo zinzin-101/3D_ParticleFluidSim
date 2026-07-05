@@ -64,6 +64,7 @@ public:
 	~FluidSimulationGPU();
 
 	virtual GLuint getPositionsSSBO() const override;
+	virtual GLuint getVelocitiesSSBO() const override;
 	virtual GLuint getDensitiesSSBO() const override;
 	virtual GLuint getCellStartSSBO() const override;
 	virtual GLuint getCellEndSSBO() const override;

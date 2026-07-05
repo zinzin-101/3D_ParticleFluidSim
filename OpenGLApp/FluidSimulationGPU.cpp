@@ -233,16 +233,16 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 }
 
 void FluidSimulationGPU::updateData() {
-	glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
+	//glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboPositions);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), positions.data());
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboPositions);
+	//glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), positions.data());
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboVelocities);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), velocities.data());
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboVelocities);
+	//glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(glm::vec3), velocities.data());
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDensities);
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(float), densities.data());
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDensities);
+	//glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(float), densities.data());
 
 	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssboDeltas);
 	//glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, numOfParticles * sizeof(unsigned int) * 3, deltas.data());
@@ -412,6 +412,10 @@ void FluidSimulationGPU::updatePositions(float dt) {
 
 GLuint FluidSimulationGPU::getPositionsSSBO() const {
 	return ssboPositions;
+}
+
+GLuint FluidSimulationGPU::getVelocitiesSSBO() const {
+	return ssboVelocities;
 }
 
 GLuint FluidSimulationGPU::getDensitiesSSBO() const  {
