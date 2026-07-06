@@ -2,7 +2,7 @@
 
 namespace FluidRaymarcherConfig {
 	constexpr unsigned int DEFAULT_STEPS = 15;
-	constexpr float DEFAULT_DENSITY_MULTIPLIER = 0.4f;
+	constexpr float DEFAULT_DENSITY_MULTIPLIER = 0.1f;
 
 	constexpr float DEFAULT_AIR_REFRACTION_INDEX = 1.0003f;
 	constexpr float DEFAULT_FLUID_REFRACTION_INDEX = 1.33f; // water
