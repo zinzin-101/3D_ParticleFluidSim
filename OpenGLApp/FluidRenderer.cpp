@@ -21,6 +21,7 @@ void FluidRenderer::init() {
     sphereRenderer.init();
     raymarcher.init();
     cubeMapRenderer.init("resources/env_map/skybox_2k.hdr");
+    //cubeMapRenderer.init("resources/env_map/studio_2k.hdr");
 }
 
 void FluidRenderer::update() {
@@ -59,6 +60,7 @@ void FluidRenderer::renderBasic(FluidSimulation* simulation) {
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
     raymarcher.render(
         simulation,
+        cubeMapRenderer.getCubeMapTexture(),
         &camera,
         glm::value_ptr(simulation->getContainer()->getPlanesData()[0]),
         renderScale, 

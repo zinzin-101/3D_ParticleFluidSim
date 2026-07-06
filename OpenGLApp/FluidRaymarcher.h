@@ -16,11 +16,16 @@ private:
 public:
 	unsigned int steps;
 	float densityMultiplier;
+	float airRefractionIndex;
+	float fluidRefractionIndex;
+	glm::vec3 lightColor;
+	float isoLevel;
 
 	FluidRaymarcher();
 	void init();
 	void render(
 		FluidSimulation* simulation,
+		GLuint cubeMapTexture,
 		Camera* camera, 
 		float* planesData, 
 		float renderScale,
@@ -29,6 +34,7 @@ public:
 		GLuint cellStartSSBO, 
 		GLuint cellEndSSBO
 	);
-
 	void clean();
+
+	void reloadShader();
 };

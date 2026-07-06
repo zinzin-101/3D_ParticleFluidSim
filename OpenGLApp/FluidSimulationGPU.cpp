@@ -113,47 +113,47 @@ void FluidSimulationGPU::initSimulation() {
 	FluidSimulation::initSimulation();
 
 	if (applyForcesShader.ID == 0) {
-		applyForcesShader.CreateShader("compute_shaders/simulation_apply_forces.comp");
+		applyForcesShader.createShader("compute_shaders/simulation_apply_forces.comp");
 	}
 
 	if (densityShader.ID == 0) {
-		densityShader.CreateShader("compute_shaders/simulation_density.comp");
+		densityShader.createShader("compute_shaders/simulation_density.comp");
 	}
 
 	if (densityRelaxationShader.ID == 0) {
-		densityRelaxationShader.CreateShader("compute_shaders/simulation_density_relaxation.comp");
+		densityRelaxationShader.createShader("compute_shaders/simulation_density_relaxation.comp");
 	}
 
 	if (updateDeltasShader.ID == 0) {
-		updateDeltasShader.CreateShader("compute_shaders/simulation_update_deltas.comp");
+		updateDeltasShader.createShader("compute_shaders/simulation_update_deltas.comp");
 	}
 
 	if (updatePositionsShader.ID == 0) {
-		updatePositionsShader.CreateShader("compute_shaders/simulation_update_positions.comp");
+		updatePositionsShader.createShader("compute_shaders/simulation_update_positions.comp");
 	}
 
 	if (spatialHashGridKeysShader.ID == 0) {
-		spatialHashGridKeysShader.CreateShader("compute_shaders/spatial_hash_grid_keys.comp");
+		spatialHashGridKeysShader.createShader("compute_shaders/spatial_hash_grid_keys.comp");
 	}
 
 	if (spatialHashGridReorderShader.ID == 0) {
-		spatialHashGridReorderShader.CreateShader("compute_shaders/spatial_hash_grid_reorder.comp");
+		spatialHashGridReorderShader.createShader("compute_shaders/spatial_hash_grid_reorder.comp");
 	}
 
 	if (spatialHashGridBoundsShader.ID == 0) {
-		spatialHashGridBoundsShader.CreateShader("compute_shaders/spatial_hash_grid_bounds.comp");
+		spatialHashGridBoundsShader.createShader("compute_shaders/spatial_hash_grid_bounds.comp");
 	}
 
 	if (radixCountShader.ID == 0) {
-		radixCountShader.CreateShader("compute_shaders/radix_count.comp");
+		radixCountShader.createShader("compute_shaders/radix_count.comp");
 	}
 
 	if (radixScanShader.ID == 0) {
-		radixScanShader.CreateShader("compute_shaders/radix_scan.comp");
+		radixScanShader.createShader("compute_shaders/radix_scan.comp");
 	}
 
 	if (radixScatterShader.ID == 0) {
-		radixScatterShader.CreateShader("compute_shaders/radix_scatter.comp");
+		radixScatterShader.createShader("compute_shaders/radix_scatter.comp");
 	}
 
 	unsigned int tableSize = 2 * numOfParticles;

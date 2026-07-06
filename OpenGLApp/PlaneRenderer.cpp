@@ -6,7 +6,7 @@ using namespace PlaneRendererConfig;
 PlaneRenderer::PlaneRenderer(): planeVAO(0), planeVBO(0), planeEBO(0), hasInit(false) {}
 
 void PlaneRenderer::init() {
-    planeShader.CreateShader("shaders/PlaneShader.vert", "shaders/PlaneShader.frag");
+    planeShader.createShader("shaders/PlaneShader.vert", "shaders/PlaneShader.frag");
 
     float vertices[] = {
          0.5f,  0.5f, 0.0f,

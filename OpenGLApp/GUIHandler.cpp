@@ -259,6 +259,36 @@ void GUIHandler::handleSettingsGUI() {
 			raySteps = (int)renderer->getRaymarcher()->steps;
 		}
 
+		glm::vec3 color = renderer->getRaymarcher()->lightColor;
+		if (ImGui::InputFloat3("Light color", &color[0])) {
+			renderer->getRaymarcher()->lightColor = color;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##lc")) {
+			renderer->getRaymarcher()->lightColor = FluidRaymarcherConfig::DEFAULT_LIGHT_COLOR;
+			color = renderer->getRaymarcher()->lightColor;
+		}
+
+		static float airInddex = renderer->getRaymarcher()->airRefractionIndex;
+		if (ImGui::SliderFloat("Air refraction index", &airInddex, 0.001f, 2.0f, "%.3f")) {
+			renderer->getRaymarcher()->airRefractionIndex = airInddex;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##ari")) {
+			renderer->getRaymarcher()->airRefractionIndex = FluidRaymarcherConfig::DEFAULT_AIR_REFRACTION_INDEX;
+			airInddex = renderer->getRaymarcher()->airRefractionIndex;
+		}
+
+		static float fluidInddex = renderer->getRaymarcher()->fluidRefractionIndex;
+		if (ImGui::SliderFloat("Fluid refraction index", &fluidInddex, 0.001f, 2.0f, "%.3f")) {
+			renderer->getRaymarcher()->fluidRefractionIndex = fluidInddex;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##fri")) {
+			renderer->getRaymarcher()->fluidRefractionIndex = FluidRaymarcherConfig::DEFAULT_FLUID_REFRACTION_INDEX;
+			fluidInddex = renderer->getRaymarcher()->fluidRefractionIndex;
+		}
+
 		static float densityMulitplier = renderer->getRaymarcher()->densityMultiplier;
 		if (ImGui::SliderFloat("Density multiplier", &densityMulitplier, 0.001f, 1.0f, "%.3f")) {
 			renderer->getRaymarcher()->densityMultiplier = densityMulitplier;
@@ -267,6 +297,20 @@ void GUIHandler::handleSettingsGUI() {
 		if (ImGui::Button("Reset##dm")) {
 			renderer->getRaymarcher()->densityMultiplier = FluidRaymarcherConfig::DEFAULT_DENSITY_MULTIPLIER;
 			densityMulitplier = renderer->getRaymarcher()->densityMultiplier;
+		}
+
+		static float isoLevel = renderer->getRaymarcher()->isoLevel;
+		if (ImGui::SliderFloat("Iso level", &isoLevel, 0.01f, 5.0f, "%.2f")){
+			renderer->getRaymarcher()->isoLevel = isoLevel;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##il")) {
+			renderer->getRaymarcher()->isoLevel = FluidRaymarcherConfig::DEFAULT_ISO_LEVEL;
+			isoLevel = renderer->getRaymarcher()->isoLevel;
+		}
+
+		if (ImGui::Button("Reload shader")) {
+			renderer->getRaymarcher()->reloadShader();
 		}
 	}
 

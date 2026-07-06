@@ -4,10 +4,20 @@
 
 using namespace FluidRaymarcherConfig;
 
-FluidRaymarcher::FluidRaymarcher(): quadVAO(0), quadVBO(0), quadEBO(0), steps(DEFAULT_STEPS), densityMultiplier(DEFAULT_DENSITY_MULTIPLIER) {}
+FluidRaymarcher::FluidRaymarcher() :
+    quadVAO(0),
+    quadVBO(0),
+    quadEBO(0),
+    steps(DEFAULT_STEPS),
+    densityMultiplier(DEFAULT_DENSITY_MULTIPLIER),
+    airRefractionIndex(DEFAULT_AIR_REFRACTION_INDEX),
+    fluidRefractionIndex(DEFAULT_FLUID_REFRACTION_INDEX),
+    lightColor(DEFAULT_LIGHT_COLOR),
+    isoLevel(DEFAULT_ISO_LEVEL)
+{}
  
 void FluidRaymarcher::init() {
-	raymarchingShader.CreateShader("shaders/raymarching.vert", "shaders/raymarching.frag");
+	raymarchingShader.createShader("shaders/raymarching.vert", "shaders/raymarching.frag");
 
     float quadVertices[] = {
         -1.0f,  1.0f, 0.0f,    0.0f, 1.0f,
@@ -44,7 +54,8 @@ void FluidRaymarcher::init() {
 }
 
 void FluidRaymarcher::render(
-    FluidSimulation* simulation, 
+    FluidSimulation* simulation,
+    GLuint cubeMapTexture, 
     Camera* camera, float* planesData, 
     float renderScale, 
     GLuint positionsSSBO, 
@@ -68,8 +79,18 @@ void FluidRaymarcher::render(
     raymarchingShader.setFloat("renderScale", renderScale);
     raymarchingShader.setUInt("stepCount", steps);
     raymarchingShader.setFloat("densityMultiplier", densityMultiplier);
+    raymarchingShader.setFloat("particleMass", simulation->particleMass);
     raymarchingShader.setFloat("spacing", simulation->smoothingRadius);
     raymarchingShader.setUInt("tableSize", 2 * simulation->numOfParticles);
+
+    raymarchingShader.setVec3("lightColor", lightColor);
+    raymarchingShader.setFloat("refractionIndexAir", airRefractionIndex);
+    raymarchingShader.setFloat("refractionIndexFluid", fluidRefractionIndex);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+    raymarchingShader.setInt("skybox", 1);
+    raymarchingShader.setFloat("isoLevel", isoLevel);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -91,4 +112,8 @@ void FluidRaymarcher::clean() {
     if (quadEBO != 0) {
         glDeleteBuffers(1, &quadEBO);
     }
+}
+
+void FluidRaymarcher::reloadShader() {
+    raymarchingShader.reload();
 }

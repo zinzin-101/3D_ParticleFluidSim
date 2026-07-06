@@ -16,6 +16,11 @@ uniform float renderScale;
 uniform uint stepCount;
 uniform float densityMultiplier;
 
+uniform float particleMass;
+uniform vec3 lightColor;
+uniform samplerCube skybox;
+uniform float isoLevel;
+
 uniform float spacing;
 uniform uint tableSize;
 
@@ -71,36 +76,111 @@ ivec3 positionToCoord(vec3 p) {
     );
 }
 
+const float PI = 3.14159265358979323846;
+
+float poly6Kernel(float r2, float h) {
+    if (r2 >= h * h) return 0.0;
+    float h2 = h * h;
+    float diff = h2 - r2;
+    float h9 = h2 * h2 * h2 * h2 * h;
+    return (315.0 / (64.0 * PI * h9)) * diff * diff * diff;
+}
+
 float sampleDensityAt(vec3 pos) {
-    vec3 cellSpacePos = pos / spacing - 0.5;
-    vec3 cellFloor = floor(cellSpacePos);
-    vec3 frac = cellSpacePos - cellFloor;
+    float h = spacing;
+    ivec3 centerCell = ivec3(floor(pos / spacing));
 
     float total = 0.0;
-    for (int dx = 0; dx <= 1; dx++) {
-        for (int dy = 0; dy <= 1; dy++) {
-            for (int dz = 0; dz <= 1; dz++) {
-                ivec3 coord = ivec3(cellFloor) + ivec3(dx, dy, dz);
+    for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                ivec3 coord = centerCell + ivec3(dx, dy, dz);
                 uint hash = coordToHash(coord);
                 uint start = cellStart[hash];
                 uint end = cellEnd[hash];
 
-                float cellDensity = 0.0;
                 for (uint j = start; j < end; j++) {
-                    ivec3 particleCoord = positionToCoord(getPositionVec3(j));
-                    if (particleCoord == coord) {
-                        cellDensity += densities[j];
-                    }
-                }
+                    vec3 particlePos = getPositionVec3(j);
+                    if (positionToCoord(particlePos) != coord) continue;
 
-                float wx = (dx == 1) ? frac.x : (1.0 - frac.x);
-                float wy = (dy == 1) ? frac.y : (1.0 - frac.y);
-                float wz = (dz == 1) ? frac.z : (1.0 - frac.z);
-                total += cellDensity * wx * wy * wz;
+                    vec3 diff = pos - particlePos;
+                    float r2 = dot(diff, diff);
+                    total += particleMass * poly6Kernel(r2, h);
+                }
             }
         }
     }
     return total;
+}
+
+uniform float refractionIndexAir;
+uniform float refractionIndexFluid;
+vec3 refractRay(vec3 incident, vec3 normal, float indexA, float indexB) {
+    float relIndex = indexA / indexB;
+    float cosIn = -dot(incident, normal);
+    float sinSqrAngle = relIndex * relIndex * (1.0 - cosIn * cosIn);
+
+    if (sinSqrAngle >= 1.0) {
+        // total internal reflection
+        return reflect(incident, normal);
+    }
+    return incident * relIndex + normal * (relIndex * cosIn - sqrt(1.0 - sinSqrAngle));
+}
+
+float calculateReflectance(vec3 incident, vec3 normal, float indexA, float indexB) {
+    float refractRatio = indexA / indexB;
+    float cosIn = -dot(incident, normal);
+    float sinSqr = refractRatio * refractRatio * (1.0 - cosIn * cosIn);
+
+    if (sinSqr >= 1.0) {
+        // total internal reflection
+        return 1.0;
+    }
+
+    float cosRefract = sqrt(1.0 - sinSqr);
+    float rayPerp = (indexA * cosIn - indexB * cosRefract) / (indexA * cosIn + indexB * cosRefract);
+    float rayParallel = (indexB * cosIn - indexA * cosRefract) / (indexB * cosIn + indexA * cosRefract);
+
+    return (rayPerp * rayPerp + rayParallel * rayParallel) * 0.5;
+}
+
+struct DensitySample {
+    float density;
+    vec3 gradient;
+};
+
+DensitySample sampleDensityAndGradient(vec3 pos) {
+    float h = spacing;
+    float h2 = h * h;
+    float coeff = 315.0 / (64.0 * PI * h2*h2*h2*h2*h);
+    ivec3 centerCell = ivec3(floor(pos / spacing));
+
+    DensitySample result;
+    result.density = 0.0;
+    result.gradient = vec3(0.0);
+
+    for (int dx = -1; dx <= 1; dx++)
+    for (int dy = -1; dy <= 1; dy++)
+    for (int dz = -1; dz <= 1; dz++) {
+        ivec3 coord = centerCell + ivec3(dx, dy, dz);
+        uint hash = coordToHash(coord);
+        uint start = cellStart[hash];
+        uint end = cellEnd[hash];
+
+        for (uint j = start; j < end; j++) {
+            vec3 particlePos = getPositionVec3(j);
+            if (positionToCoord(particlePos) != coord) continue;
+
+            vec3 diff = pos - particlePos;
+            float r2 = dot(diff, diff);
+            if (r2 >= h2) continue;
+
+            float diffTerm = h2 - r2;
+            result.density += particleMass * coeff * diffTerm * diffTerm * diffTerm;
+            result.gradient += particleMass * (-6.0 * coeff * diffTerm * diffTerm) * diff;
+        }
+    }
+    return result;
 }
 
 void main(){
@@ -125,20 +205,44 @@ void main(){
     float stepSize = distance(startPos, endPos) / float(stepCount);
 
     vec3 pos = startPos + dir * 0.001;
+    vec3 marchDir = dir;
+    bool enteredFluid = false;
+    vec3 reflectColor = vec3(0.0);
+    float surfaceReflectance = 0.0;
+
+    vec3 totalLight = vec3(0.0);
     float totalDensity = 0.0;
-    uint totalCount = 0;
+
     for (uint i = 0; i < stepCount; i++){
-        totalDensity += sampleDensityAt(pos);
-        totalCount++;
-        pos += dir * stepSize;
+        DensitySample ds = sampleDensityAndGradient(pos);
+
+        if (!enteredFluid && ds.density > isoLevel) {
+            vec3 normal = normalize(-ds.gradient); // outward-facing
+            surfaceReflectance = calculateReflectance(marchDir, normal, refractionIndexAir, refractionIndexFluid);
+            reflectColor = texture(skybox, reflect(marchDir, normal)).rgb;
+            marchDir = refractRay(marchDir, normal, refractionIndexAir, refractionIndexFluid);
+            enteredFluid = true;
+        }
+
+        totalDensity += ds.density * stepSize;
+        pos += marchDir * stepSize;
+
+        vec3 inLight = ds.density * stepSize * lightColor;
+        vec3 transmittance = exp(-lightColor * totalDensity);
+        totalLight += inLight * transmittance;
     }
 
-    totalDensity *= densityMultiplier;
-    totalDensity = clamp(totalDensity, 0.0, 1.0);
+    vec3 finalColor = mix(totalLight, reflectColor, surfaceReflectance);
+    FragColor = vec4(finalColor, clamp(totalDensity * densityMultiplier, 0.0, 1.0));
+
+
+    //totalDensity *= densityMultiplier;
+    //totalDensity = clamp(totalDensity, 0.0, 1.0);
+    //FragColor = vec4(totalLight, totalDensity);
 
     //if (totalDensity == 0.0) discard;
 
-    FragColor = vec4(vec3(1.0) * totalDensity, totalDensity); 
+    //FragColor = vec4(vec3(1.0, 0.0, 0.0) * totalDensity, totalDensity); 
     //FragColor = vec4(1.0, 1.0, 1.0, totalDensity);
 
     //FragColor = vec4(rayDir * 0.5 + 0.5, 1.0);

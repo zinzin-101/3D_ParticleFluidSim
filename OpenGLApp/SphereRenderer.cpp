@@ -7,9 +7,9 @@ using namespace SphereRendererConfig;
 SphereRenderer::SphereRenderer() : sphereVAO(0), sphereVBO(0), sphereEBO(0), instanceVBO(0) {}
 
 void SphereRenderer::init() {
-    instancingShader.CreateShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
-    simpleShader.CreateShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
-    instancingSSBOShader.CreateShader("shaders/SSBOInstancingShader.vert", "shaders/SSBOInstancingShader.frag");
+    instancingShader.createShader("shaders/SimpleInstancingShader.vert", "shaders/SimpleInstancingShader.frag");
+    simpleShader.createShader("shaders/SimpleShader.vert", "shaders/SimpleShader.frag");
+    instancingSSBOShader.createShader("shaders/SSBOInstancingShader.vert", "shaders/SSBOInstancingShader.frag");
     
     instanceData.resize(MAX_INSTANCES);
 

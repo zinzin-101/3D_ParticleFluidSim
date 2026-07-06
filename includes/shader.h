@@ -15,13 +15,22 @@ class Shader
 {
 public:
     unsigned int ID;
+    std::string vertPath;
+    std::string fragPath;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    Shader(): ID(0) {}
+    Shader(): ID(0), vertPath(""), fragPath("") {}
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr) {
-        CreateShader(vertexPath, fragmentPath, geometryPath);
+        createShader(vertexPath, fragmentPath, geometryPath);
     }
-    void CreateShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr) {
+    void createShader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr) {
+        if (vertPath == "") {
+            vertPath = vertexPath;
+        }
+        if (fragPath == "") {
+            fragPath = fragmentPath;
+        }
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -100,6 +109,16 @@ public:
     ~Shader() {
         if (ID != 0) {
             glDeleteProgram(ID);
+        }
+    }
+    void reload() {
+        if (ID != 0) {
+            glDeleteProgram(ID);
+            ID = 0;
+        }
+
+        if (vertPath != "" && fragPath != "") {
+            createShader(vertPath.c_str(), fragPath.c_str());
         }
     }
     // activate the shader

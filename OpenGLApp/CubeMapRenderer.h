@@ -21,4 +21,6 @@ public:
 	void init(const std::string& texturePath);
 	void draw(Camera* camera);
 	void clean();
+
+	GLuint getCubeMapTexture() const;
 };

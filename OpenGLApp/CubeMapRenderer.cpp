@@ -107,8 +107,8 @@ void CubeMapRenderer::init(const std::string& texturePath) {
     }
     
     // cube map shaders
-    envMapShader.CreateShader("shaders/cube_map.vert", "shaders/cube_map.frag");
-    equirectangularToCubeMapShader.CreateShader("shaders/cube_map.vert", "shaders/equirectangular_to_cube_map.frag");
+    envMapShader.createShader("shaders/cube_map.vert", "shaders/cube_map.frag");
+    equirectangularToCubeMapShader.createShader("shaders/cube_map.vert", "shaders/equirectangular_to_cube_map.frag");
 
     envMapShader.use();
     envMapShader.setInt("envMap", 0);
@@ -213,4 +213,8 @@ void CubeMapRenderer::clean() {
     if (cubeVBO != 0) {
         glDeleteBuffers(1, &cubeVBO);
     }
+}
+
+GLuint CubeMapRenderer::getCubeMapTexture() const {
+    return cubeMapTexture;
 }

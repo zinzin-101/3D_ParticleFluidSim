@@ -13,14 +13,19 @@ class ComputeShader
 {
 public:
     unsigned int ID;
+    std::string path;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    ComputeShader() : ID(0) {}
+    ComputeShader() : ID(0), path("") {}
     ComputeShader(const char* computePath) {
-        CreateShader(computePath);
+        createShader(computePath);
     }
-    void CreateShader(const char* computePath)
+    void createShader(const char* computePath)
     {
+        if (path == "") {
+            path = computePath;
+        }
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string computeCode;
         std::ifstream cShaderFile;
@@ -70,6 +75,16 @@ public:
     void use()
     {
         glUseProgram(ID);
+    }
+    void reload() {
+        if (ID != 0) {
+            glDeleteProgram(ID);
+            ID = 0;
+        }
+
+        if (path != "") {
+            createShader(path.c_str());
+        }
     }
     // utility uniform functions
     // ------------------------------------------------------------------------
