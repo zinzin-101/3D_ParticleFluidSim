@@ -20,6 +20,7 @@ uniform float particleMass;
 uniform vec3 lightColor;
 uniform samplerCube skybox;
 uniform float isoLevel;
+uniform float surfaceSmoothingRadius;
 
 uniform float spacing;
 uniform uint tableSize;
@@ -86,6 +87,13 @@ float poly6Kernel(float r2, float h) {
     return (315.0 / (64.0 * PI * h9)) * diff * diff * diff;
 }
 
+vec3 spikyGradient(vec3 diff, float r, float h) {
+    if (r >= h || r < 0.0001) return vec3(0.0);
+    float hr = h - r;
+    float coeff = -45.0 / (PI * h*h*h*h*h*h);
+    return coeff * hr * hr * (diff / r);
+}
+
 float sampleDensityAt(vec3 pos) {
     float h = spacing;
     ivec3 centerCell = ivec3(floor(pos / spacing));
@@ -150,18 +158,20 @@ struct DensitySample {
 };
 
 DensitySample sampleDensityAndGradient(vec3 pos) {
-    float h = spacing;
+    float h = surfaceSmoothingRadius * spacing;
     float h2 = h * h;
     float coeff = 315.0 / (64.0 * PI * h2*h2*h2*h2*h);
     ivec3 centerCell = ivec3(floor(pos / spacing));
+
+    int cellRadius = int(ceil(surfaceSmoothingRadius));
 
     DensitySample result;
     result.density = 0.0;
     result.gradient = vec3(0.0);
 
-    for (int dx = -1; dx <= 1; dx++)
-    for (int dy = -1; dy <= 1; dy++)
-    for (int dz = -1; dz <= 1; dz++) {
+    for (int dx = -cellRadius; dx <= cellRadius; dx++)
+    for (int dy = -cellRadius; dy <= cellRadius; dy++)
+    for (int dz = -cellRadius; dz <= cellRadius; dz++) {
         ivec3 coord = centerCell + ivec3(dx, dy, dz);
         uint hash = coordToHash(coord);
         uint start = cellStart[hash];
@@ -177,7 +187,7 @@ DensitySample sampleDensityAndGradient(vec3 pos) {
 
             float diffTerm = h2 - r2;
             result.density += particleMass * coeff * diffTerm * diffTerm * diffTerm;
-            result.gradient += particleMass * (-6.0 * coeff * diffTerm * diffTerm) * diff;
+            result.gradient += particleMass * spikyGradient(diff, sqrt(r2), h);
         }
     }
     return result;
@@ -213,24 +223,40 @@ void main(){
     vec3 totalLight = vec3(0.0);
     float totalDensity = 0.0;
 
+    vec3 prevPos = pos;
+    float prevDensity = 0.0;
+
     for (uint i = 0; i < stepCount; i++){
         DensitySample ds = sampleDensityAndGradient(pos);
 
         if (!enteredFluid && ds.density > isoLevel) {
-            vec3 normal = normalize(-ds.gradient); // outward-facing
+            float t = (isoLevel - prevDensity) / (ds.density - prevDensity);
+            vec3 surfacePos = mix(prevPos, pos, clamp(t, 0.0, 1.0));
+
+            DensitySample surfaceSample = sampleDensityAndGradient(surfacePos);
+            vec3 grad = surfaceSample.gradient;
+            vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir; 
+
             surfaceReflectance = calculateReflectance(marchDir, normal, refractionIndexAir, refractionIndexFluid);
             reflectColor = texture(skybox, reflect(marchDir, normal)).rgb;
+            
             marchDir = refractRay(marchDir, normal, refractionIndexAir, refractionIndexFluid);
             enteredFluid = true;
         }
 
+        prevDensity = ds.density;
+        prevPos = pos;
+
         totalDensity += ds.density * stepSize;
         pos += marchDir * stepSize;
 
-        vec3 inLight = ds.density * stepSize * lightColor;
-        vec3 transmittance = exp(-lightColor * totalDensity);
+        vec3 inLight = ds.density * stepSize * vec3(1.0);
+        vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
         totalLight += inLight * transmittance;
     }
+
+    // tone mapping
+    totalLight = totalLight / (totalLight + vec3(1.0));
 
     vec3 finalColor = mix(totalLight, reflectColor, surfaceReflectance);
     FragColor = vec4(finalColor, clamp(totalDensity * densityMultiplier, 0.0, 1.0));

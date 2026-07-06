@@ -20,6 +20,7 @@ public:
 	float fluidRefractionIndex;
 	glm::vec3 lightColor;
 	float isoLevel;
+	float surfaceSmoothingRadius;
 
 	FluidRaymarcher();
 	void init();

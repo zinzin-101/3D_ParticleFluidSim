@@ -13,7 +13,8 @@ FluidRaymarcher::FluidRaymarcher() :
     airRefractionIndex(DEFAULT_AIR_REFRACTION_INDEX),
     fluidRefractionIndex(DEFAULT_FLUID_REFRACTION_INDEX),
     lightColor(DEFAULT_LIGHT_COLOR),
-    isoLevel(DEFAULT_ISO_LEVEL)
+    isoLevel(DEFAULT_ISO_LEVEL),
+    surfaceSmoothingRadius(DEFAULT_SURFACE_SMOOTHING_RADIUS)
 {}
  
 void FluidRaymarcher::init() {
@@ -91,6 +92,7 @@ void FluidRaymarcher::render(
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
     raymarchingShader.setInt("skybox", 1);
     raymarchingShader.setFloat("isoLevel", isoLevel);
+    raymarchingShader.setFloat("surfaceSmoothingRadius", surfaceSmoothingRadius);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

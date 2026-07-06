@@ -250,7 +250,7 @@ void GUIHandler::handleSettingsGUI() {
 
 	if (selectedRenderingModeIndex == FluidRenderer::RenderingMode::RAYMARCHING) {
 		static int raySteps = (int)renderer->getRaymarcher()->steps;
-		if (ImGui::SliderInt("steps", &raySteps, 10, 1000)) {
+		if (ImGui::SliderInt("steps", &raySteps, 10, 100)) {
 			renderer->getRaymarcher()->steps = (unsigned int)raySteps;
 		}
 		ImGui::SameLine();
@@ -267,6 +267,16 @@ void GUIHandler::handleSettingsGUI() {
 		if (ImGui::Button("Reset##lc")) {
 			renderer->getRaymarcher()->lightColor = FluidRaymarcherConfig::DEFAULT_LIGHT_COLOR;
 			color = renderer->getRaymarcher()->lightColor;
+		}
+
+		static float smoothingRadius = renderer->getRaymarcher()->surfaceSmoothingRadius;
+		if (ImGui::SliderFloat("Surface smoothing radius", &smoothingRadius, 0.01f, 5.0f, "%.2f")) {
+			renderer->getRaymarcher()->surfaceSmoothingRadius = smoothingRadius;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##ssr")) {
+			renderer->getRaymarcher()->surfaceSmoothingRadius = FluidRaymarcherConfig::DEFAULT_SURFACE_SMOOTHING_RADIUS;
+			smoothingRadius = renderer->getRaymarcher()->surfaceSmoothingRadius;
 		}
 
 		static float airInddex = renderer->getRaymarcher()->airRefractionIndex;
