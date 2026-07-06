@@ -250,57 +250,57 @@ void main(){
     int bounces = 0;
 
     for (uint i = 0; i < stepCount; i++){
-    DensitySample ds = sampleDensityAndGradient(pos);
-    bool aboveIso = ds.density > isoLevel;
+        DensitySample ds = sampleDensityAndGradient(pos);
+        bool aboveIso = ds.density > isoLevel;
 
-    if (aboveIso != inFluid && bounces < MAX_BOUNCES) {
-        float denom = ds.density - prevDensity;
-        float t = (abs(denom) > 1e-6) ? clamp((isoLevel - prevDensity) / denom, 0.0, 1.0) : 1.0;
-        vec3 surfacePos = mix(prevPos, pos, t);
+        if (aboveIso != inFluid && bounces < MAX_BOUNCES) {
+            float denom = ds.density - prevDensity;
+            float t = (abs(denom) > 1e-6) ? clamp((isoLevel - prevDensity) / denom, 0.0, 1.0) : 1.0;
+            vec3 surfacePos = mix(prevPos, pos, t);
 
-        DensitySample surfaceSample = sampleDensityAndGradient(surfacePos);
-        vec3 grad = surfaceSample.gradient;
-        vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir;
+            DensitySample surfaceSample = sampleDensityAndGradient(surfacePos);
+            vec3 grad = surfaceSample.gradient;
+            vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir;
 
-        float iorFrom = inFluid ? refractionIndexFluid : refractionIndexAir;
-        float iorTo   = inFluid ? refractionIndexAir   : refractionIndexFluid;
+            float iorFrom = inFluid ? refractionIndexFluid : refractionIndexAir;
+            float iorTo = inFluid ? refractionIndexAir   : refractionIndexFluid;
 
-        vec3 reflDir  = reflect(marchDir, normal);
-        vec3 refrDir  = refractRay(marchDir, normal, iorFrom, iorTo);
-        bool tir      = (refrDir == reflDir);
-        float reflectance = calculateReflectance(marchDir, normal, iorFrom, iorTo);
+            vec3 reflDir = reflect(marchDir, normal);
+            vec3 refrDir = refractRay(marchDir, normal, iorFrom, iorTo);
+            bool tir = (refrDir == reflDir);
+            float reflectance = calculateReflectance(marchDir, normal, iorFrom, iorTo);
 
-        if (!inFluid) {
-            surfaceReflectance = reflectance;
-            reflectColor = texture(skybox, reflDir).rgb;
-            marchDir = tir ? reflDir : refrDir;
-            inFluid = true;
-        } else {
-            if (tir) {
-                marchDir = reflDir;
+            if (!inFluid) {
+                surfaceReflectance = reflectance;
+                reflectColor = texture(skybox, reflDir).rgb;
+                marchDir = tir ? reflDir : refrDir;
                 inFluid = true;
             } else {
-                vec3 exitColor = texture(skybox, refrDir).rgb;
-                float combinedReflectance = surfaceReflectance + (1.0 - surfaceReflectance) * reflectance;
-                reflectColor = mix(exitColor, reflectColor, surfaceReflectance);
-                surfaceReflectance = combinedReflectance;
-                marchDir = refrDir;
-                inFluid = false;
+                if (tir) {
+                    marchDir = reflDir;
+                    inFluid = true;
+                } else {
+                    vec3 exitColor = texture(skybox, refrDir).rgb;
+                    float combinedReflectance = surfaceReflectance + (1.0 - surfaceReflectance) * reflectance;
+                    reflectColor = mix(exitColor, reflectColor, surfaceReflectance);
+                    surfaceReflectance = combinedReflectance;
+                    marchDir = refrDir;
+                    inFluid = false;
+                }
             }
+            bounces++;
         }
-        bounces++;
-    }
 
-    if (ds.density > isoLevel * 0.5) {
-        totalDensity += ds.density * stepSize;
-        vec3 inLight = ds.density * stepSize * vec3(1.0);
-        vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
-        totalLight += inLight * transmittance;
-    }
+        if (ds.density > isoLevel * 0.5) {
+            totalDensity += ds.density * stepSize;
+            vec3 inLight = ds.density * stepSize * vec3(1.0);
+            vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
+            totalLight += inLight * transmittance;
+        }
 
-    prevDensity = ds.density;
-    prevPos = pos;
-    pos += marchDir * stepSize;
+        prevDensity = ds.density;
+        prevPos = pos;
+        pos += marchDir * stepSize;
     }
 
     // tone mapping
