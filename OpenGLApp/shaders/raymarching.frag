@@ -87,6 +87,15 @@ float poly6Kernel(float r2, float h) {
     return (315.0 / (64.0 * PI * h9)) * diff * diff * diff;
 }
 
+vec3 poly6Gradient(vec3 diff, float r2, float h) {
+    if (r2 >= h * h) return vec3(0.0);
+    float h2 = h * h;
+    float diffTerm = h2 - r2;
+    float h9 = h2 * h2 * h2 * h2 * h;
+    float coeff = -945.0 / (32.0 * PI * h9); 
+    return coeff * diffTerm * diffTerm * diff;
+}
+
 vec3 spikyGradient(vec3 diff, float r, float h) {
     if (r >= h || r < 0.0001) return vec3(0.0);
     float hr = h - r;
@@ -126,6 +135,11 @@ uniform float refractionIndexFluid;
 vec3 refractRay(vec3 incident, vec3 normal, float indexA, float indexB) {
     float relIndex = indexA / indexB;
     float cosIn = -dot(incident, normal);
+    if (cosIn < 0.0) {
+        normal = -normal;
+        cosIn = -cosIn;
+    }
+
     float sinSqrAngle = relIndex * relIndex * (1.0 - cosIn * cosIn);
 
     if (sinSqrAngle >= 1.0) {
@@ -138,6 +152,11 @@ vec3 refractRay(vec3 incident, vec3 normal, float indexA, float indexB) {
 float calculateReflectance(vec3 incident, vec3 normal, float indexA, float indexB) {
     float refractRatio = indexA / indexB;
     float cosIn = -dot(incident, normal);
+    if (cosIn < 0.0) {
+        normal = -normal;
+        cosIn = -cosIn;
+    }
+
     float sinSqr = refractRatio * refractRatio * (1.0 - cosIn * cosIn);
 
     if (sinSqr >= 1.0) {
@@ -187,7 +206,7 @@ DensitySample sampleDensityAndGradient(vec3 pos) {
 
             float diffTerm = h2 - r2;
             result.density += particleMass * coeff * diffTerm * diffTerm * diffTerm;
-            result.gradient += particleMass * spikyGradient(diff, sqrt(r2), h);
+            result.gradient += particleMass * poly6Gradient(diff, r2, h);
         }
     }
     return result;
@@ -230,12 +249,14 @@ void main(){
         DensitySample ds = sampleDensityAndGradient(pos);
 
         if (!enteredFluid && ds.density > isoLevel) {
-            float t = (isoLevel - prevDensity) / (ds.density - prevDensity);
+            float denom = ds.density - prevDensity;
+            float t = (abs(denom) > 1e-6) ? (isoLevel - prevDensity) / denom : 1.0;
+
             vec3 surfacePos = mix(prevPos, pos, clamp(t, 0.0, 1.0));
 
             DensitySample surfaceSample = sampleDensityAndGradient(surfacePos);
             vec3 grad = surfaceSample.gradient;
-            vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir; 
+            vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir;  
 
             surfaceReflectance = calculateReflectance(marchDir, normal, refractionIndexAir, refractionIndexFluid);
             reflectColor = texture(skybox, reflect(marchDir, normal)).rgb;
@@ -244,15 +265,18 @@ void main(){
             enteredFluid = true;
         }
 
+
+        if (ds.density > isoLevel * 0.5){
+        //if (enteredFluid){
+            totalDensity += ds.density * stepSize;
+            vec3 inLight = ds.density * stepSize * vec3(1.0);
+            vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
+            totalLight += inLight * transmittance;
+        }
+
         prevDensity = ds.density;
         prevPos = pos;
-
-        totalDensity += ds.density * stepSize;
         pos += marchDir * stepSize;
-
-        vec3 inLight = ds.density * stepSize * vec3(1.0);
-        vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
-        totalLight += inLight * transmittance;
     }
 
     // tone mapping
@@ -272,4 +296,5 @@ void main(){
     //FragColor = vec4(1.0, 1.0, 1.0, totalDensity);
 
     //FragColor = vec4(rayDir * 0.5 + 0.5, 1.0);
+    
 }
