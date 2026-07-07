@@ -271,14 +271,14 @@ void GUIHandler::handleSettingsGUI() {
 			raySteps = (int)renderer->getRaymarcher()->steps;
 		}
 
-		glm::vec3 color = renderer->getRaymarcher()->lightColor;
-		if (ImGui::InputFloat3("Light color", &color[0])) {
-			renderer->getRaymarcher()->lightColor = color;
+		glm::vec3 color = renderer->getRaymarcher()->colorAbsorbtionCoefficient;
+		if (ImGui::InputFloat3("Color absorbtion coefficent", &color[0])) {
+			renderer->getRaymarcher()->colorAbsorbtionCoefficient = color;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Reset##lc")) {
-			renderer->getRaymarcher()->lightColor = FluidRaymarcherConfig::DEFAULT_LIGHT_COLOR;
-			color = renderer->getRaymarcher()->lightColor;
+			renderer->getRaymarcher()->colorAbsorbtionCoefficient = FluidRaymarcherConfig::DEFAULT_LIGHT_COLOR;
+			color = renderer->getRaymarcher()->colorAbsorbtionCoefficient;
 		}
 
 		static float smoothingRadius = renderer->getRaymarcher()->surfaceSmoothingRadius;

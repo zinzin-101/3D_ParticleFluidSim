@@ -13,7 +13,7 @@ FluidRaymarcher::FluidRaymarcher() :
     densityMultiplier(DEFAULT_DENSITY_MULTIPLIER),
     airRefractionIndex(DEFAULT_AIR_REFRACTION_INDEX),
     fluidRefractionIndex(DEFAULT_FLUID_REFRACTION_INDEX),
-    lightColor(DEFAULT_LIGHT_COLOR),
+    colorAbsorbtionCoefficient(DEFAULT_LIGHT_COLOR),
     isoLevel(DEFAULT_ISO_LEVEL),
     surfaceSmoothingRadius(DEFAULT_SURFACE_SMOOTHING_RADIUS)
 {}
@@ -123,7 +123,7 @@ void FluidRaymarcher::render(
     raymarchingShader.setFloat("spacing", simulation->smoothingRadius);
     raymarchingShader.setUInt("tableSize", 2 * simulation->numOfParticles);
 
-    raymarchingShader.setVec3("lightColor", lightColor);
+    raymarchingShader.setVec3("absorbtionCoefficient", colorAbsorbtionCoefficient);
     raymarchingShader.setFloat("refractionIndexAir", airRefractionIndex);
     raymarchingShader.setFloat("refractionIndexFluid", fluidRefractionIndex);
 

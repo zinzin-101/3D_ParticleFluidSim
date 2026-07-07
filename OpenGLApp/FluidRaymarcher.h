@@ -22,7 +22,7 @@ public:
 	float densityMultiplier;
 	float airRefractionIndex;
 	float fluidRefractionIndex;
-	glm::vec3 lightColor;
+	glm::vec3 colorAbsorbtionCoefficient;
 	float isoLevel;
 	float surfaceSmoothingRadius;
 

@@ -17,7 +17,7 @@ uniform uint stepCount;
 uniform float densityMultiplier;
 
 uniform float particleMass;
-uniform vec3 lightColor;
+uniform vec3 absorbtionCoefficient;
 uniform samplerCube skybox;
 uniform float isoLevel;
 uniform float surfaceSmoothingRadius;
@@ -294,7 +294,7 @@ void main(){
         if (ds.density > isoLevel * 0.5) {
             totalDensity += ds.density * stepSize;
             vec3 inLight = ds.density * stepSize * vec3(1.0);
-            vec3 transmittance = exp(-vec3(lightColor) * totalDensity);
+            vec3 transmittance = exp(-vec3(absorbtionCoefficient) * totalDensity);
             totalLight += inLight * transmittance;
         }
 

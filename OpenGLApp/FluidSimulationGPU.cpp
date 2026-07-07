@@ -184,6 +184,10 @@ void FluidSimulationGPU::initSimulation() {
 	initShaderBuffer<unsigned int>(ssboRadixTempValues, nullptr, numOfParticles);
 	unsigned int numBlocks = (numOfParticles + COMPUTE_SHADER_BLOCK_SIZE - 1) / COMPUTE_SHADER_BLOCK_SIZE;
 	initShaderBuffer<unsigned int>(ssboRadixHistograms, nullptr, numBlocks * RADIX_SORT_BUCKET_COUNT);
+
+	bindShaderBuffers();
+	createSpatialHashGrid(2 * numOfParticles, true);
+	computeDensities(FIXED_DT / (float)SIMULATION_STEPS);
 }
 
 void FluidSimulationGPU::bindShaderBuffers() {
