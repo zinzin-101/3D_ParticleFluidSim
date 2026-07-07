@@ -9,16 +9,17 @@ using namespace FluidSimulationConfig;
 FluidSimulation::DensityPair::DensityPair() : density(0.0f), nearDensity(0.0f) {}
 FluidSimulation::DensityPair::DensityPair(float density, float nearDensity) : density(density), nearDensity(nearDensity) {}
 
-FluidSimulation::FluidSimulation(): 
+FluidSimulation::FluidSimulation() :
     container(this),
     spatialHashGrid(DEFAULT_SMOOTHING_RADIUS, DEFAULT_NUMBER_OF_PARTICLES),
     accumulatedDeltaTime(0.0f),
-	numOfParticles(DEFAULT_NUMBER_OF_PARTICLES),
-	particleSpacing(DEFAULT_PARTICLE_SPACING),
-	gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE), 
-	particleRadius(DEFAULT_PARTICLE_RADIUS), 
+    numOfParticles(DEFAULT_NUMBER_OF_PARTICLES),
+    particleSpacing(DEFAULT_PARTICLE_SPACING),
+    gravitationalForce(DEFAULT_GRAVITATIONAL_FORCE),
+    particleRadius(DEFAULT_PARTICLE_RADIUS),
     particleMass(DEFAULT_PARTICLE_MASS),
-	pause(true),
+    pause(true),
+    timeScale(1.0f),
     smoothingRadius(DEFAULT_SMOOTHING_RADIUS),
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
@@ -360,7 +361,7 @@ void FluidSimulation::update(float dt) {
         n = MAX_SIMULATION_STEPS;
     }
 
-    updateSimulation(n, subStepDeltaTime);
+    updateSimulation(n, subStepDeltaTime * timeScale);
 
     //float avgspeed = 0.0f;
     //float maxspeed = 0.0f;

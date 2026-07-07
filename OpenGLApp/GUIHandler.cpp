@@ -132,6 +132,16 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		gravity = simulation->gravitationalForce;
 	}
 
+	static float timeScale = simulation->timeScale;
+	if (ImGui::SliderFloat("Time scale", &timeScale, 0.1f, 1.5f, "%.2f")) {
+		simulation->timeScale = timeScale;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Reset##ts")) {
+		simulation->timeScale = 1.0f;
+		timeScale = simulation->timeScale;
+	}
+
 	static bool resetGravityOnReset = false;
 	static bool resetContainerOnReset = false;
 	if (ImGui::Button("Reset Simulation")) {

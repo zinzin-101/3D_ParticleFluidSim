@@ -62,6 +62,7 @@ public:
 	float particleRadius;
 	float particleMass;
 	bool pause;
+	float timeScale;
 
 	float smoothingRadius;
 
