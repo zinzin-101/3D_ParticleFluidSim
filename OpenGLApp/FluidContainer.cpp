@@ -258,6 +258,18 @@ glm::vec3 FluidContainer::getCurrentRotation() const {
 	return currentRotation;
 }
 
+glm::mat3 FluidContainer::getCurrentBasis() const {
+	glm::vec3 right(planes[0].x, planes[0].y, planes[0].z);
+	glm::vec3 up(planes[2].x, planes[2].y, planes[2].z);
+	glm::vec3 forward(planes[4].x, planes[4].y, planes[4].z);
+
+	right = glm::normalize(right);
+	up = glm::normalize(up - right * glm::dot(up, right));
+	forward = glm::cross(right, up);
+
+	return glm::mat3(right, up, forward);
+}
+
 glm::vec4* FluidContainer::getPlanesData() {
 	return planes;
 }

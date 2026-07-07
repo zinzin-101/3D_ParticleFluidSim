@@ -1,0 +1,88 @@
+#version 450 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+
+layout(std430, binding = 0) buffer ParticlePositions { float positions[]; };
+layout(std430, binding = 3) buffer Densities { float densities[]; };
+layout(std430, binding = 8) buffer GridCellStart { uint cellStart[]; };
+layout(std430, binding = 9) buffer GridCellEnd { uint cellEnd[]; };
+
+layout(r16f, binding = 0) uniform writeonly image3D densityVolume;
+
+uniform vec3 containerOrigin;
+uniform vec3 containerSize;
+uniform mat3 containerRotation;
+uniform ivec3 containerResolution;
+
+uniform float surfaceSmoothingRadius;
+uniform float particleMass;
+uniform float spacing;
+uniform uint tableSize;
+
+const float PI = 3.14159265358979323846;
+
+int floatToIntCoord(float val) {
+    return int(floor(val / spacing));
+}
+
+uint coordToHash(ivec3 coord) {
+    int h = (coord.x * 92837111) ^ (coord.y * 689287499) ^ (coord.z * 283923481);
+    return uint(h & 0x7FFFFFFF) % tableSize;
+}
+
+vec3 getPositionVec3(uint id) {
+    uint base = id * 3;
+    return vec3(positions[base], positions[base+1], positions[base+2]);
+}
+
+ivec3 positionToCoord(vec3 p) {
+    return ivec3(
+        floatToIntCoord(p.x),
+        floatToIntCoord(p.y),
+        floatToIntCoord(p.z)
+    );
+}
+
+void main(){
+    ivec3 texel = ivec3(gl_GlobalInvocationID);
+
+    if (any(greaterThanEqual(texel, containerResolution))) return;
+
+    vec3 uvw = (vec3(texel) + 0.5) / vec3(containerResolution);
+    vec3 pos = containerOrigin + containerRotation * (uvw * containerSize);
+
+    // smoothing function
+    float h = surfaceSmoothingRadius * spacing;
+    float h2 = h * h;
+    float coeff = 315.0 / (64.0 * PI * h2*h2*h2*h2*h);
+
+    ivec3 centerCell = ivec3(floor(pos / spacing));
+    int cellRadius = int(ceil(surfaceSmoothingRadius));
+
+    float density = 0.0;
+    for (int dx = -cellRadius; dx <= cellRadius; dx++) {
+        for (int dy = -cellRadius; dy <= cellRadius; dy++) {
+            for (int dz = -cellRadius; dz <= cellRadius; dz++) {
+                ivec3 coord = centerCell + ivec3(dx, dy, dz);
+                uint hash = coordToHash(coord);
+                uint start = cellStart[hash];
+                uint end = cellEnd[hash];
+
+                for (uint i = start; i < end; i++){
+                    vec3 particlePos = getPositionVec3(i);
+                    if (positionToCoord(particlePos) != coord) continue; // skip wrong particles from hash collision
+
+                    vec3 diff = pos - particlePos;
+                    float r2 = dot(diff, diff);
+                    if (r2 >= h2) continue; // skip if distance > smoothing radius
+
+                    float term = h2 - r2;
+                    density += particleMass * coeff * term * term * term;
+                    //density += densities[i];
+                }
+            }
+        }
+    }
+
+    imageStore(densityVolume, texel, vec4(density, 0.0, 0.0, 0.0)); // save to texture
+}

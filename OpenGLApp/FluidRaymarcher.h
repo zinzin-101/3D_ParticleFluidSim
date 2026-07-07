@@ -1,6 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include <glad/glad.h>
+#include "ComputeShader.h"
 #include <shader.h>
 
 class FluidSimulation;
@@ -11,6 +12,9 @@ private:
 	GLuint quadVBO;
 	GLuint quadEBO;
 
+	GLuint densityVolume;
+
+	ComputeShader densityVolumeShader;
 	Shader raymarchingShader;
 
 public:
