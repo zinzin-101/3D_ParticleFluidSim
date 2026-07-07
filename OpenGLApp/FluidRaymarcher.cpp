@@ -62,9 +62,9 @@ void FluidRaymarcher::init() {
     glTexStorage3D(GL_TEXTURE_3D, 1, GL_R16F, DEFAULT_DENSITY_TEXTURE_RESOLUTION.x, DEFAULT_DENSITY_TEXTURE_RESOLUTION.y, DEFAULT_DENSITY_TEXTURE_RESOLUTION.z);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_BORDER);
     glBindImageTexture(0, densityVolume, 0, GL_TRUE, 0, GL_WRITE_ONLY, GL_R16F); // bind to compute shader
 }
 
@@ -103,6 +103,7 @@ void FluidRaymarcher::render(
     glm::ivec3 groups = (DEFAULT_DENSITY_TEXTURE_RESOLUTION + glm::ivec3(DENSITY_CALCULATION_GROUP_SIZE - 1)) / glm::ivec3(DENSITY_CALCULATION_GROUP_SIZE);
     glDispatchCompute(groups.x, groups.y, groups.z);
     glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 	raymarchingShader.use();
     glActiveTexture(GL_TEXTURE2);
