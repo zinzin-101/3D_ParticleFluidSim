@@ -259,6 +259,8 @@ void GUIHandler::handleSettingsGUI() {
 	}
 
 	if (selectedRenderingModeIndex == FluidRenderer::RenderingMode::RAYMARCHING) {
+		ImGui::Text("Raymarching settings:");
+
 		static int raySteps = (int)renderer->getRaymarcher()->steps;
 		if (ImGui::SliderInt("steps", &raySteps, 10, 500)) {
 			renderer->getRaymarcher()->steps = (unsigned int)raySteps;

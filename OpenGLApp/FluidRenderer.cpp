@@ -15,6 +15,7 @@ FluidRenderer::FluidRenderer() :
     renderingMode(RenderingMode::BASIC)
 {
     camera.farPlane = DEFAULT_RENDER_DISTANCE;
+    camera.transform.position = glm::vec3(0.0f, 0.0f, 40.0f);
 }
 
 void FluidRenderer::init() {
