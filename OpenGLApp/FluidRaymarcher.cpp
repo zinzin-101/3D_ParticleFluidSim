@@ -16,7 +16,8 @@ FluidRaymarcher::FluidRaymarcher() :
     colorAbsorbtionCoefficient(DEFAULT_LIGHT_COLOR),
     isoLevel(DEFAULT_ISO_LEVEL),
     isoThresholdMultiplier(DEFAULT_ISO_THRESHOLD_MULTIPLIER),
-    surfaceSmoothingRadius(DEFAULT_SURFACE_SMOOTHING_RADIUS)
+    surfaceSmoothingRadius(DEFAULT_SURFACE_SMOOTHING_RADIUS),
+    maxNumOfBounces(DEFAULT_MAX_NUM_OF_BOUNCES)
 {}
  
 void FluidRaymarcher::init() {
@@ -134,6 +135,7 @@ void FluidRaymarcher::render(
     raymarchingShader.setFloat("isoLevel", isoLevel);
     raymarchingShader.setFloat("isoThresholdMultiplier", isoThresholdMultiplier);
     raymarchingShader.setFloat("surfaceSmoothingRadius", surfaceSmoothingRadius);
+    raymarchingShader.setUInt("maxNumOfBounces", maxNumOfBounces);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

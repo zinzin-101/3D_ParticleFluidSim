@@ -16,4 +16,6 @@ namespace FluidRaymarcherConfig {
 
 	const glm::ivec3 DEFAULT_DENSITY_TEXTURE_RESOLUTION = glm::ivec3(64);
 	constexpr unsigned int DENSITY_CALCULATION_GROUP_SIZE = 8;
+
+	constexpr unsigned int DEFAULT_MAX_NUM_OF_BOUNCES = 4;
 }

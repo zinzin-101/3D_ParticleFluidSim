@@ -341,6 +341,16 @@ void GUIHandler::handleSettingsGUI() {
 			isoThresholdMultiplier = renderer->getRaymarcher()->isoThresholdMultiplier;
 		}
 
+		static int maxBounces = (int)renderer->getRaymarcher()->maxNumOfBounces;
+		if (ImGui::SliderInt("Max bounces", &maxBounces, 1, 20)) {
+			renderer->getRaymarcher()->maxNumOfBounces = (unsigned int)maxBounces;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##mb")) {
+			renderer->getRaymarcher()->maxNumOfBounces = FluidRaymarcherConfig::DEFAULT_MAX_NUM_OF_BOUNCES;
+			maxBounces = (int)renderer->getRaymarcher()->maxNumOfBounces;
+		}
+
 		if (ImGui::Button("Reload shader")) {
 			renderer->getRaymarcher()->reloadShader();
 		}

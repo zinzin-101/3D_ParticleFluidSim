@@ -26,6 +26,7 @@ public:
 	float isoLevel;
 	float isoThresholdMultiplier;
 	float surfaceSmoothingRadius;
+	unsigned int maxNumOfBounces;
 
 	FluidRaymarcher();
 	void init();

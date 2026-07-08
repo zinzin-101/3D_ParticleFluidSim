@@ -22,6 +22,7 @@ uniform samplerCube skybox;
 uniform float isoLevel;
 uniform float isoThresholdMultiplier;
 uniform float surfaceSmoothingRadius;
+uniform uint maxNumOfBounces;
 
 uniform float spacing;
 uniform uint tableSize;
@@ -218,7 +219,7 @@ void main(){
     float prevDensity = 0.0;
 
     bool inFluid = false;
-    const int MAX_BOUNCES = 4;
+    //const int MAX_BOUNCES = 4;
     int bounces = 0;
 
     //FragColor = vec4(vec3(sampleDensityAndGradient(pos).density / isoLevel), 1.0);
@@ -228,33 +229,42 @@ void main(){
         DensitySample ds = sampleDensityAndGradient(pos);
         bool aboveIso = ds.density > isoLevel;
 
-        if (aboveIso != inFluid && bounces < MAX_BOUNCES) {
+        if (aboveIso != inFluid && bounces < maxNumOfBounces) {
+
+            // calculate when the target iso is crossed between prev and current pos
             float denom = ds.density - prevDensity;
-            float t = (abs(denom) > 1e-6) ? clamp((isoLevel - prevDensity) / denom, 0.0, 1.0) : 1.0;
+            float t = 1.0; 
+            if (abs(denom) > 1e-6) {
+                float diff = isoLevel - prevDensity;
+                t = clamp(diff / denom, 0.0, 1.0);
+            } 
             vec3 surfacePos = mix(prevPos, pos, t);
 
+            // get normal from actual surface pos
             DensitySample surfaceSample = sampleDensityAndGradient(surfacePos);
             vec3 grad = surfaceSample.gradient;
-            vec3 normal = (dot(grad, grad) > 1e-8) ? normalize(-grad) : -marchDir;
+            vec3 normal = normalize(-grad);
 
+            // index of refraction
             float iorFrom = inFluid ? refractionIndexFluid : refractionIndexAir;
             float iorTo = inFluid ? refractionIndexAir   : refractionIndexFluid;
 
+            // get reflection and refraction direction
             vec3 reflDir = reflect(marchDir, normal);
             vec3 refrDir = refractRay(marchDir, normal, iorFrom, iorTo);
-            bool tir = (refrDir == reflDir);
-            float reflectance = calculateReflectance(marchDir, normal, iorFrom, iorTo);
+            bool tir = (refrDir == reflDir); // total internal reflection
+            float reflectance = calculateReflectance(marchDir, normal, iorFrom, iorTo); // [0, 1] fraction of light reflected
 
-            if (!inFluid) {
+            if (!inFluid) { // outside -> inside
                 surfaceReflectance = reflectance;
-                reflectColor = texture(skybox, reflDir).rgb;
+                reflectColor = texture(skybox, reflDir).rgb; // some amount from sky reflected
                 marchDir = tir ? reflDir : refrDir;
                 inFluid = true;
             } else {
-                if (tir) {
+                if (tir) { // inside -> inside
                     marchDir = reflDir;
                     inFluid = true;
-                } else {
+                } else { // inside -> outside
                     vec3 exitColor = texture(skybox, refrDir).rgb;
                     float combinedReflectance = surfaceReflectance + (1.0 - surfaceReflectance) * reflectance;
                     reflectColor = mix(exitColor, reflectColor, surfaceReflectance);
@@ -266,10 +276,11 @@ void main(){
             bounces++;
         }
 
-        if (ds.density > isoLevel * isoThresholdMultiplier) {
+        // volumetric scattering
+        if (ds.density > isoLevel * isoThresholdMultiplier) { // accumulate density into color if above threshold
             totalDensity += ds.density * stepSize;
-            vec3 inLight = ds.density * stepSize * vec3(1.0);
-            vec3 transmittance = exp(-vec3(absorbtionCoefficient) * totalDensity);
+            vec3 inLight = ds.density * stepSize * vec3(1.0); // incoming light fixed as white color
+            vec3 transmittance = exp(-vec3(absorbtionCoefficient) * totalDensity); // exponential decay
             totalLight += inLight * transmittance;
         }
 
@@ -281,7 +292,7 @@ void main(){
     // tone mapping
     totalLight = totalLight / (totalLight + vec3(1.0));
 
-    vec3 finalColor = mix(totalLight, reflectColor, surfaceReflectance);
+    vec3 finalColor = mix(totalLight, reflectColor, surfaceReflectance); // lerp between total light and reflected light
     FragColor = vec4(finalColor, clamp(totalDensity * densityMultiplier, 0.0, 1.0));
 
 
