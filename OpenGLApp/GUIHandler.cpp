@@ -232,6 +232,10 @@ void GUIHandler::handleSettingsGUI() {
 	FluidContainer* container = engine->getSimulation()->getContainer();
 
 	ImGui::Begin("Settings");
+	if (ImGui::Button("Toggle fullscreen")) {
+		engine->toggleFullScreen();
+	}
+
 	static float renderScale = renderer->renderScale;
 	if (ImGui::SliderFloat("Render scale", &renderScale, 0.01f, 2.0f, "%.2f")) {
 		renderer->renderScale = renderScale;
