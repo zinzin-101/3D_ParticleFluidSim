@@ -12,7 +12,8 @@ FluidRenderer::FluidRenderer() :
     showContainer(true),
     drawContainerAsOutline(true),
     showEnvMap(true),
-    renderingMode(RenderingMode::BASIC)
+    renderingMode(RenderingMode::BASIC),
+    backgroundColor(DEFAULT_BACKGROUND_COLOR)
 {
     camera.farPlane = DEFAULT_RENDER_DISTANCE;
     camera.transform.position = glm::vec3(0.0f, 0.0f, 40.0f);
@@ -73,6 +74,9 @@ void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
 }
 
 void FluidRenderer::render(FluidSimulation* simulation) {
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     if (showEnvMap) {
         cubeMapRenderer.draw(&camera);
     }

@@ -30,6 +30,7 @@ public:
 
 	bool showEnvMap;
 	RenderingMode renderingMode;
+	glm::vec3 backgroundColor;
 
 	FluidRenderer();
 	void init();

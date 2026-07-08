@@ -38,4 +38,6 @@ namespace FluidSimulationConfig {
 	constexpr unsigned int COMPUTE_SHADER_WORK_GROUP_SIZE = 256;
 	constexpr unsigned int COMPUTE_SHADER_BLOCK_SIZE = 256;
 	constexpr unsigned int RADIX_SORT_BUCKET_COUNT = 16;
+
+	const glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.1f);
 }

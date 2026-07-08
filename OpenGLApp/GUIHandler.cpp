@@ -356,6 +356,23 @@ void GUIHandler::handleSettingsGUI() {
 		}
 	}
 
+	static bool showEnvMap = renderer->showEnvMap;
+	if (ImGui::Checkbox("Show background", &showEnvMap)) {
+		renderer->showEnvMap = showEnvMap;
+	}
+
+	if (!showEnvMap) {
+		static glm::vec3 bg = renderer->backgroundColor;
+		if (ImGui::InputFloat3("Background color", &bg[0])) {
+			renderer->backgroundColor = bg;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##bgc")) {
+			renderer->backgroundColor = DEFAULT_BACKGROUND_COLOR;
+			bg = renderer->backgroundColor;
+		}
+	}
+
 	static bool showContainer = renderer->showContainer;
 	if (ImGui::Checkbox("Show container", &showContainer)) {
 		renderer->showContainer = showContainer;
