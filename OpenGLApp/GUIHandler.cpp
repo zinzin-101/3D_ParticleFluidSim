@@ -331,6 +331,16 @@ void GUIHandler::handleSettingsGUI() {
 			isoLevel = renderer->getRaymarcher()->isoLevel;
 		}
 
+		static float isoThresholdMultiplier = renderer->getRaymarcher()->isoThresholdMultiplier;
+		if (ImGui::SliderFloat("Iso threshold multiplier", &isoThresholdMultiplier, 0.01f, 5.0f, "%.2f")) {
+			renderer->getRaymarcher()->isoThresholdMultiplier = isoThresholdMultiplier;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset##itm")) {
+			renderer->getRaymarcher()->isoThresholdMultiplier = FluidRaymarcherConfig::DEFAULT_ISO_THRESHOLD_MULTIPLIER;
+			isoThresholdMultiplier = renderer->getRaymarcher()->isoThresholdMultiplier;
+		}
+
 		if (ImGui::Button("Reload shader")) {
 			renderer->getRaymarcher()->reloadShader();
 		}

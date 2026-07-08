@@ -20,6 +20,7 @@ uniform float particleMass;
 uniform vec3 absorbtionCoefficient;
 uniform samplerCube skybox;
 uniform float isoLevel;
+uniform float isoThresholdMultiplier;
 uniform float surfaceSmoothingRadius;
 
 uniform float spacing;
@@ -265,7 +266,7 @@ void main(){
             bounces++;
         }
 
-        if (ds.density > isoLevel * 0.5) {
+        if (ds.density > isoLevel * isoThresholdMultiplier) {
             totalDensity += ds.density * stepSize;
             vec3 inLight = ds.density * stepSize * vec3(1.0);
             vec3 transmittance = exp(-vec3(absorbtionCoefficient) * totalDensity);

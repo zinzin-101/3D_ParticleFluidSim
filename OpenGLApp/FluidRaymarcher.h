@@ -24,6 +24,7 @@ public:
 	float fluidRefractionIndex;
 	glm::vec3 colorAbsorbtionCoefficient;
 	float isoLevel;
+	float isoThresholdMultiplier;
 	float surfaceSmoothingRadius;
 
 	FluidRaymarcher();

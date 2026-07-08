@@ -10,6 +10,7 @@ namespace FluidRaymarcherConfig {
 	const glm::vec3 DEFAULT_LIGHT_COLOR = glm::vec3(2.0f, 0.5f, 0.0f);
 
 	constexpr float DEFAULT_ISO_LEVEL = 0.5f;
+	constexpr float DEFAULT_ISO_THRESHOLD_MULTIPLIER = 0.5f;
 
 	constexpr float DEFAULT_SURFACE_SMOOTHING_RADIUS = 2.0f;
 
