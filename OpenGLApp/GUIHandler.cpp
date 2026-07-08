@@ -361,7 +361,26 @@ void GUIHandler::handleSettingsGUI() {
 		renderer->showEnvMap = showEnvMap;
 	}
 
-	if (!showEnvMap) {
+	if (showEnvMap) {
+		CubeMapManager* cubeMapManager = renderer->getCubeMapManager();
+		static std::vector<std::string> envmapNames = cubeMapManager->getCubeMapTextureNames();
+		int currentEnvmapIndex = (int)cubeMapManager->getCurrentCubeMapIndex();
+		if (ImGui::Combo("Select background", &currentEnvmapIndex,
+			[](void* data, int idx) {
+				auto* vectorPtr = static_cast<std::vector<std::string>*>(data);
+				return (*vectorPtr)[idx].c_str();
+			},
+			&envmapNames, (int)envmapNames.size()))
+		{
+			cubeMapManager->setCubeMapIndex(currentEnvmapIndex);
+		}
+
+		if (ImGui::Button("Reload background")) {
+			cubeMapManager->reloadCubeMaps();
+			envmapNames = cubeMapManager->getCubeMapTextureNames();
+		}
+	}
+	else {
 		static glm::vec3 bg = renderer->backgroundColor;
 		if (ImGui::InputFloat3("Background color", &bg[0])) {
 			renderer->backgroundColor = bg;

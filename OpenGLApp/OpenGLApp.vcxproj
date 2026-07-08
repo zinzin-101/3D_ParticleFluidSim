@@ -145,6 +145,7 @@
     <ClCompile Include="..\includes\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\includes\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CubeMapManager.cpp" />
     <ClCompile Include="CubeMapRenderer.cpp" />
     <ClCompile Include="FluidContainer.cpp" />
     <ClCompile Include="FluidEngine.cpp" />
@@ -176,6 +177,8 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraConfig.h" />
     <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="CubeMapManager.h" />
+    <ClInclude Include="CubeMapManagerConfig.h" />
     <ClInclude Include="CubeMapRenderer.h" />
     <ClInclude Include="FluidContainer.h" />
     <ClInclude Include="FluidEngine.h" />

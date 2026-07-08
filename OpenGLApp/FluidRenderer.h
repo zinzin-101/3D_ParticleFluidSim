@@ -1,7 +1,7 @@
 #pragma once
 #include "Camera.h"
 #include "SphereRenderer.h"
-#include "CubeMapRenderer.h"
+#include "CubeMapManager.h"
 #include "FluidRaymarcher.h"
 #include <vector>
 
@@ -12,6 +12,7 @@ private:
 	Camera camera;
 	SphereRenderer sphereRenderer;
 	FluidRaymarcher raymarcher;
+	CubeMapManager cubeMapManager;
 	CubeMapRenderer cubeMapRenderer;
 
 	void renderBasic(FluidSimulation* simulation);
@@ -42,4 +43,5 @@ public:
 
 	Camera* getCamera();
 	FluidRaymarcher* getRaymarcher();
+	CubeMapManager* getCubeMapManager();
 };

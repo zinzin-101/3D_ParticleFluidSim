@@ -22,7 +22,7 @@ FluidRenderer::FluidRenderer() :
 void FluidRenderer::init() {
     sphereRenderer.init();
     raymarcher.init();
-    cubeMapRenderer.init("resources/env_map/skybox_2k.hdr");
+    cubeMapManager.init();
     //cubeMapRenderer.init("resources/env_map/studio_2k.hdr");
 }
 
@@ -62,7 +62,7 @@ void FluidRenderer::renderBasic(FluidSimulation* simulation) {
 void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
     raymarcher.render(
         simulation,
-        cubeMapRenderer.getCubeMapTexture(),
+        cubeMapManager.getCurrentCubeMapTexture(),
         &camera,
         glm::value_ptr(simulation->getContainer()->getPlanesData()[0]),
         renderScale, 
@@ -78,7 +78,7 @@ void FluidRenderer::render(FluidSimulation* simulation) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (showEnvMap) {
-        cubeMapRenderer.draw(&camera);
+        cubeMapManager.render(&camera);
     }
 
     switch (renderingMode) {
@@ -103,7 +103,7 @@ void FluidRenderer::cleanup(FluidSimulation* simulation) {
 
     raymarcher.clean();
 
-    cubeMapRenderer.clean();
+    cubeMapManager.clean();
 }
 
 void FluidRenderer::setRenderDistance(float distance) {
@@ -116,4 +116,8 @@ Camera* FluidRenderer::getCamera() {
 
 FluidRaymarcher* FluidRenderer::getRaymarcher() {
     return &raymarcher;
+}
+
+CubeMapManager* FluidRenderer::getCubeMapManager() {
+    return &cubeMapManager;
 }

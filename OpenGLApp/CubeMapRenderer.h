@@ -5,6 +5,8 @@
 
 class CubeMapRenderer {
 private:
+	std::string path;
+
 	GLuint hdrTexture;
 	GLuint cubeMapTexture;
 
@@ -18,9 +20,10 @@ private:
 
 public:
 	CubeMapRenderer();
-	void init(const std::string& texturePath);
+	bool init(const std::string& texturePath);
 	void draw(Camera* camera);
 	void clean();
 
+	std::string getTexturePath() const;
 	GLuint getCubeMapTexture() const;
 };

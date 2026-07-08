@@ -7,7 +7,9 @@
 
 CubeMapRenderer::CubeMapRenderer(): hdrTexture(0), cubeMapTexture(0), captureFBO(0), captureRBO(0), cubeVAO(0), cubeVBO(0) {}
 
-void CubeMapRenderer::init(const std::string& texturePath) {
+bool CubeMapRenderer::init(const std::string& texturePath) {
+    path = texturePath;
+
     // cube
     float vertices[] = {
         // back face
@@ -103,7 +105,10 @@ void CubeMapRenderer::init(const std::string& texturePath) {
     }
     else
     {
-        std::cout << "Failed to load HDR image." << std::endl;
+        std::cout << "Failed to load HDR image at: " << texturePath << std::endl;
+
+        clean();
+        return false;
     }
     
     // cube map shaders
@@ -162,6 +167,8 @@ void CubeMapRenderer::init(const std::string& texturePath) {
 
     glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
     glViewport(0, 0, (int)screenDimension.x, (int)screenDimension.y);
+
+    return true;
 }
 
 void CubeMapRenderer::draw(Camera* camera) {
@@ -213,6 +220,10 @@ void CubeMapRenderer::clean() {
     if (cubeVBO != 0) {
         glDeleteBuffers(1, &cubeVBO);
     }
+}
+
+std::string CubeMapRenderer::getTexturePath() const {
+    return path;
 }
 
 GLuint CubeMapRenderer::getCubeMapTexture() const {
