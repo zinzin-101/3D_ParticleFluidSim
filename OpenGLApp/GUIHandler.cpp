@@ -269,6 +269,11 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		if (ImGui::SliderFloat("Radius###oor", &radius, 0.5f, 20.0f)) {
 			simulation->setObstacleRadius((unsigned int)currentObstacleIndex, radius);
 		}
+
+		if (ImGui::Button("Remove current obstace")) {
+			simulation->removeObstacle((unsigned int)currentObstacleIndex);
+			currentObstacleIndex = 0;
+		}
 	}
 
 	if (ImGui::Button("Clear obstacles")) {

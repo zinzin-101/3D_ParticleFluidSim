@@ -78,7 +78,7 @@ void resolveObstacleCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocit
                 
                 if (!ignoreVelocity){
                     float normalSpeed = dot(vec3(0.0, 1.0, 0.0), vel);
-                    if (normalSpeed > 0.0)
+                    if (normalSpeed < 0.0)
                     vel -= vec3(0.0, 1.0, 0.0) * normalSpeed;
                 }
 
@@ -89,7 +89,7 @@ void resolveObstacleCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocit
 
             if (!ignoreVelocity){
                 float normalSpeed = dot(OP , vel);
-                if (normalSpeed > 0.0)
+                if (normalSpeed < 0.0)
                 vel -= OP * normalSpeed;
             }
         }
