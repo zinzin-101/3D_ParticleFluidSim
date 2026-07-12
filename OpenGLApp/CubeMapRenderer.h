@@ -20,7 +20,7 @@ private:
 
 public:
 	CubeMapRenderer();
-	bool init(const std::string& texturePath);
+	bool init(const std::string& texturePath, bool useExternalShader = false);
 	void draw(Camera* camera);
 	void clean();
 

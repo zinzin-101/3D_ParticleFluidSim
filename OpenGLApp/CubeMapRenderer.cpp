@@ -7,7 +7,7 @@
 
 CubeMapRenderer::CubeMapRenderer(): hdrTexture(0), cubeMapTexture(0), captureFBO(0), captureRBO(0), cubeVAO(0), cubeVBO(0) {}
 
-bool CubeMapRenderer::init(const std::string& texturePath) {
+bool CubeMapRenderer::init(const std::string& texturePath, bool useExternalShader) {
     path = texturePath;
 
     // cube
@@ -112,11 +112,14 @@ bool CubeMapRenderer::init(const std::string& texturePath) {
     }
     
     // cube map shaders
-    envMapShader.createShader("shaders/cube_map.vert", "shaders/cube_map.frag");
-    equirectangularToCubeMapShader.createShader("shaders/cube_map.vert", "shaders/equirectangular_to_cube_map.frag");
+    if (!useExternalShader) {
+        envMapShader.createShader("shaders/cube_map.vert", "shaders/cube_map.frag");
 
-    envMapShader.use();
-    envMapShader.setInt("envMap", 0);
+        envMapShader.use();
+        envMapShader.setInt("envMap", 0);
+    }
+
+    equirectangularToCubeMapShader.createShader("shaders/cube_map.vert", "shaders/equirectangular_to_cube_map.frag");
 
     // cube map texture
     glGenTextures(1, &cubeMapTexture);
@@ -168,11 +171,14 @@ bool CubeMapRenderer::init(const std::string& texturePath) {
     glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
     glViewport(0, 0, (int)screenDimension.x, (int)screenDimension.y);
 
+    glDeleteProgram(equirectangularToCubeMapShader.ID);
+    equirectangularToCubeMapShader.ID = 0;
+
     return true;
 }
 
 void CubeMapRenderer::draw(Camera* camera) {
-    if (camera != nullptr) {
+    if (camera != nullptr && envMapShader.ID != 0) {
         envMapShader.use();
 
         envMapShader.setMat4("projection", camera->getProjectionMatrix());

@@ -8,6 +8,10 @@ using namespace CubeMapManagerConfig;
 CubeMapManager::CubeMapManager(): currentCubeMapIndex(0) {}
 
 void CubeMapManager::init() {
+	envMapShader.createShader("shaders/cube_map.vert", "shaders/cube_map.frag");
+	envMapShader.use();
+	envMapShader.setInt("envMap", 0);
+
 	reloadCubeMaps();
 }
 
@@ -16,6 +20,15 @@ void CubeMapManager::render(Camera* camera) {
 		currentCubeMapIndex = 0;
 		return;
 	}
+
+	envMapShader.use();
+	envMapShader.setMat4("projection", camera->getProjectionMatrix());
+	envMapShader.setMat4("view", camera->getViewMatrix());
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, getCurrentCubeMapTexture());
+
+	glm::mat4 model(1.0f);
+	envMapShader.setMat4("model", model);
 
 	cubeMaps.at(currentCubeMapIndex).draw(camera);
 }
@@ -52,7 +65,7 @@ void CubeMapManager::reloadCubeMaps() {
 	unsigned int n = (unsigned int)paths.size();
 	cubeMaps.resize(n);
 	for (int i = n - 1; i >= 0; i--) {
-		bool success = cubeMaps[i].init(paths[i]);
+		bool success = cubeMaps[i].init(paths[i], true);
 		if (!success) {
 			cubeMaps.erase(cubeMaps.begin() + i);
 			paths.erase(paths.begin() + i);

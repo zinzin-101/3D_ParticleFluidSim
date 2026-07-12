@@ -7,6 +7,8 @@ private:
 	std::vector<CubeMapRenderer> cubeMaps;
 	unsigned int currentCubeMapIndex;
 
+	Shader envMapShader;
+
 public:
 	CubeMapManager();
 	void init();
