@@ -191,6 +191,11 @@ FluidEngine* FluidEngine::getInstance() {
 
 void FluidEngine::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
+
+	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));
+	if (engine != nullptr) {
+		engine->getRenderer()->updateViewport((GLsizei)width, (GLsizei)height);
+	}
 }
 
 void FluidEngine::mouseCallback(GLFWwindow* window, double xposIn, double yposIn) {

@@ -39,7 +39,8 @@ public:
 		GLuint positiionsSSBO,
 		GLuint densitiesSSBO, 
 		GLuint cellStartSSBO, 
-		GLuint cellEndSSBO
+		GLuint cellEndSSBO,
+		GLuint obstacleDepthTexture
 	);
 	void clean();
 

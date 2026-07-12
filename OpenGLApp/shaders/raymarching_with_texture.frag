@@ -185,8 +185,20 @@ DensitySample sampleDensityAndGradient(vec3 pos) {
     return result;
 }
 
+uniform sampler2D sceneDepth;
+uniform float nearPlane;
+uniform float farPlane;
+
+float linearizeDepth(float d) {
+    float ndc = d * 2.0 - 1.0;
+    return (2.0 * nearPlane * farPlane) / (farPlane + nearPlane - ndc * (farPlane - nearPlane));
+}
+
 void main(){
     vec2 uv = TexCoords;
+
+    float rawObstacleDepth = texture(sceneDepth, uv).r;
+    float obstacleDist = linearizeDepth(rawObstacleDepth);
 
     vec4 clipFar = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
     vec4 worldFar = invViewProj * clipFar;
@@ -207,6 +219,8 @@ void main(){
     float stepSize = distance(startPos, endPos) / float(stepCount);
 
     vec3 pos = startPos + dir * 0.001;
+    float traveledWorldDist = distance(camPos, startPosScreen);
+    float worldStepSize = stepSize * renderScale;
     vec3 marchDir = dir;
     bool enteredFluid = false;
     vec3 reflectColor = vec3(0.0);
@@ -226,6 +240,8 @@ void main(){
     //return;
 
     for (uint i = 0; i < stepCount; i++){
+        if (traveledWorldDist >= obstacleDist) break; 
+
         DensitySample ds = sampleDensityAndGradient(pos);
         bool aboveIso = ds.density > isoLevel;
 
@@ -287,6 +303,7 @@ void main(){
         prevDensity = ds.density;
         prevPos = pos;
         pos += marchDir * stepSize;
+        traveledWorldDist += worldStepSize;
     }
 
     // tone mapping

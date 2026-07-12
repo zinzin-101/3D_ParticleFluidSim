@@ -18,6 +18,12 @@ private:
 	void renderBasic(FluidSimulation* simulation);
 	void renderRaymarching(FluidSimulation* simulation);
 
+	GLuint obstacleDepthFBO;
+	GLuint obstacleDepthTexture;
+	GLsizei depthTextureWidth;
+	GLsizei depthTextureHeight;
+	void createObstacleRenderBuffer(GLsizei width, GLsizei height);
+	void renderObstaclesDepth(FluidSimulation* simulation);
 	void renderObstacles(FluidSimulation* simulation);
 
 public:
@@ -42,6 +48,8 @@ public:
 	void cleanup(FluidSimulation* simulation);
 
 	void setRenderDistance(float distance);
+
+	void updateViewport(GLsizei width, GLsizei height);
 
 	Camera* getCamera();
 	FluidRaymarcher* getRaymarcher();

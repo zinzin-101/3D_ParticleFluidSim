@@ -1,6 +1,7 @@
 #include "FluidRenderer.h"
 #include "FluidSimulation.h"
 #include "FluidSimulationConfig.h"
+#include "FluidEngine.h"
 #include "SphereRendererConfig.h"
 #include <stb_image.h>
 
@@ -8,6 +9,8 @@ using namespace FluidSimulationConfig;
 using namespace SphereRendererConfig;
 
 FluidRenderer::FluidRenderer() :
+    obstacleDepthFBO(0),
+    obstacleDepthTexture(0),
     renderScale(DEFAULT_RENDER_SCALE),
     showContainer(true),
     drawContainerAsOutline(true),
@@ -24,6 +27,9 @@ void FluidRenderer::init() {
     raymarcher.init();
     cubeMapManager.init();
     //cubeMapRenderer.init("resources/env_map/studio_2k.hdr");
+
+    glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+    createObstacleRenderBuffer((GLsizei)screenDimension.x, (GLsizei)screenDimension.y);
 }
 
 void FluidRenderer::update() {
@@ -69,8 +75,50 @@ void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
         simulation->getPositionsSSBO(),
         simulation->getDensitiesSSBO(), 
         simulation->getCellStartSSBO(), 
-        simulation->getCellEndSSBO()
+        simulation->getCellEndSSBO(),
+        obstacleDepthTexture
     );
+}
+
+void FluidRenderer::createObstacleRenderBuffer(GLsizei width, GLsizei height) {
+    depthTextureWidth = width;
+    depthTextureHeight = height;
+
+    glGenFramebuffers(1, &obstacleDepthFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, obstacleDepthFBO);
+
+    glGenTextures(1, &obstacleDepthTexture);
+    glBindTexture(GL_TEXTURE_2D, obstacleDepthTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, depthTextureWidth, depthTextureHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, obstacleDepthTexture, 0);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        throw std::runtime_error("Error when creating obstacle depth frame buffer");
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void FluidRenderer::renderObstaclesDepth(FluidSimulation* simulation) {
+    glBindFramebuffer(GL_FRAMEBUFFER, obstacleDepthFBO);
+    glViewport(0, 0, depthTextureWidth, depthTextureHeight);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    renderObstacles(simulation);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void FluidRenderer::renderObstacles(FluidSimulation* simulation) {
@@ -85,6 +133,11 @@ void FluidRenderer::renderObstacles(FluidSimulation* simulation) {
 }
 
 void FluidRenderer::render(FluidSimulation* simulation) {
+    // depth
+    renderObstaclesDepth(simulation);
+    glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+    glViewport(0, 0, (GLsizei)screenDimension.x, (GLsizei)screenDimension.y);
+
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -92,6 +145,9 @@ void FluidRenderer::render(FluidSimulation* simulation) {
     if (showEnvMap) {
         cubeMapManager.render(&camera);
     }
+
+    // obstacles
+    renderObstacles(simulation);
 
     // fluid
     switch (renderingMode) {
@@ -103,9 +159,6 @@ void FluidRenderer::render(FluidSimulation* simulation) {
             renderRaymarching(simulation);
             break;
     }
-
-    // obstacles
-    renderObstacles(simulation);
 
     // fluid container
     if (showContainer) {
@@ -121,10 +174,27 @@ void FluidRenderer::cleanup(FluidSimulation* simulation) {
     raymarcher.clean();
 
     cubeMapManager.clean();
+
+    if (obstacleDepthFBO != 0) {
+        glDeleteBuffers(1, &obstacleDepthFBO);
+    }
+
+    if (obstacleDepthTexture != 0) {
+        glDeleteTextures(1, &obstacleDepthTexture);
+    }
 }
 
 void FluidRenderer::setRenderDistance(float distance) {
     camera.farPlane = distance;
+}
+
+void FluidRenderer::updateViewport(GLsizei width, GLsizei height) {
+    if (width == depthTextureWidth && height == depthTextureHeight) return;
+
+    glDeleteTextures(1, &obstacleDepthTexture);
+    glDeleteFramebuffers(1, &obstacleDepthFBO);
+
+    createObstacleRenderBuffer(width, height);
 }
 
 Camera* FluidRenderer::getCamera() {

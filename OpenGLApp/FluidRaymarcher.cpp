@@ -78,14 +78,16 @@ void FluidRaymarcher::render(
     GLuint positionsSSBO, 
     GLuint densitiesSSBO, 
     GLuint cellStartSSBO, 
-    GLuint cellEndSSBO
+    GLuint cellEndSSBO,
+    GLuint obstacleDepthTexture
 ) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, densitiesSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, cellStartSSBO);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, cellEndSSBO);
 
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -136,6 +138,12 @@ void FluidRaymarcher::render(
     raymarchingShader.setFloat("isoThresholdMultiplier", isoThresholdMultiplier);
     raymarchingShader.setFloat("surfaceSmoothingRadius", surfaceSmoothingRadius);
     raymarchingShader.setUInt("maxNumOfBounces", maxNumOfBounces);
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, obstacleDepthTexture);
+    raymarchingShader.setInt("sceneDepth", 3);
+    raymarchingShader.setFloat("nearPlane", camera->nearPlane);
+    raymarchingShader.setFloat("farPlane", camera->farPlane);
 
     glBindVertexArray(quadVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
