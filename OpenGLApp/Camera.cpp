@@ -36,7 +36,7 @@ glm::mat4 Camera::getViewMatrix() const {
 }
 
 glm::mat4 Camera::getProjectionMatrix() const {
-	glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+	glm::ivec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
 	return glm::perspective(glm::radians(fov),
 		(float)screenDimension.x / (float)screenDimension.y,
 		nearPlane, farPlane);

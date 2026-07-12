@@ -168,7 +168,7 @@ bool CubeMapRenderer::init(const std::string& texturePath, bool useExternalShade
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+    glm::ivec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
     glViewport(0, 0, (int)screenDimension.x, (int)screenDimension.y);
 
     glDeleteProgram(equirectangularToCubeMapShader.ID);

@@ -28,7 +28,7 @@ void FluidRenderer::init() {
     cubeMapManager.init();
     //cubeMapRenderer.init("resources/env_map/studio_2k.hdr");
 
-    glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+    glm::ivec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
     createObstacleRenderBuffer((GLsizei)screenDimension.x, (GLsizei)screenDimension.y);
 }
 
@@ -135,7 +135,7 @@ void FluidRenderer::renderObstacles(FluidSimulation* simulation) {
 void FluidRenderer::render(FluidSimulation* simulation) {
     // depth
     renderObstaclesDepth(simulation);
-    glm::vec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
+    glm::ivec2 screenDimension = FluidEngine::getInstance()->getScreenDimension();
     glViewport(0, 0, (GLsizei)screenDimension.x, (GLsizei)screenDimension.y);
 
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);

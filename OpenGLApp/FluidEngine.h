@@ -22,7 +22,7 @@ private:
 	float deltaTime;
 	float lastTimeElapsed;
 
-	glm::vec2 screenDimension;
+	glm::ivec2 screenDimension;
 	bool isVSyncOn;
 
 	static FluidEngine* instance;
@@ -53,7 +53,7 @@ public:
 	FluidSimulation* getSimulation();
 	FluidRenderer* getRenderer();
 	Camera* getCamera();
-	glm::vec2 getScreenDimension() const;
+	glm::ivec2 getScreenDimension() const;
 	bool getIsVSyncOn() const;
 	float getDeltaTime() const;
 

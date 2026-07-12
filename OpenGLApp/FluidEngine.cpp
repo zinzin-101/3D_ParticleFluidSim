@@ -38,7 +38,7 @@ void FluidEngine::initWindow() {
 
 	GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 	const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-	screenDimension = glm::vec2(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
+	screenDimension = glm::ivec2(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
 
 	if (INIT_IN_FULL_SCREEN) {
 		screenDimension = glm::vec2(mode->width, mode->height);
@@ -173,7 +173,7 @@ Camera* FluidEngine::getCamera() {
 	return renderer.getCamera();
 }
 
-glm::vec2 FluidEngine::getScreenDimension() const {
+glm::ivec2 FluidEngine::getScreenDimension() const {
 	return screenDimension;
 }
 
