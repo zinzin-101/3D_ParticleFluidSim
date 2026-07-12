@@ -40,4 +40,7 @@ namespace FluidSimulationConfig {
 	constexpr unsigned int RADIX_SORT_BUCKET_COUNT = 16;
 
 	const glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.1f);
+
+	constexpr unsigned int MAX_NUMBER_OF_OBSTACLES = 16;
+	constexpr float DEFAULT_OBSTACLE_RADIUS = 5.0f;
 }

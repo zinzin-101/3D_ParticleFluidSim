@@ -63,6 +63,39 @@ void resolveCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity) {
     }
 }
 
+uniform vec3 obstaclePos[16];
+uniform float obstacleRadius[16];
+uniform uint obstacleNum;
+void resolveObstacleCollision(inout vec3 pos, inout vec3 vel, bool ignoreVelocity){
+    for (uint i = 0; i < obstacleNum; i++){
+        vec3 OP = pos - obstaclePos[i];
+        float dist = length(OP);
+        if (dist < obstacleRadius[i]){
+            OP = normalize(OP);
+
+            if (dist < 1e-6){
+                pos = obstaclePos[i] + obstacleRadius[i] * vec3(0.0, 1.0, 0.0);
+                
+                if (!ignoreVelocity){
+                    float normalSpeed = dot(vec3(0.0, 1.0, 0.0), vel);
+                    if (normalSpeed > 0.0)
+                    vel -= vec3(0.0, 1.0, 0.0) * normalSpeed;
+                }
+
+                continue;
+            }
+
+            pos = obstaclePos[i] + obstacleRadius[i] * OP;
+
+            if (!ignoreVelocity){
+                float normalSpeed = dot(OP , vel);
+                if (normalSpeed > 0.0)
+                vel -= OP * normalSpeed;
+            }
+        }
+    }
+}
+
 void main(){
     uint id = gl_GlobalInvocationID.x;
     if (id >= numberOfParticles) return;
@@ -71,6 +104,7 @@ void main(){
     vec3 pos = getPositionVec3(id);
     vec3 vel = (predictedPos - pos) / dt;
     pos = predictedPos;
+    resolveObstacleCollision(pos, vel, false);
     resolveCollision(pos, vel, false);
 
     setPosVec3(id, pos);

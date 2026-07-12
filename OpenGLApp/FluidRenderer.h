@@ -18,6 +18,8 @@ private:
 	void renderBasic(FluidSimulation* simulation);
 	void renderRaymarching(FluidSimulation* simulation);
 
+	void renderObstacles(FluidSimulation* simulation);
+
 public:
 	enum RenderingMode {
 		BASIC,

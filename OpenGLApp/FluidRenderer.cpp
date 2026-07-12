@@ -73,14 +73,27 @@ void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
     );
 }
 
+void FluidRenderer::renderObstacles(FluidSimulation* simulation) {
+    unsigned int n = simulation->getObstaclesCount();
+    for (unsigned int i = 0; i < n; i++) {
+        glm::mat4 model(1.0f);
+        model = glm::scale(model, glm::vec3(renderScale));
+        model = glm::translate(model, simulation->getObstaclePosition(i));
+        model = glm::scale(model, glm::vec3(simulation->getObstacleRadius(i)));
+        sphereRenderer.draw(&camera, model);
+    }
+}
+
 void FluidRenderer::render(FluidSimulation* simulation) {
     glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // cube map
     if (showEnvMap) {
         cubeMapManager.render(&camera);
     }
 
+    // fluid
     switch (renderingMode) {
         case RenderingMode::BASIC:
             renderBasic(simulation);
@@ -91,6 +104,10 @@ void FluidRenderer::render(FluidSimulation* simulation) {
             break;
     }
 
+    // obstacles
+    renderObstacles(simulation);
+
+    // fluid container
     if (showContainer) {
         FluidContainer* container = simulation->getContainer();
         container->visualize(&camera, renderScale, drawContainerAsOutline);

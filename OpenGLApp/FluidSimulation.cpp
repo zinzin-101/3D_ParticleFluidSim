@@ -3,6 +3,7 @@
 #include "FluidEngine.h"
 #include "Utility.h"
 #include <iostream>
+#include <exception>
 
 using namespace FluidSimulationConfig;
 
@@ -24,7 +25,8 @@ FluidSimulation::FluidSimulation() :
     targetDensity(DEFAULT_TARGET_DENSITY),
     pressureMultiplier(DEFAULT_PRESSURE_MULTIPLIER),
     nearPressureMultiplier(DEFAULT_NEAR_PRESSURE_MULTIPLIER),
-    viscosityMultiplier(DEFAULT_VISCOSITY)
+    viscosityMultiplier(DEFAULT_VISCOSITY),
+    obstaclesCount(0)
 { }
 
 unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity) {
@@ -116,6 +118,10 @@ void FluidSimulation::initSimulation() {
     nearDensities.resize(positions.size());
     predictedPositions.resize(positions.size());
     deltas.resize(positions.size());
+
+    obstaclePositions.resize(MAX_NUMBER_OF_OBSTACLES);
+    obstacleRadiuses.resize(MAX_NUMBER_OF_OBSTACLES);
+    obstaclesCount = 0;
 }
 
 void FluidSimulation::updateSimulation(unsigned int n, float dt) {
@@ -396,6 +402,69 @@ void FluidSimulation::reset() {
 	initSimulation();
     spatialHashGrid.reset(smoothingRadius, (int)positions.size());
     pause = true;
+}
+
+void FluidSimulation::addObstacle(glm::vec3 position, float radius) {
+    if (obstaclesCount >= MAX_NUMBER_OF_OBSTACLES) return;
+
+    obstaclePositions[obstaclesCount] = position;
+    obstacleRadiuses[obstaclesCount] = radius;
+
+    obstaclesCount++;
+}
+
+void FluidSimulation::removeObstacle(unsigned int index) {
+    if (obstaclesCount == 0) return;
+
+    obstaclesCount--;
+    for (unsigned int i = index; i < obstaclesCount; i++) {
+        obstaclePositions[i] = obstaclePositions[i + 1];
+        obstacleRadiuses[i] = obstacleRadiuses[i + 1];
+    }
+}
+
+glm::vec3 FluidSimulation::getObstaclePosition(unsigned int index) const {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    return obstaclePositions.at(index);
+}
+
+float FluidSimulation::getObstacleRadius(unsigned int index) const {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    return obstacleRadiuses.at(index);
+}
+
+const std::vector<glm::vec3>& FluidSimulation::getObstaclePositions() const {
+    return obstaclePositions;
+}
+
+const std::vector<float> FluidSimulation::getObstaclesRadiuses() const {
+    return obstacleRadiuses;
+}
+
+unsigned int FluidSimulation::getObstaclesCount() const {
+    return obstaclesCount;
+}
+
+void FluidSimulation::setObstaclePosition(unsigned int index, glm::vec3 position) {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    obstaclePositions[index] = position;
+}
+
+void FluidSimulation::setObstacleRadius(unsigned int index, float radius) {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    obstacleRadiuses[index] = radius;
 }
 
 FluidContainer* FluidSimulation::getContainer() {

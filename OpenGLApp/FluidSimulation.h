@@ -23,6 +23,10 @@ protected:
 	std::vector<glm::vec3> predictedPositions;
 	std::vector<glm::vec3> deltas;
 
+	std::vector<glm::vec3> obstaclePositions;
+	std::vector<float> obstacleRadiuses;
+	unsigned int obstaclesCount;
+
 	float accumulatedDeltaTime;
 
 	unsigned int addParticle(glm::vec3 position, glm::vec3 velocity = glm::vec3(0.0f));
@@ -77,6 +81,16 @@ public:
 	void update(float dt);
 
 	virtual void reset();
+
+	void addObstacle(glm::vec3 position, float radius);
+	void removeObstacle(unsigned int index);
+	void setObstaclePosition(unsigned int index, glm::vec3 position);
+	void setObstacleRadius(unsigned int index, float radius);
+	glm::vec3 getObstaclePosition(unsigned int index) const;
+	float getObstacleRadius(unsigned int index) const;
+	const std::vector<glm::vec3>& getObstaclePositions() const;
+	const std::vector<float> getObstaclesRadiuses() const;
+	unsigned int getObstaclesCount() const;
 
 	FluidContainer* getContainer();
 	const std::vector<glm::vec3>& getPositions() const;
