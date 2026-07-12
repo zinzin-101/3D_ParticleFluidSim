@@ -86,6 +86,7 @@ public:
 	void removeObstacle(unsigned int index);
 	void setObstaclePosition(unsigned int index, glm::vec3 position);
 	void setObstacleRadius(unsigned int index, float radius);
+	void clearObstacles();
 	glm::vec3 getObstaclePosition(unsigned int index) const;
 	float getObstacleRadius(unsigned int index) const;
 	const std::vector<glm::vec3>& getObstaclePositions() const;

@@ -27,7 +27,10 @@ FluidSimulation::FluidSimulation() :
     nearPressureMultiplier(DEFAULT_NEAR_PRESSURE_MULTIPLIER),
     viscosityMultiplier(DEFAULT_VISCOSITY),
     obstaclesCount(0)
-{ }
+{ 
+    obstaclePositions.resize(MAX_NUMBER_OF_OBSTACLES);
+    obstacleRadiuses.resize(MAX_NUMBER_OF_OBSTACLES);
+}
 
 unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity) {
     unsigned int index = (unsigned int)positions.size();
@@ -118,10 +121,6 @@ void FluidSimulation::initSimulation() {
     nearDensities.resize(positions.size());
     predictedPositions.resize(positions.size());
     deltas.resize(positions.size());
-
-    obstaclePositions.resize(MAX_NUMBER_OF_OBSTACLES);
-    obstacleRadiuses.resize(MAX_NUMBER_OF_OBSTACLES);
-    obstaclesCount = 0;
 }
 
 void FluidSimulation::updateSimulation(unsigned int n, float dt) {
@@ -465,6 +464,10 @@ void FluidSimulation::setObstacleRadius(unsigned int index, float radius) {
     }
 
     obstacleRadiuses[index] = radius;
+}
+
+void FluidSimulation::clearObstacles() {
+    obstaclesCount = 0;
 }
 
 FluidContainer* FluidSimulation::getContainer() {

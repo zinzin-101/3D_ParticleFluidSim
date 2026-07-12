@@ -225,11 +225,57 @@ void GUIHandler::handleSimulationSettingsGUI() {
 	}
 
 	static float obstacleRadius = DEFAULT_OBSTACLE_RADIUS;
+
 	if (ImGui::Button("Add Obstacle")) {
 		simulation->addObstacle(simulation->getContainer()->getCurrentPosition(), obstacleRadius);
 	}
 	ImGui::SameLine();
 	ImGui::InputFloat("###or", &obstacleRadius);
+
+	static const char* obstacleTags[] = { 
+		"Obstacle #1", 
+		"Obstacle #2",
+		"Obstacle #3",
+		"Obstacle #4",
+		"Obstacle #5",
+		"Obstacle #6",
+		"Obstacle #7",
+		"Obstacle #8",
+		"Obstacle #9",
+		"Obstacle #10",
+		"Obstacle #11",
+		"Obstacle #12",
+		"Obstacle #13",
+		"Obstacle #14",
+		"Obstacle #15",
+		"Obstacle #16",
+	};
+
+	static int currentObstacleIndex = 0;
+
+	unsigned int obstacleCount = simulation->getObstaclesCount();
+	if (obstacleCount > 0) {
+		ImGui::Combo("Select obstacle", &currentObstacleIndex, obstacleTags, (int)obstacleCount);
+		
+		static glm::vec3 translation = glm::vec3(0.0f);
+		if (ImGui::DragFloat3("Translate###op", &translation[0], 1.0f, 0.0f, 0.0f)) {
+			glm::vec3 pos = simulation->getObstaclePosition((unsigned int)currentObstacleIndex);
+			pos += translation * dt;
+			simulation->setObstaclePosition((unsigned int)currentObstacleIndex, pos);
+			translation = glm::vec3(0.0f);
+		}
+
+		float radius = simulation->getObstacleRadius((unsigned int)currentObstacleIndex);
+		if (ImGui::SliderFloat("Radius###oor", &radius, 0.5f, 20.0f)) {
+			simulation->setObstacleRadius((unsigned int)currentObstacleIndex, radius);
+		}
+	}
+
+	if (ImGui::Button("Clear obstacles")) {
+		currentObstacleIndex = 0;
+		simulation->clearObstacles();
+	}
+
 
 	ImGui::End();
 }
@@ -263,7 +309,7 @@ void GUIHandler::handleSettingsGUI() {
 		renderDistance = renderer->getCamera()->farPlane;
 	}
 
-	const char* renderingModeTexts[] = { "Basic", "Raymarching" };
+	static const char* renderingModeTexts[] = { "Basic", "Raymarching" };
 	static int selectedRenderingModeIndex = (int)renderer->renderingMode;
 	if (ImGui::Combo("Rendering mode", &selectedRenderingModeIndex, renderingModeTexts, IM_ARRAYSIZE(renderingModeTexts))) {
 		renderer->renderingMode = (FluidRenderer::RenderingMode)selectedRenderingModeIndex;
