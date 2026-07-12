@@ -28,6 +28,7 @@ public:
 	void scales(glm::vec3 scaling);
 	void rotates(float degrees, glm::vec3 axis);
 	void reset();
+	void reset(unsigned int numOfParticles, float particleSpacing);
 
 	void visualize(Camera* camera, float renderScale, bool drawAsOutline = false);
 

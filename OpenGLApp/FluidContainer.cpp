@@ -43,6 +43,12 @@ void FluidContainer::reset() {
 	currentPosition = DEFAULT_CUBE_CONTAINER_ORIGIN;
 }
 
+void FluidContainer::reset(unsigned int numOfParticles, float particleSpacing) {
+	reset();
+	float sideLength = (float)cbrt(numOfParticles) * particleSpacing * 0.33f;
+	scales(glm::vec3(sideLength));
+}
+
 bool FluidContainer::isInside(const glm::vec3& position, float radius) {
 	for (int i = 0; i < 6; i++) {
 		float h = glm::dot(glm::vec4(position, 1.0f), planes[i]);

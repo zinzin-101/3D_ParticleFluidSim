@@ -222,6 +222,7 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		simulation->numOfParticles = numOfParticles;
 		simulation->particleSpacing = spacing;
 		simulation->reset();
+		container->reset(simulation->numOfParticles, simulation->particleSpacing);
 	}
 
 	static float obstacleRadius = DEFAULT_OBSTACLE_RADIUS;
