@@ -45,7 +45,7 @@ void FluidContainer::reset() {
 
 void FluidContainer::reset(unsigned int numOfParticles, float particleSpacing) {
 	reset();
-	float sideLength = (float)cbrt(numOfParticles) * particleSpacing * 0.33f;
+	float sideLength = (float)cbrt(numOfParticles) * particleSpacing * 0.25f;
 	scales(glm::vec3(sideLength));
 }
 

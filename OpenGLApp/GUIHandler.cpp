@@ -226,9 +226,11 @@ void GUIHandler::handleSimulationSettingsGUI() {
 	}
 
 	static float obstacleRadius = DEFAULT_OBSTACLE_RADIUS;
+	static int currentObstacleIndex = 0;
 
 	if (ImGui::Button("Add Obstacle")) {
 		simulation->addObstacle(simulation->getContainer()->getCurrentPosition(), obstacleRadius);
+		currentObstacleIndex = simulation->getObstaclesCount() - 1;
 	}
 	ImGui::SameLine();
 	ImGui::InputFloat("###or", &obstacleRadius);
@@ -251,8 +253,6 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		"Obstacle #15",
 		"Obstacle #16",
 	};
-
-	static int currentObstacleIndex = 0;
 
 	unsigned int obstacleCount = simulation->getObstaclesCount();
 	if (obstacleCount > 0) {
