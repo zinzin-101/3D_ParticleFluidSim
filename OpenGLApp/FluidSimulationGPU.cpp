@@ -234,6 +234,8 @@ void FluidSimulationGPU::updateSimulation(unsigned int n, float dt) {
 		updatePositions(dt);
 	}
 
+	createSpatialHashGrid(tableSize, false);
+
 	bindShaderBuffers();
 	updateData();
 }
