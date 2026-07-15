@@ -365,7 +365,7 @@ void GUIHandler::handleSimulationSettingsGUI() {
 			simulation->setObstacleShouldTransformWithContainer((unsigned int)currentSelectedObstacleIndex, transformWithContainer);
 		}
 
-		if (ImGui::Button("Remove current obstace")) {
+		if (ImGui::Button("Remove current obstacle")) {
 			simulation->removeObstacle((unsigned int)currentSelectedObstacleIndex);
 			currentSelectedObstacleIndex = 0;
 		}
