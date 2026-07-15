@@ -25,6 +25,7 @@ protected:
 
 	std::vector<glm::vec3> obstaclePositions;
 	std::vector<float> obstacleRadiuses;
+	std::vector<bool> obstacleShouldTransformWithContainer;
 	unsigned int obstaclesCount;
 
 	float accumulatedDeltaTime;
@@ -86,11 +87,14 @@ public:
 	void removeObstacle(unsigned int index);
 	void setObstaclePosition(unsigned int index, glm::vec3 position);
 	void setObstacleRadius(unsigned int index, float radius);
+	void setObstacleShouldTransformWithContainer(unsigned int index, bool value);
 	void clearObstacles();
 	glm::vec3 getObstaclePosition(unsigned int index) const;
 	float getObstacleRadius(unsigned int index) const;
+	bool getObstacleShouldTransformWithContainer(unsigned int index) const;
 	const std::vector<glm::vec3>& getObstaclePositions() const;
-	const std::vector<float> getObstaclesRadiuses() const;
+	const std::vector<float>& getObstaclesRadiuses() const;
+	const std::vector<bool>& getAllObstacleShouldTransformWithContainer() const;
 	unsigned int getObstaclesCount() const;
 
 	FluidContainer* getContainer();

@@ -30,6 +30,7 @@ FluidSimulation::FluidSimulation() :
 { 
     obstaclePositions.resize(MAX_NUMBER_OF_OBSTACLES);
     obstacleRadiuses.resize(MAX_NUMBER_OF_OBSTACLES);
+    obstacleShouldTransformWithContainer.resize(MAX_NUMBER_OF_OBSTACLES);
 }
 
 unsigned int FluidSimulation::addParticle(glm::vec3 position, glm::vec3 velocity) {
@@ -408,6 +409,7 @@ void FluidSimulation::addObstacle(glm::vec3 position, float radius) {
 
     obstaclePositions[obstaclesCount] = position;
     obstacleRadiuses[obstaclesCount] = radius;
+    obstacleShouldTransformWithContainer[obstaclesCount] = DEFAULT_SHOULD_OBSTACLE_TRANSFORM_WITH_CONTAINER;
 
     obstaclesCount++;
 }
@@ -419,6 +421,7 @@ void FluidSimulation::removeObstacle(unsigned int index) {
     for (unsigned int i = index; i < obstaclesCount; i++) {
         obstaclePositions[i] = obstaclePositions[i + 1];
         obstacleRadiuses[i] = obstacleRadiuses[i + 1];
+        obstacleShouldTransformWithContainer[i] = obstacleShouldTransformWithContainer[i + 1];
     }
 }
 
@@ -438,12 +441,24 @@ float FluidSimulation::getObstacleRadius(unsigned int index) const {
     return obstacleRadiuses.at(index);
 }
 
+bool FluidSimulation::getObstacleShouldTransformWithContainer(unsigned int index) const {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    return obstacleShouldTransformWithContainer.at(index);
+}
+
 const std::vector<glm::vec3>& FluidSimulation::getObstaclePositions() const {
     return obstaclePositions;
 }
 
-const std::vector<float> FluidSimulation::getObstaclesRadiuses() const {
+const std::vector<float>& FluidSimulation::getObstaclesRadiuses() const {
     return obstacleRadiuses;
+}
+
+const std::vector<bool>& FluidSimulation::getAllObstacleShouldTransformWithContainer() const {
+    return obstacleShouldTransformWithContainer;
 }
 
 unsigned int FluidSimulation::getObstaclesCount() const {
@@ -464,6 +479,14 @@ void FluidSimulation::setObstacleRadius(unsigned int index, float radius) {
     }
 
     obstacleRadiuses[index] = radius;
+}
+
+void FluidSimulation::setObstacleShouldTransformWithContainer(unsigned int index, bool value) {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
+    obstacleShouldTransformWithContainer[index] = value;
 }
 
 void FluidSimulation::clearObstacles() {

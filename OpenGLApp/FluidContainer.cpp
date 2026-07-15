@@ -92,6 +92,16 @@ void FluidContainer::translates(glm::vec3 translation) {
 	}
 
 	currentPosition += translation;
+
+	// obstacle translations
+	unsigned int n = simulation->getObstaclesCount();
+	for (unsigned int i = 0; i < n; i++) {
+		if (simulation->getObstacleShouldTransformWithContainer(i)) {
+			glm::vec3 pos = simulation->getObstaclePosition(i);
+			pos += translation;
+			simulation->setObstaclePosition(i, pos);
+		}
+	}
 }
 
 void FluidContainer::scales(glm::vec3 scaling) {
@@ -127,6 +137,16 @@ void FluidContainer::scales(glm::vec3 scaling) {
 
 		currentScale.z += scaling.z;
 	}
+
+	// obstacle scaling
+	unsigned int n = simulation->getObstaclesCount();
+	for (unsigned int i = 0; i < n; i++) {
+		if (simulation->getObstacleShouldTransformWithContainer(i)) {
+			glm::vec3 pos = simulation->getObstaclePosition(i);
+			pos = ((pos - currentPosition) * ((currentScale) / (currentScale - scaling))) + currentPosition;
+			simulation->setObstaclePosition(i, pos);
+		}
+	}
 }
 
 void FluidContainer::rotates(float degrees, glm::vec3 axis) {
@@ -156,6 +176,16 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 	currentRotation.x += degrees * axis.x;
 	currentRotation.y += degrees * axis.y;
 	currentRotation.z += degrees * axis.z;
+
+	// obstacle rotation
+	unsigned int n = simulation->getObstaclesCount();
+	for (unsigned int i = 0; i < n; i++) {
+		if (simulation->getObstacleShouldTransformWithContainer(i)) {
+			glm::vec3 pos = simulation->getObstaclePosition(i);
+			pos = modelMatrix * glm::vec4(pos, 1.0f);
+			simulation->setObstaclePosition(i, pos);
+		}
+	}
 }
 
 void FluidContainer::visualize(Camera* camera, float renderScale, bool drawAsOutline) {

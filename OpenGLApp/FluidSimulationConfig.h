@@ -43,4 +43,5 @@ namespace FluidSimulationConfig {
 
 	constexpr unsigned int MAX_NUMBER_OF_OBSTACLES = 16;
 	constexpr float DEFAULT_OBSTACLE_RADIUS = 5.0f;
+	constexpr bool DEFAULT_SHOULD_OBSTACLE_TRANSFORM_WITH_CONTAINER = false;
 }

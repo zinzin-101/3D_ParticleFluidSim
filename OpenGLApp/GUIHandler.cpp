@@ -360,6 +360,11 @@ void GUIHandler::handleSimulationSettingsGUI() {
 			simulation->setObstacleRadius((unsigned int)currentSelectedObstacleIndex, radius);
 		}
 
+		bool transformWithContainer = simulation->getObstacleShouldTransformWithContainer((unsigned int)currentSelectedObstacleIndex);
+		if (ImGui::Checkbox("Transform with container", &transformWithContainer)) {
+			simulation->setObstacleShouldTransformWithContainer((unsigned int)currentSelectedObstacleIndex, transformWithContainer);
+		}
+
 		if (ImGui::Button("Remove current obstace")) {
 			simulation->removeObstacle((unsigned int)currentSelectedObstacleIndex);
 			currentSelectedObstacleIndex = 0;
