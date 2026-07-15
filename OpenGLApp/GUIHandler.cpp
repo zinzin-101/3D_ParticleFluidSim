@@ -177,20 +177,20 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		container->reset();
 	}
 	float dt = engine->getDeltaTime();
-	static float containerTranslation[3] = { 0.0f, 0.0f, 0.0f };
-	if (ImGui::DragFloat3("Translate", containerTranslation, 1.0f, 0.0f, 0.0f)) {
-		container->translates(glm::vec3(containerTranslation[0], containerTranslation[1], containerTranslation[2]) * dt);
-		containerTranslation[0] = containerTranslation[1] = containerTranslation[2] = 0.0f;
+	static glm::vec3 containerTranslation = glm::vec3(0.0f);
+	if (ImGui::DragFloat3("Translate", &containerTranslation.x, 1.0f, 0.0f, 0.0f)) {
+		container->translates(containerTranslation * dt);
+		containerTranslation = glm::vec3(0.0f);
 	}
 
-	static float containerScale[3] = { 0.0f, 0.0f, 0.0f };
-	if (ImGui::DragFloat3("Scale", containerScale, 1.0f, 0.0f, 0.0f)) {
-		container->scales(glm::vec3(containerScale[0], containerScale[1], containerScale[2]) * dt);
-		containerScale[0] = containerScale[1] = containerScale[2] = 0.0f;
+	static glm::vec3 containerScale = glm::vec3(0.0f);
+	if (ImGui::DragFloat3("Scale", &containerScale.x, 1.0f, 0.0f, 0.0f)) {
+		container->scales(containerScale * dt);
+		containerScale = glm::vec3(0.0f);
 	}
 
-	static float containerRotation[3] = { 0.0f, 0.0f, 0.0f };
-	if (ImGui::DragFloat3("Rotate", containerRotation, 1.0f, 0.0f, 0.0f)) {
+	static glm::vec3 containerRotation = glm::vec3(0.0f);
+	if (ImGui::DragFloat3("Rotate", &containerRotation.x, 1.0f, 0.0f, 0.0f)) {
 		if (std::abs(containerRotation[0]) > 0.01f) {
 			container->rotates(containerRotation[0], glm::vec3(1.0f, 0.0f, 0.0f) * dt);
 		}
@@ -200,7 +200,7 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		if (std::abs(containerRotation[2]) > 0.01f) {
 			container->rotates(containerRotation[2], glm::vec3(0.0f, 0.0f, 1.0f) * dt);
 		}
-		containerRotation[0] = containerRotation[1] = containerRotation[2] = 0.0f;
+		containerRotation = glm::vec3(0.0f);
 	}
 
 	ImGui::Text("Initial parameters");
