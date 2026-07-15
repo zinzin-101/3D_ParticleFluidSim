@@ -12,7 +12,7 @@
 using namespace FluidEngineConfig;
 using namespace FluidSimulationConfig;
 
-GUIHandler::GUIHandler(): engine(nullptr) {}
+GUIHandler::GUIHandler(): engine(nullptr), currentSelectedObstacleIndex(0) {}
 
 void GUIHandler::init(FluidEngine* engine) {
 	IMGUI_CHECKVERSION();
@@ -289,11 +289,11 @@ void GUIHandler::handleSimulationSettingsGUI() {
 	}
 
 	static float obstacleRadius = DEFAULT_OBSTACLE_RADIUS;
-	static int currentObstacleIndex = 0;
+	//static int currentObstacleIndex = 0;
 
 	if (ImGui::Button("Add Obstacle")) {
 		simulation->addObstacle(simulation->getContainer()->getCurrentPosition(), obstacleRadius);
-		currentObstacleIndex = simulation->getObstaclesCount() - 1;
+		currentSelectedObstacleIndex = simulation->getObstaclesCount() - 1;
 	}
 	ImGui::SameLine();
 	ImGui::InputFloat("###or", &obstacleRadius);
@@ -319,29 +319,55 @@ void GUIHandler::handleSimulationSettingsGUI() {
 
 	unsigned int obstacleCount = simulation->getObstaclesCount();
 	if (obstacleCount > 0) {
-		ImGui::Combo("Select obstacle", &currentObstacleIndex, obstacleTags, (int)obstacleCount);
-		
-		static glm::vec3 translation = glm::vec3(0.0f);
-		if (ImGui::DragFloat3("Translate###op", &translation[0], 1.0f, 0.0f, 0.0f)) {
-			glm::vec3 pos = simulation->getObstaclePosition((unsigned int)currentObstacleIndex);
-			pos += translation * dt;
-			simulation->setObstaclePosition((unsigned int)currentObstacleIndex, pos);
-			translation = glm::vec3(0.0f);
-		}
+		ImGui::Combo("Select obstacle", &currentSelectedObstacleIndex, obstacleTags, (int)obstacleCount);
 
-		float radius = simulation->getObstacleRadius((unsigned int)currentObstacleIndex);
+		static glm::vec3 translation = glm::vec3(0.0f);
+		glm::vec3 currentPos = simulation->getObstaclePosition((unsigned int)currentSelectedObstacleIndex);
+		ImGui::BeginGroup();
+		ImGui::Text("Translate"); ImGui::SameLine();
+		char fmtX[32], fmtY[32], fmtZ[32];
+		std::snprintf(fmtX, sizeof(fmtX), "X: %.2f", currentPos.x);
+		std::snprintf(fmtY, sizeof(fmtY), "Y: %.2f", currentPos.y);
+		std::snprintf(fmtZ, sizeof(fmtZ), "Z: %.2f", currentPos.z);
+		ImGui::SetNextItemWidth(90.0f);
+		if (ImGui::DragFloat("##TX###opX", &translation.x, 1.0f, 0.0f, 0.0f, fmtX)) {
+			glm::vec3 pos = simulation->getObstaclePosition((unsigned int)currentSelectedObstacleIndex);
+			pos.x += translation.x * dt;
+			simulation->setObstaclePosition((unsigned int)currentSelectedObstacleIndex, pos);
+			translation.x = 0.0f;
+		
+		}
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(90.0f);
+		if (ImGui::DragFloat("##TY###opY", &translation.y, 1.0f, 0.0f, 0.0f, fmtY)) {
+			glm::vec3 pos = simulation->getObstaclePosition((unsigned int)currentSelectedObstacleIndex);
+			pos.y += translation.y * dt;
+			simulation->setObstaclePosition((unsigned int)currentSelectedObstacleIndex, pos);
+			translation.y = 0.0f;
+		}
+		ImGui::SameLine(); 
+		ImGui::SetNextItemWidth(90.0f);
+		if (ImGui::DragFloat("##TZ###opZ", &translation.z, 1.0f, 0.0f, 0.0f, fmtZ)) {
+			glm::vec3 pos = simulation->getObstaclePosition((unsigned int)currentSelectedObstacleIndex);
+			pos.z += translation.z * dt;
+			simulation->setObstaclePosition((unsigned int)currentSelectedObstacleIndex, pos);
+			translation.z = 0.0f;
+		}
+		ImGui::EndGroup();
+
+		float radius = simulation->getObstacleRadius((unsigned int)currentSelectedObstacleIndex);
 		if (ImGui::SliderFloat("Radius###oor", &radius, 0.5f, 20.0f)) {
-			simulation->setObstacleRadius((unsigned int)currentObstacleIndex, radius);
+			simulation->setObstacleRadius((unsigned int)currentSelectedObstacleIndex, radius);
 		}
 
 		if (ImGui::Button("Remove current obstace")) {
-			simulation->removeObstacle((unsigned int)currentObstacleIndex);
-			currentObstacleIndex = 0;
+			simulation->removeObstacle((unsigned int)currentSelectedObstacleIndex);
+			currentSelectedObstacleIndex = 0;
 		}
 	}
 
 	if (ImGui::Button("Clear obstacles")) {
-		currentObstacleIndex = 0;
+		currentSelectedObstacleIndex = 0;
 		simulation->clearObstacles();
 	}
 
@@ -579,4 +605,8 @@ void GUIHandler::cleanup() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+int GUIHandler::getCurrentSelectedObstacleIndex() const {
+	return currentSelectedObstacleIndex;
 }

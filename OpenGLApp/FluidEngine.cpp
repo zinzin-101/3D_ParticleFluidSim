@@ -299,8 +299,7 @@ void FluidEngine::processInput(GLFWwindow* window) {
 		bool keyTDown = input.getKey(GLFW_KEY_T);
 		bool keyRDown = input.getKey(GLFW_KEY_R);
 		bool keyFDown = input.getKey(GLFW_KEY_F);
-		if ((keyTDown || keyRDown || keyFDown) && !input.getMouse(GLFW_MOUSE_BUTTON_RIGHT)) 
-		{
+		if ((keyTDown || keyRDown || keyFDown) && !input.getMouse(GLFW_MOUSE_BUTTON_RIGHT)) {
 			glm::vec3 forward = glm::normalize(camera->getFoward());
 			glm::vec3 right = glm::normalize(camera->getRight());
 			glm::vec3 up = glm::normalize(camera->getUp());
@@ -365,6 +364,24 @@ void FluidEngine::processInput(GLFWwindow* window) {
 
 				container->scales(scaling * FluidSimulationConfig::FIXED_DT);
 			}
+		}
+
+		// obstacle mouse control
+		FluidSimulation* simulation = engine->getSimulation();
+		if (simulation->getObstaclesCount() > 0 && input.getKey(GLFW_KEY_LEFT_CONTROL)) {
+			GUIHandler* gui = engine->getGUIHandler();
+			unsigned int obstacleIndex = (unsigned int)gui->getCurrentSelectedObstacleIndex();
+
+			glm::vec3 forward = glm::normalize(camera->getFoward());
+			glm::vec3 right = glm::normalize(camera->getRight());
+			glm::vec3 up = glm::normalize(camera->getUp());
+			glm::vec2 mouseOffset = input.getMouseOffset() * engine->mouseSensitivity * 100.0f;
+			float scrollOffset = input.getMouseScrollOffset() * engine->mouseScrollSensitivity;
+
+			glm::vec3 translation = right * mouseOffset.x + up * -mouseOffset.y + forward * scrollOffset;
+			glm::vec3 pos = simulation->getObstaclePosition(obstacleIndex);
+			pos += translation * FluidSimulationConfig::FIXED_DT;
+			simulation->setObstaclePosition(obstacleIndex, pos);
 		}
 
 		input.resetMouseScrollOffset();

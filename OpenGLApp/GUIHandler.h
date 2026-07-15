@@ -13,10 +13,14 @@ private:
 	void handleSimulationSettingsGUI();
 	void handleSettingsGUI();
 
+	int currentSelectedObstacleIndex;
+
 public:
 	GUIHandler();
 	void init(FluidEngine* engine);
 	void update();
 	void render();
 	void cleanup();
+
+	int getCurrentSelectedObstacleIndex() const;
 };
