@@ -177,31 +177,94 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		container->reset();
 	}
 	float dt = engine->getDeltaTime();
+
+	// container translation
 	static glm::vec3 containerTranslation = glm::vec3(0.0f);
-	if (ImGui::DragFloat3("Translate", &containerTranslation.x, 1.0f, 0.0f, 0.0f)) {
-		container->translates(containerTranslation * dt);
-		containerTranslation = glm::vec3(0.0f);
+	glm::vec3 containerPos = container->getCurrentPosition();
+	ImGui::BeginGroup();
+	ImGui::Text("Translate"); 
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(90.0f);
+	std::string formatX = "X: " + std::to_string(containerPos.x);
+	if (ImGui::DragFloat("##TX", &containerTranslation.x, 1.0f, 0.0f, 0.0f, formatX.c_str())) {
+		container->translates(glm::vec3(containerTranslation.x, 0.0f, 0.0f) * dt);
+		containerTranslation.x = 0.0f;
 	}
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(90.0f);
+	std::string formatY = "Y: " + std::to_string(containerPos.y);
+	if (ImGui::DragFloat("##TY", &containerTranslation.y, 1.0f, 0.0f, 0.0f, formatY.c_str())) {
+		container->translates(glm::vec3(0.0f, containerTranslation.y, 0.0f) * dt);
+		containerTranslation.y = 0.0f; 
+	}
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(90.0f);
+	std::string formatZ = "Z: " + std::to_string(containerPos.z);
+	if (ImGui::DragFloat("##TZ", &containerTranslation.z, 1.0f, 0.0f, 0.0f, formatZ.c_str())) {
+		container->translates(glm::vec3(0.0f, 0.0f, containerTranslation.z) * dt);
+		containerTranslation.z = 0.0f;
+	}
+	ImGui::EndGroup();
 
+	// container scale
 	static glm::vec3 containerScale = glm::vec3(0.0f);
-	if (ImGui::DragFloat3("Scale", &containerScale.x, 1.0f, 0.0f, 0.0f)) {
-		container->scales(containerScale * dt);
-		containerScale = glm::vec3(0.0f);
+	glm::vec3 currentScale = container->getCurrentScale();
+	ImGui::BeginGroup();
+	ImGui::Text("Scale"); 
+	ImGui::SameLine();
+	char scaleFmtX[32], scaleFmtY[32], scaleFmtZ[32];
+	std::snprintf(scaleFmtX, sizeof(scaleFmtX), "X: %.2f", currentScale.x);
+	std::snprintf(scaleFmtY, sizeof(scaleFmtY), "Y: %.2f", currentScale.y);
+	std::snprintf(scaleFmtZ, sizeof(scaleFmtZ), "Z: %.2f", currentScale.z);
+	ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##SX", &containerScale.x, 1.0f, 0.0f, 0.0f, scaleFmtX)) {
+		container->scales(glm::vec3(containerScale.x, 0.0f, 0.0f) * dt);
+		containerScale.x = 0.0f;
 	}
+	ImGui::SameLine(); ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##SY", &containerScale.y, 1.0f, 0.0f, 0.0f, scaleFmtY)) {
+		container->scales(glm::vec3(0.0f, containerScale.y, 0.0f) * dt);
+		containerScale.y = 0.0f;
+	}
+	ImGui::SameLine(); ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##SZ", &containerScale.z, 1.0f, 0.0f, 0.0f, scaleFmtZ)) {
+		container->scales(glm::vec3(0.0f, 0.0f, containerScale.z) * dt);
+		containerScale.z = 0.0f;
+	}
+	ImGui::EndGroup();
 
+	// container rotation
 	static glm::vec3 containerRotation = glm::vec3(0.0f);
-	if (ImGui::DragFloat3("Rotate", &containerRotation.x, 1.0f, 0.0f, 0.0f)) {
-		if (std::abs(containerRotation[0]) > 0.01f) {
-			container->rotates(containerRotation[0], glm::vec3(1.0f, 0.0f, 0.0f) * dt);
+	glm::vec3 currentRot = container->getCurrentRotation();
+	ImGui::BeginGroup();
+	ImGui::Text("Rotate"); 
+	ImGui::SameLine();
+	char rotFmtX[32], rotFmtY[32], rotFmtZ[32];
+	std::snprintf(rotFmtX, sizeof(rotFmtX), "X: %.1f", currentRot.x);
+	std::snprintf(rotFmtY, sizeof(rotFmtY), "Y: %.1f", currentRot.y);
+	std::snprintf(rotFmtZ, sizeof(rotFmtZ), "Z: %.1f", currentRot.z);
+	ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##RX", &containerRotation.x, 1.0f, 0.0f, 0.0f, rotFmtX)) {
+		if (std::abs(containerRotation.x) > 0.01f) {
+			container->rotates(containerRotation.x, glm::vec3(1.0f, 0.0f, 0.0f) * dt);
 		}
-		if (std::abs(containerRotation[1]) > 0.01f) {
-			container->rotates(containerRotation[1], glm::vec3(0.0f, 1.0f, 0.0f) * dt);
-		}
-		if (std::abs(containerRotation[2]) > 0.01f) {
-			container->rotates(containerRotation[2], glm::vec3(0.0f, 0.0f, 1.0f) * dt);
-		}
-		containerRotation = glm::vec3(0.0f);
+		containerRotation.x = 0.0f;
 	}
+	ImGui::SameLine(); ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##RY", &containerRotation.y, 1.0f, 0.0f, 0.0f, rotFmtY)) {
+		if (std::abs(containerRotation.y) > 0.01f) {
+			container->rotates(containerRotation.y, glm::vec3(0.0f, 1.0f, 0.0f) * dt);
+		}
+		containerRotation.y = 0.0f;
+	}
+	ImGui::SameLine(); ImGui::SetNextItemWidth(90.0f);
+	if (ImGui::DragFloat("##RZ", &containerRotation.z, 1.0f, 0.0f, 0.0f, rotFmtZ)) {
+		if (std::abs(containerRotation.z) > 0.01f) {
+			container->rotates(containerRotation.z, glm::vec3(0.0f, 0.0f, 1.0f) * dt);
+		}
+		containerRotation.z = 0.0f;
+	}
+	ImGui::EndGroup();
 
 	ImGui::Text("Initial parameters");
 	static int numOfParticles = (int)simulation->numOfParticles;

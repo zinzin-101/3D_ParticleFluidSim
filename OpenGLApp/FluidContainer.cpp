@@ -130,6 +130,7 @@ void FluidContainer::scales(glm::vec3 scaling) {
 }
 
 void FluidContainer::rotates(float degrees, glm::vec3 axis) {
+	axis = glm::normalize(axis);
 	float angle = glm::radians(degrees);
 	glm::mat4 identity(1.0f);
 	glm::mat4 translateToOrigin = glm::translate(identity, -currentPosition);
@@ -152,15 +153,9 @@ void FluidContainer::rotates(float degrees, glm::vec3 axis) {
 		planes[i] = rotatedPlane;
 	}
 
-	if (std::abs(axis.x) > 0.0f) {
-		currentRotation.x += degrees;
-	}
-	else if (std::abs(axis.y) > 0.0f) {
-		currentRotation.y += degrees;
-	}
-	else if (std::abs(axis.z) > 0.0f) {
-		currentRotation.z += degrees;
-	}
+	currentRotation.x += degrees * axis.x;
+	currentRotation.y += degrees * axis.y;
+	currentRotation.z += degrees * axis.z;
 }
 
 void FluidContainer::visualize(Camera* camera, float renderScale, bool drawAsOutline) {
