@@ -415,6 +415,10 @@ void FluidSimulation::addObstacle(glm::vec3 position, float radius) {
 }
 
 void FluidSimulation::removeObstacle(unsigned int index) {
+    if (index >= obstaclesCount) {
+        throw std::runtime_error("obstacle index greater than obstacle count");
+    }
+
     if (obstaclesCount == 0) return;
 
     obstaclesCount--;
