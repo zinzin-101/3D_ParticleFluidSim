@@ -95,6 +95,8 @@ void FluidRenderer::visualizeCubicContainer(Camera* camera, FluidContainer* cont
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
+    // maybe rendering a cube and transform it to match the container is easier? //
+
     static const int oppositePairs[6] = { 1, 0, 3, 2, 5, 4 };
     static const int adjacentPlanes[6][4] = {
         { 2, 3, 4, 5 },
