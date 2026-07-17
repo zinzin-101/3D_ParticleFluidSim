@@ -1,6 +1,5 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "PlaneRenderer.h"
 
 class FluidSimulation;
 
@@ -13,13 +12,10 @@ private:
 	glm::vec3 currentScale;
 	glm::vec3 currentPosition;
 
-	PlaneRenderer planeVisualizer;
-
 	glm::vec3 getClosestPointOnPlane(const glm::vec3& position, const glm::vec4& plane);
 
 
 public:
-	float planeOpacity;
 
 	FluidContainer(FluidSimulation* simulation);
 	bool isInside(const glm::vec3& position, float radius);
@@ -30,13 +26,10 @@ public:
 	void reset();
 	void reset(unsigned int numOfParticles, float particleSpacing);
 
-	void visualize(Camera* camera, float renderScale, bool drawAsOutline = false);
-
 	glm::vec3 getCurrentPosition() const;
 	glm::vec3 getCurrentScale() const;
 	glm::vec3 getCurrentRotation() const;
 	glm::mat3 getCurrentBasis() const;
 
 	glm::vec4* getPlanesData();
-	PlaneRenderer* getPlaneRenderer();
 };

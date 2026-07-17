@@ -3,17 +3,22 @@
 #include "FluidSimulationConfig.h"
 #include "FluidEngine.h"
 #include "SphereRendererConfig.h"
+#include "PlaneRendererConfig.h"
 #include <stb_image.h>
 
 using namespace FluidSimulationConfig;
 using namespace SphereRendererConfig;
+using namespace PlaneRendererConfig;
 
 FluidRenderer::FluidRenderer() :
     obstacleDepthFBO(0),
     obstacleDepthTexture(0),
+    depthTextureWidth(0),
+    depthTextureHeight(0),
     renderScale(DEFAULT_RENDER_SCALE),
     showContainer(true),
     drawContainerAsOutline(true),
+    planeOpacity(DEFAULT_PLANE_OPACITY),
     showEnvMap(true),
     renderingMode(RenderingMode::BASIC),
     backgroundColor(DEFAULT_BACKGROUND_COLOR)
@@ -78,6 +83,102 @@ void FluidRenderer::renderRaymarching(FluidSimulation* simulation) {
         simulation->getCellEndSSBO(),
         obstacleDepthTexture
     );
+}
+
+void FluidRenderer::visualizeCubicContainer(Camera* camera, FluidContainer* container, bool drawAsOutline) {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_FALSE);
+
+    if (drawAsOutline) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    static const int oppositePairs[6] = { 1, 0, 3, 2, 5, 4 };
+    static const int adjacentPlanes[6][4] = {
+        { 2, 3, 4, 5 },
+        { 2, 3, 4, 5 },
+        { 0, 1, 4, 5 },
+        { 0, 1, 4, 5 },
+        { 0, 1, 2, 3 },
+        { 0, 1, 2, 3 }
+    };
+
+    glm::vec4* planes = container->getPlanesData();
+    glm::vec3 currentPosition = container->getCurrentPosition();
+
+    for (int i = 0; i < 6; i++) {
+        glm::vec3 ni(planes[i].x, planes[i].y, planes[i].z);
+        float di = planes[i].w;
+
+        // find closest point on plane to currentPosition
+        float distToPlane = glm::dot(ni, currentPosition) + di;
+        glm::vec3 faceCenter = currentPosition - distToPlane * ni;
+
+        int a0 = adjacentPlanes[i][0];
+        int a1 = oppositePairs[a0];
+        int b0 = -1;
+        for (int j : adjacentPlanes[i]) {
+            if (j != a0 && j != a1) {
+                b0 = j;
+                break;
+            }
+        }
+
+        int b1 = 0;
+        if (b0 >= 0) {
+            b1 = oppositePairs[b0];
+        }
+
+        // solve the 4 actual corners of this face
+        // each corner is the intersection of face i + one from {a0,a1} + one from {b0,b1}
+        const int cornerCombos[4][2] = { {a0,b0},{a0,b1},{a1,b0},{a1,b1} };
+
+        glm::vec3 corners[4];
+        int validCount = 0;
+        for (auto& cc : cornerCombos) {
+            glm::vec3 nj(planes[cc[0]].x, planes[cc[0]].y, planes[cc[0]].z);
+            float dj = planes[cc[0]].w;
+            glm::vec3 nk(planes[cc[1]].x, planes[cc[1]].y, planes[cc[1]].z);
+            float dk = planes[cc[1]].w;
+
+            glm::mat3 M = glm::transpose(glm::mat3(ni, nj, nk));
+            float det = glm::determinant(M);
+            if (std::abs(det) < 1e-6f) continue;
+
+            corners[validCount++] = glm::inverse(M) * glm::vec3(-di, -dj, -dk);
+        }
+
+        if (validCount < 4) continue;
+
+        // derive tangentU and tangentV from actual face edge directions.
+        // corners[0] and corners[1] share the a0 plane  -> their edge is along the b-axis
+        // corners[0] and corners[2] share the b0 plane  -> their edge is along the a-axis
+        // Use these edges directly as the tangent frame so the bounding box is exact.
+        glm::vec3 edgeU = glm::normalize(corners[1] - corners[0]); // along b-pair edge
+        glm::vec3 edgeV = glm::normalize(corners[2] - corners[0]); // along a-pair edge
+
+        // distance between opposite edge pairs
+        float su = glm::length(corners[1] - corners[0]);
+        float sv = glm::length(corners[2] - corners[0]);
+
+        // center of face
+        glm::vec3 uvCenter = (corners[0] + corners[1] + corners[2] + corners[3]) * 0.25f;
+
+        glm::mat4 model(1.0f);
+        model[0] = glm::vec4(edgeU * su * renderScale, 0.0f);
+        model[1] = glm::vec4(edgeV * sv * renderScale, 0.0f);
+        model[2] = glm::vec4(ni, 0.0f);
+        model[3] = glm::vec4(uvCenter * renderScale, 1.0f);
+
+        planeVisualizer.draw(camera, planeOpacity, model, drawAsOutline);
+    }
+
+    //glDisable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glDepthMask(GL_TRUE);
 }
 
 void FluidRenderer::createObstacleRenderBuffer(GLsizei width, GLsizei height) {
@@ -162,14 +263,13 @@ void FluidRenderer::render(FluidSimulation* simulation) {
 
     // fluid container
     if (showContainer) {
-        FluidContainer* container = simulation->getContainer();
-        container->visualize(&camera, renderScale, drawContainerAsOutline);
+        visualizeCubicContainer(&camera, simulation->getContainer(), drawContainerAsOutline);
     }
 }
 
 void FluidRenderer::cleanup(FluidSimulation* simulation) {
     sphereRenderer.clean();
-    simulation->getContainer()->getPlaneRenderer()->clean();
+    planeVisualizer.clean();
 
     raymarcher.clean();
 

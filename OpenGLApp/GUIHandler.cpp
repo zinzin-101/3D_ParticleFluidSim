@@ -382,7 +382,6 @@ void GUIHandler::handleSimulationSettingsGUI() {
 
 void GUIHandler::handleSettingsGUI() {
 	FluidRenderer* renderer = engine->getRenderer();
-	FluidContainer* container = engine->getSimulation()->getContainer();
 
 	ImGui::Begin("Settings");
 	if (ImGui::Button("Toggle fullscreen")) {
@@ -561,10 +560,10 @@ void GUIHandler::handleSettingsGUI() {
 		}
 
 		if (!drawAsOutline) {
-			static float containerOpacity = container->planeOpacity;
+			static float containerOpacity = renderer->planeOpacity;
 			if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
-				container->planeOpacity = containerOpacity;
-				container->planeOpacity = containerOpacity;
+				renderer->planeOpacity = containerOpacity;
+				renderer->planeOpacity = containerOpacity;
 			}
 		}
 	}

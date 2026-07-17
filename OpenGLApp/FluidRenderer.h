@@ -1,11 +1,13 @@
 #pragma once
 #include "Camera.h"
 #include "SphereRenderer.h"
+#include "PlaneRenderer.h"
 #include "CubeMapManager.h"
 #include "FluidRaymarcher.h"
 #include <vector>
 
 class FluidSimulation;
+class FluidContainer;
 
 class FluidRenderer {
 private:
@@ -17,6 +19,9 @@ private:
 
 	void renderBasic(FluidSimulation* simulation);
 	void renderRaymarching(FluidSimulation* simulation);
+
+	PlaneRenderer planeVisualizer;
+	void visualizeCubicContainer(Camera* camera, FluidContainer* container, bool drawAsOutline = false);
 
 	GLuint obstacleDepthFBO;
 	GLuint obstacleDepthTexture;
@@ -36,6 +41,8 @@ public:
 
 	bool showContainer;
 	bool drawContainerAsOutline;
+
+	float planeOpacity;
 
 	bool showEnvMap;
 	RenderingMode renderingMode;
