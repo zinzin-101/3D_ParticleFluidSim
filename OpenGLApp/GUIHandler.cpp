@@ -560,10 +560,10 @@ void GUIHandler::handleSettingsGUI() {
 		}
 
 		if (!drawAsOutline) {
-			static float containerOpacity = renderer->planeOpacity;
+			static float containerOpacity = renderer->containerOpacity;
 			if (ImGui::SliderFloat("Container opacity", &containerOpacity, 0.001f, 1.0f, "%.2f")) {
-				renderer->planeOpacity = containerOpacity;
-				renderer->planeOpacity = containerOpacity;
+				renderer->containerOpacity = containerOpacity;
+				renderer->containerOpacity = containerOpacity;
 			}
 		}
 	}

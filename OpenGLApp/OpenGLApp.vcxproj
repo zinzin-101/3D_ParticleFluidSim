@@ -147,6 +147,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CubeMapManager.cpp" />
     <ClCompile Include="CubeMapRenderer.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="FluidContainer.cpp" />
     <ClCompile Include="FluidEngine.cpp" />
     <ClCompile Include="FluidRaymarcher.cpp" />
@@ -180,6 +181,8 @@
     <ClInclude Include="CubeMapManager.h" />
     <ClInclude Include="CubeMapManagerConfig.h" />
     <ClInclude Include="CubeMapRenderer.h" />
+    <ClInclude Include="CubeRenderer.h" />
+    <ClInclude Include="CubeRendererConfig.h" />
     <ClInclude Include="FluidContainer.h" />
     <ClInclude Include="FluidEngine.h" />
     <ClInclude Include="FluidEngineConfig.h" />
