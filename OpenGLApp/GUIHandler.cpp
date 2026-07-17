@@ -295,8 +295,6 @@ void GUIHandler::handleSimulationSettingsGUI() {
 		simulation->addObstacle(simulation->getContainer()->getCurrentPosition(), obstacleRadius);
 		currentSelectedObstacleIndex = simulation->getObstaclesCount() - 1;
 	}
-	ImGui::SameLine();
-	ImGui::InputFloat("###or", &obstacleRadius);
 
 	static const char* obstacleTags[] = { 
 		"Obstacle #1", 
