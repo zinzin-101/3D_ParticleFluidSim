@@ -431,7 +431,7 @@ void GUIHandler::handleSettingsGUI() {
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Reset##lc")) {
-			renderer->getRaymarcher()->colorAbsorbtionCoefficient = FluidRaymarcherConfig::DEFAULT_LIGHT_COLOR;
+			renderer->getRaymarcher()->colorAbsorbtionCoefficient = FluidRaymarcherConfig::DEFAULT_LIGHT_ABSORBTION_COEFFICIENT;
 			color = renderer->getRaymarcher()->colorAbsorbtionCoefficient;
 		}
 

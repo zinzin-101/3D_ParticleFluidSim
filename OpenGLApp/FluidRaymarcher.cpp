@@ -13,7 +13,7 @@ FluidRaymarcher::FluidRaymarcher() :
     densityMultiplier(DEFAULT_DENSITY_MULTIPLIER),
     airRefractionIndex(DEFAULT_AIR_REFRACTION_INDEX),
     fluidRefractionIndex(DEFAULT_FLUID_REFRACTION_INDEX),
-    colorAbsorbtionCoefficient(DEFAULT_LIGHT_COLOR),
+    colorAbsorbtionCoefficient(DEFAULT_LIGHT_ABSORBTION_COEFFICIENT),
     isoLevel(DEFAULT_ISO_LEVEL),
     isoThresholdMultiplier(DEFAULT_ISO_THRESHOLD_MULTIPLIER),
     surfaceSmoothingRadius(DEFAULT_SURFACE_SMOOTHING_RADIUS),

@@ -7,7 +7,7 @@ namespace FluidRaymarcherConfig {
 	constexpr float DEFAULT_AIR_REFRACTION_INDEX = 1.0003f;
 	constexpr float DEFAULT_FLUID_REFRACTION_INDEX = 1.33f; // water
 
-	const glm::vec3 DEFAULT_LIGHT_COLOR = glm::vec3(2.0f, 0.5f, 0.0f);
+	const glm::vec3 DEFAULT_LIGHT_ABSORBTION_COEFFICIENT = glm::vec3(2.0f, 1.0f, 0.0f);
 
 	constexpr float DEFAULT_ISO_LEVEL = 0.5f;
 	constexpr float DEFAULT_ISO_THRESHOLD_MULTIPLIER = 0.5f;
