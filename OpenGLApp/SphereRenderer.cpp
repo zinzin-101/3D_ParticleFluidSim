@@ -192,4 +192,8 @@ void SphereRenderer::clean() {
     if (sphereEBO != 0) {
         glDeleteBuffers(1, &sphereEBO);
     }
+
+    if (instanceVBO != 0) {
+        glDeleteBuffers(1, &instanceVBO);
+    }
 }
