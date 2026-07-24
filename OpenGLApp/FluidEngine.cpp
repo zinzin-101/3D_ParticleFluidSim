@@ -190,6 +190,10 @@ FluidEngine* FluidEngine::getInstance() {
 }
 
 void FluidEngine::frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
+	if (width <= 0 || height <= 0) {
+		return;
+	}
+
 	glViewport(0, 0, width, height);
 
 	FluidEngine* engine = static_cast<FluidEngine*>(glfwGetWindowUserPointer(window));

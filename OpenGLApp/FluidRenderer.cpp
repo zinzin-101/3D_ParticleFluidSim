@@ -112,6 +112,12 @@ void FluidRenderer::visualizeCubicContainer(Camera* camera, FluidContainer* cont
 }
 
 void FluidRenderer::createObstacleRenderBuffer(GLsizei width, GLsizei height) {
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+
+    if (width == depthTextureWidth && height == depthTextureHeight) return;
+
     depthTextureWidth = width;
     depthTextureHeight = height;
 
