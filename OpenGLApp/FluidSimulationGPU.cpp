@@ -417,9 +417,8 @@ void FluidSimulationGPU::updatePositions(float dt) {
 	updatePositionsShader.setFloat("dt", dt);
 	updatePositionsShader.setFloat("particleRadius", particleRadius);
 	glUniform4fv(glGetUniformLocation(updatePositionsShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
-	glUniform4fv(glGetUniformLocation(updateDeltasShader.ID, "planes"), 6, glm::value_ptr(container.getPlanesData()[0]));
-	glUniform3fv(glGetUniformLocation(updateDeltasShader.ID, "obstaclePos"), 16, glm::value_ptr(obstaclePositions[0]));
-	glUniform1fv(glGetUniformLocation(updateDeltasShader.ID, "obstacleRadius"), 16, obstacleRadiuses.data());
+	glUniform3fv(glGetUniformLocation(updatePositionsShader.ID, "obstaclePos"), 16, glm::value_ptr(obstaclePositions[0]));
+	glUniform1fv(glGetUniformLocation(updatePositionsShader.ID, "obstacleRadius"), 16, obstacleRadiuses.data());
 	updatePositionsShader.setUInt("obstacleNum", obstaclesCount);
 	dispatchCurrentShader(numOfParticles);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
