@@ -39,6 +39,10 @@ namespace FluidSimulationConfig {
 	constexpr unsigned int COMPUTE_SHADER_BLOCK_SIZE = 256;
 	constexpr unsigned int RADIX_SORT_BUCKET_COUNT = 16;
 
+	constexpr unsigned int MAX_BIT_SHIFTS = 20; // for particles num * 2 < 1,048,576 : use this to scale the simulation up to 500,000 particles
+	//constexpr unsigned int MAX_BIT_SHIFTS = 24; // for particles num * 2 < 16,777,216 : use this to scale the simulation up to 1 million particles
+	//constexpr unsigned int MAX_BIT_SHIFTS = 32; // maximum number of bits : only use when the simulation is optimized enough
+
 	const glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.1f);
 
 	constexpr unsigned int MAX_NUMBER_OF_OBSTACLES = 16;

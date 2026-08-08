@@ -317,7 +317,7 @@ void FluidSimulationGPU::runGPURadixSort(unsigned int numberOfParticles) {
 	GLuint currentDstKeys = ssboRadixTempKeys;
 	GLuint currentDstValues = ssboRadixTempValues;
 
-	for (unsigned int shift = 0; shift < 32; shift += 4) {
+	for (unsigned int shift = 0; shift < MAX_BIT_SHIFTS; shift += 4) {
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 16, currentSrcKeys);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 17, currentSrcValues);
 
