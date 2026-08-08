@@ -165,7 +165,7 @@ vec3 worldToUVW(vec3 pos) {
 float sampleDensityTex(vec3 pos) {
     vec3 uvw = worldToUVW(pos);
     if (any(lessThan(uvw, vec3(0.0))) || any(greaterThan(uvw, vec3(1.0)))) return 0.0;
-    return texture(densityVolume, uvw).r;
+    return textureLod(densityVolume, uvw, 0.0).r;
 }
 
 DensitySample sampleDensityAndGradient(vec3 pos) {
@@ -173,12 +173,12 @@ DensitySample sampleDensityAndGradient(vec3 pos) {
     vec3 texel = 1.0 / vec3(textureSize(densityVolume, 0));
 
     DensitySample result;
-    result.density = texture(densityVolume, uvw).r;
+    result.density = textureLod(densityVolume, uvw, 0.0).r;
 
-    // central differences in texture space, converted to world-space gradient
-    float dx = texture(densityVolume, uvw + vec3(texel.x, 0, 0)).r - texture(densityVolume, uvw - vec3(texel.x, 0, 0)).r;
-    float dy = texture(densityVolume, uvw + vec3(0, texel.y, 0)).r - texture(densityVolume, uvw - vec3(0, texel.y, 0)).r;
-    float dz = texture(densityVolume, uvw + vec3(0, 0, texel.z)).r - texture(densityVolume, uvw - vec3(0, 0, texel.z)).r;
+    // central differences in textureLod space, converted to world-space gradient
+    float dx = textureLod(densityVolume, uvw + vec3(texel.x, 0, 0), 0.0).r - textureLod(densityVolume, uvw - vec3(texel.x, 0, 0), 0.0).r;
+    float dy = textureLod(densityVolume, uvw + vec3(0, texel.y, 0), 0.0).r - textureLod(densityVolume, uvw - vec3(0, texel.y, 0), 0.0).r;
+    float dz = textureLod(densityVolume, uvw + vec3(0, 0, texel.z), 0.0).r - textureLod(densityVolume, uvw - vec3(0, 0, texel.z), 0.0).r;
 
     vec3 gradUVW = vec3(dx, dy, dz) / (2.0 * texel);
     result.gradient = volumeRotation * (gradUVW / volumeSize); 
@@ -197,7 +197,7 @@ float linearizeDepth(float d) {
 void main(){
     vec2 uv = TexCoords;
 
-    float rawObstacleDepth = texture(sceneDepth, uv).r;
+    float rawObstacleDepth = textureLod(sceneDepth, uv, 0.0).r;
     float obstacleDist = linearizeDepth(rawObstacleDepth);
 
     vec4 clipFar = vec4(uv * 2.0 - 1.0, 1.0, 1.0);
@@ -273,7 +273,7 @@ void main(){
 
             if (!inFluid) { // outside -> inside
                 surfaceReflectance = reflectance;
-                reflectColor = texture(skybox, reflDir).rgb; // some amount from sky reflected
+                reflectColor = textureLod(skybox, reflDir, 0.0).rgb; // some amount from sky reflected
                 marchDir = tir ? reflDir : refrDir;
                 inFluid = true;
             } else {
@@ -281,7 +281,7 @@ void main(){
                     marchDir = reflDir;
                     inFluid = true;
                 } else { // inside -> outside
-                    vec3 exitColor = texture(skybox, refrDir).rgb;
+                    vec3 exitColor = textureLod(skybox, refrDir, 0.0).rgb;
                     float combinedReflectance = surfaceReflectance + (1.0 - surfaceReflectance) * reflectance;
                     reflectColor = mix(exitColor, reflectColor, surfaceReflectance);
                     surfaceReflectance = combinedReflectance;
